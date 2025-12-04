@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: health_consultation_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: health_consultation_db
+      MYSQL_USER: healthuser
+      MYSQL_PASSWORD: password
+    ports:
+      - "3308:3308"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./prisma/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - health_consultation_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-ppassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Uncomment this if you want to include phpMyAdmin for database management
+  # phpmyadmin:
+  #   image: phpmyadmin:latest
+  #   container_name: health_consultation_phpmyadmin
+  #   restart: unless-stopped
+  #   environment:
+  #     PMA_HOST: mysql
+  #     PMA_PORT: 3306
+  #     PMA_USER: root
+  #     PMA_PASSWORD: password
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - mysql
+  #   networks:
+  #     - health_consultation_network
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  health_consultation_network:
+    driver: bridge

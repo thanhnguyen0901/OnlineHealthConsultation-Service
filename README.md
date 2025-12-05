@@ -69,6 +69,27 @@ Backend RESTful API for the Online Health Consultation System built with Node.js
 
 ## ⚡ Quick Start
 
+### Option 1: Using Docker (Recommended)
+
+```bash
+# Install dependencies
+npm install
+
+# Start MySQL database with Docker
+docker-compose up -d
+
+# Wait a few seconds for MySQL to start, then run migrations
+npx prisma migrate dev
+
+# Seed database with test data
+npx prisma db seed
+
+# Start development server
+npm run dev
+```
+
+### Option 2: Using Local MySQL
+
 ```bash
 # Install dependencies
 npm install
@@ -148,7 +169,48 @@ CORS_ORIGIN=http://localhost:5173
 
 ## 🗄️ Database Setup
 
-### Create Database
+### Option 1: Using Docker
+
+Docker Compose will automatically create and configure MySQL for you.
+
+```bash
+# Start MySQL container
+docker-compose up -d
+
+# Check container status
+docker-compose ps
+
+# View logs (optional)
+docker-compose logs -f mysql
+
+# Run migrations
+npx prisma migrate dev
+
+# Seed initial data
+npx prisma db seed
+```
+
+**Docker Commands:**
+```bash
+docker-compose up -d      # Start database
+docker-compose down       # Stop database
+docker-compose down -v    # Stop and remove data
+docker-compose logs mysql # View logs
+docker-compose restart    # Restart database
+```
+
+**Optional: phpMyAdmin**
+Uncomment the `phpmyadmin` section in `docker-compose.yml`, then:
+```bash
+docker-compose up -d
+```
+Access at http://localhost:8080 (user: `root`, password: `password`)
+
+### Option 2: Using Local MySQL
+
+If you prefer to use a local MySQL installation:
+
+#### Create Database
 
 ```sql
 CREATE DATABASE health_consultation_db 
@@ -156,24 +218,34 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 ```
 
-### Run Migrations
+#### Run Migrations
 
 ```bash
 npm run prisma:generate
 npm run prisma:migrate
 ```
 
-### Seed Initial Data
+#### Seed Initial Data
 
 ```bash
 npm run prisma:seed
 ```
 
-This creates:
-- 1 Admin account
-- 3 Doctor accounts (Cardiology, Dermatology, Pediatrics)
-- 2 Patient accounts
-- 5 Medical specialties
+### What Gets Created
+
+After running the seed command, you'll have:
+
+**5 Medical Specialties:**
+- Cardiology
+- Dermatology
+- Pediatrics
+- Orthopedics
+- General Medicine
+
+**6 User Accounts:**
+- 1 Admin
+- 3 Doctors (each with different specialties)
+- 2 Patients
 
 **All test accounts use password:** `password123`
 
@@ -460,30 +532,84 @@ Service/
 
 ## 🔐 Authentication & Authorization
 
-### JWT Flow
+## 🧪 Testing
 
-1. **Register/Login** → Receive access token + refresh token
-2. **Access Protected Routes** → Include `Authorization: Bearer <accessToken>`
-3. **Token Expires** → Use refresh token to get new tokens
-4. **Logout** → Revoke refresh token
+### Test Credentials (After Seeding)
 
-### Role-Based Access
+After running `npx prisma db seed`, use these accounts to test the application:
 
-- **PATIENT**: Can manage profile, ask questions, book appointments, rate doctors
-- **DOCTOR**: Can answer questions, manage appointments, update schedule
-- **ADMIN**: Full system access including user management and moderation
-
-### Token Configuration
-
-- **Access Token**: 30 minutes expiry
-- **Refresh Token**: 7 days expiry
-- Stored in database for revocation
+#### 👑 Admin Account
+```
+Email:    admin@healthconsult.com
+Password: password123
+```
+**Permissions:** Full system access, user management, moderation, reports
 
 ---
 
-## 🗃️ Database Schema
+#### 👨‍⚕️ Doctor Accounts
 
-### Main Tables
+**Dr. John Smith - Cardiology**
+```
+Email:    dr.smith@healthconsult.com
+Password: password123
+Specialty: Cardiology
+Experience: 15 years
+```
+
+### Quick Test with curl
+
+```bash
+# Health check
+curl http://localhost:4000/api/health
+
+# Login as Admin
+curl -X POST http://localhost:4000/api/auth/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"admin@healthconsult.com\",\"password\":\"password123\"}"
+
+# Login as Doctor
+curl -X POST http://localhost:4000/api/auth/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"dr.smith@healthconsult.com\",\"password\":\"password123\"}"
+
+# Login as Patient
+curl -X POST http://localhost:4000/api/auth/login ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"patient1@example.com\",\"password\":\"password123\"}"
+```il:    dr.lee@healthconsult.com
+Password: password123
+Specialty: Pediatrics
+Experience: 8 years
+```
+
+**Permissions:** Answer questions, manage appointments, update schedule
+
+---
+
+#### 👤 Patient Accounts
+
+**Alice Williams**
+```
+Email:    patient1@example.com
+Password: password123
+Gender:   Female
+DOB:      May 15, 1990
+Phone:    555-0101
+```
+
+**Bob Anderson**
+```
+Email:    patient2@example.com
+Password: password123
+Gender:   Male
+DOB:      August 20, 1985
+Phone:    555-0102
+```
+
+**Permissions:** Ask questions, book appointments, rate doctors
+
+--- Main Tables
 
 **Users & Profiles:**
 - `users` - Base user (email, password, role)
@@ -517,18 +643,34 @@ Service/
 
 **Admin:**
 ```
-Email: admin@healthconsult.com
-Password: password123
+## 🐛 Troubleshooting
+
+### Database Connection Failed
+
+**If using Docker:**
+```bash
+# Check if container is running
+docker-compose ps
+
+# View logs
+docker-compose logs mysql
+
+# Restart containers
+docker-compose restart
+
+# If still failing, recreate everything
+docker-compose down -v
+docker-compose up -d
 ```
 
-**Doctors:**
-```
-Dr. John Smith (Cardiology):     dr.smith@healthconsult.com
-Dr. Sarah Johnson (Dermatology): dr.johnson@healthconsult.com
-Dr. Michael Lee (Pediatrics):    dr.lee@healthconsult.com
-Password: password123
-```
-
+**If using local MySQL:**
+1. Check MySQL is running: `sc query MySQL80`
+2. Verify credentials in `.env`
+3. Ensure database exists:
+   ```sql
+   SHOW DATABASES;
+   ```
+4. Test connection: `mysql -u root -p`
 **Patients:**
 ```
 Alice Williams: patient1@example.com
@@ -594,16 +736,31 @@ curl -X POST http://localhost:4000/api/auth/login ^
    taskkill /PID <PID> /F
    ```
 
-### Prisma Client Not Found
+## 🔧 Available Scripts
 
-**Solution:**
+### Application Scripts
 ```bash
-npm run prisma:generate
+npm run dev              # Start dev server (hot reload)
+npm run build            # Build TypeScript → JavaScript
+npm start                # Run production build
 ```
 
-### PowerShell Script Errors
+### Database Scripts
+```bash
+npm run prisma:generate  # Generate Prisma Client
+npm run prisma:migrate   # Run database migrations
+npm run prisma:studio    # Open database GUI (localhost:5555)
+npm run prisma:seed      # Seed initial data
+```
 
-**Solution (Run as Administrator):**
+### Docker Scripts
+```bash
+docker-compose up -d          # Start MySQL container
+docker-compose down           # Stop containers
+docker-compose down -v        # Stop and remove volumes
+docker-compose logs -f mysql  # View MySQL logs
+docker-compose restart        # Restart containers
+docker-compose ps             # Check container status
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```

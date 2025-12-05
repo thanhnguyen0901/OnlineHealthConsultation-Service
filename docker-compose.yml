@@ -10,8 +10,9 @@ services:
       MYSQL_DATABASE: health_consultation_db
       MYSQL_USER: healthuser
       MYSQL_PASSWORD: password
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     ports:
-      - "3308:3308"
+      - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
       - ./prisma/init.sql:/docker-entrypoint-initdb.d/init.sql

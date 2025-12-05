@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed...');
+  console.log('Starting database seed...');
 
   // Create specialties
   console.log('Creating specialties...');
@@ -56,14 +56,14 @@ async function main() {
     }),
   ]);
 
-  console.log(`✅ Created ${specialties.length} specialties`);
+  console.log(`Created ${specialties.length} specialties`);
 
   // Hash password
   const passwordHash = await bcrypt.hash('password123', 10);
 
   // Create admin user
   console.log('Creating admin user...');
-  const admin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'admin@healthconsult.com' },
     update: {},
     create: {
@@ -74,11 +74,11 @@ async function main() {
       isActive: true,
     },
   });
-  console.log('✅ Admin user created');
+  console.log('Admin user created');
 
   // Create doctors
   console.log('Creating doctors...');
-  const doctor1 = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'dr.smith@healthconsult.com' },
     update: {},
     create: {
@@ -97,7 +97,7 @@ async function main() {
     },
   });
 
-  const doctor2 = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'dr.johnson@healthconsult.com' },
     update: {},
     create: {
@@ -116,7 +116,7 @@ async function main() {
     },
   });
 
-  const doctor3 = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'dr.lee@healthconsult.com' },
     update: {},
     create: {
@@ -135,11 +135,11 @@ async function main() {
     },
   });
 
-  console.log('✅ Created 3 doctors');
+  console.log('Created 3 doctors');
 
   // Create patients
   console.log('Creating patients...');
-  const patient1 = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'patient1@example.com' },
     update: {},
     create: {
@@ -159,7 +159,7 @@ async function main() {
     },
   });
 
-  const patient2 = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { email: 'patient2@example.com' },
     update: {},
     create: {
@@ -179,12 +179,12 @@ async function main() {
     },
   });
 
-  console.log('✅ Created 2 patients');
+  console.log('Created 2 patients');
 
   console.log('');
-  console.log('🎉 Database seed completed successfully!');
+  console.log('Database seed completed successfully!');
   console.log('');
-  console.log('📝 Test Credentials:');
+  console.log('Test Credentials:');
   console.log('');
   console.log('Admin:');
   console.log('  Email: admin@healthconsult.com');
@@ -213,7 +213,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error('❌ Error seeding database:', e);
+    console.error('Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {

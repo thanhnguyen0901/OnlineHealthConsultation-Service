@@ -8,7 +8,7 @@ export class ReportController {
    * Get overall statistics
    * GET /admin/stats
    */
-  getOverallStats = asyncHandler(async (req: Request, res: Response) => {
+  getOverallStats = asyncHandler(async (_req: Request, res: Response) => {
     const result = await reportService.getOverallStats();
     sendSuccess(res, result);
   });
@@ -43,7 +43,7 @@ export class ReportController {
    * Get general statistics
    * GET /reports/statistics
    */
-  getStatistics = asyncHandler(async (req: Request, res: Response) => {
+  getStatistics = asyncHandler(async (_req: Request, res: Response) => {
     const result = await reportService.getStatistics();
     sendSuccess(res, result);
   });
@@ -90,7 +90,7 @@ export class ReportController {
    * Get specialty distribution
    * GET /reports/specialty-distribution
    */
-  getSpecialtyDistribution = asyncHandler(async (req: Request, res: Response) => {
+  getSpecialtyDistribution = asyncHandler(async (_req: Request, res: Response) => {
     const result = await reportService.getSpecialtyDistribution();
     sendSuccess(res, result);
   });

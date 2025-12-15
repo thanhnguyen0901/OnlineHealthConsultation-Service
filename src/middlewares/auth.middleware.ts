@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken, TokenPayload } from '../utils/jwt';
 import { sendError } from '../utils/apiResponse';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 // Extend Express Request type to include user
 declare global {
@@ -24,7 +25,7 @@ export const authenticate = async (
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      sendError(res, 'No token provided', 401, 'UNAUTHORIZED');
+      sendError(res, 'No token provided', 401, ERROR_CODES.UNAUTHORIZED);
       return;
     }
 
@@ -36,11 +37,11 @@ export const authenticate = async (
       req.user = payload;
       next();
     } catch (error) {
-      sendError(res, 'Invalid or expired token', 401, 'UNAUTHORIZED');
+      sendError(res, 'Invalid or expired token', 401, ERROR_CODES.UNAUTHORIZED);
       return;
     }
   } catch (error) {
-    sendError(res, 'Authentication failed', 401, 'UNAUTHORIZED');
+    sendError(res, 'Authentication failed', 401, ERROR_CODES.UNAUTHORIZED);
     return;
   }
 };

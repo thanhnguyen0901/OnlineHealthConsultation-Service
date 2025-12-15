@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { z, ZodSchema } from 'zod';
 import { sendError } from '../utils/apiResponse';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 /**
  * Middleware factory to validate request body, query, or params using Zod schema
@@ -34,7 +35,7 @@ export const validate = (schema: {
           path: e.path.join('.'),
           message: e.message,
         }));
-        sendError(res, 'Validation failed', 400, 'VALIDATION_ERROR', details);
+        sendError(res, 'Validation failed', 400, ERROR_CODES.VALIDATION_ERROR, details);
         return;
       }
       next(error);

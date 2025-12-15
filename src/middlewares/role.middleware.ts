@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendError } from '../utils/apiResponse';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 /**
  * Middleware factory to check if user has required role
@@ -7,7 +8,7 @@ import { sendError } from '../utils/apiResponse';
 export const requireRole = (allowedRoles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      sendError(res, 'Authentication required', 401, 'UNAUTHORIZED');
+      sendError(res, 'Authentication required', 401, ERROR_CODES.UNAUTHORIZED);
       return;
     }
 
@@ -16,7 +17,7 @@ export const requireRole = (allowedRoles: string[]) => {
         res,
         'You do not have permission to access this resource',
         403,
-        'FORBIDDEN'
+        ERROR_CODES.FORBIDDEN
       );
       return;
     }

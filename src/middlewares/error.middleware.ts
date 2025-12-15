@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { ZodError } from 'zod';
 import { sendError } from '../utils/apiResponse';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 /**
  * Custom error class for application errors
@@ -23,12 +24,20 @@ export class AppError extends Error {
  */
 export const errorHandler = (
   err: Error | AppError | ZodError,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
-  // Log error for debugging
-  console.error('Error:', err);
+  // Log error for debugging (in production, use proper logging service)
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Error:', err);
+  } else {
+    console.error('Error:', {
+      name: err.name,
+      message: err.message,
+      ...(err instanceof AppError && { code: err.code }),
+    });
+  }
 
   // Handle Zod validation errors
   if (err instanceof ZodError) {
@@ -36,7 +45,7 @@ export const errorHandler = (
       path: e.path.join('.'),
       message: e.message,
     }));
-    sendError(res, 'Validation failed', 400, 'VALIDATION_ERROR', details);
+    sendError(res, 'Validation failed', 400, ERROR_CODES.VALIDATION_ERROR, details);
     return;
   }
 
@@ -50,23 +59,23 @@ export const errorHandler = (
   if (err.name === 'PrismaClientKnownRequestError') {
     const prismaError = err as any;
     if (prismaError.code === 'P2002') {
-      sendError(res, 'A record with this unique field already exists', 409, 'DUPLICATE_ENTRY');
+      sendError(res, 'A record with this unique field already exists', 409, ERROR_CODES.DUPLICATE_ENTRY);
       return;
     }
     if (prismaError.code === 'P2025') {
-      sendError(res, 'Record not found', 404, 'NOT_FOUND');
+      sendError(res, 'Record not found', 404, ERROR_CODES.NOT_FOUND);
       return;
     }
   }
 
   // Handle JWT errors
   if (err.name === 'JsonWebTokenError') {
-    sendError(res, 'Invalid token', 401, 'INVALID_TOKEN');
+    sendError(res, 'Invalid token', 401, ERROR_CODES.INVALID_TOKEN);
     return;
   }
 
   if (err.name === 'TokenExpiredError') {
-    sendError(res, 'Token expired', 401, 'TOKEN_EXPIRED');
+    sendError(res, 'Token expired', 401, ERROR_CODES.TOKEN_EXPIRED);
     return;
   }
 
@@ -75,7 +84,7 @@ export const errorHandler = (
     res,
     process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
     500,
-    'INTERNAL_SERVER_ERROR'
+    ERROR_CODES.INTERNAL_SERVER_ERROR
   );
 };
 

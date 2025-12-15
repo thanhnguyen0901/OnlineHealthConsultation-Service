@@ -8,7 +8,7 @@ import reportRoutes from './report.routes';
 const router = Router();
 
 // Health check
-router.get('/health', (req, res) => {
+router.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),

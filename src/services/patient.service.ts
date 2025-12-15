@@ -1,5 +1,6 @@
 import prisma from '../config/db';
 import { AppError } from '../middlewares/error.middleware';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 export interface UpdatePatientProfileInput {
   dateOfBirth?: Date;
@@ -41,7 +42,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     return {
@@ -61,7 +62,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     const updatedProfile = await prisma.patientProfile.update({
@@ -82,7 +83,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     const questions = await prisma.question.findMany({
@@ -100,6 +101,9 @@ export class PatientService {
           },
         },
         answers: {
+          where: {
+            isApproved: true, // Only show approved answers to patients (moderation visibility)
+          },
           include: {
             doctor: {
               include: {
@@ -134,7 +138,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     // If doctorId is provided, verify doctor exists
@@ -143,7 +147,7 @@ export class PatientService {
         where: { id: input.doctorId },
       });
       if (!doctor) {
-        throw new AppError('Doctor not found', 404, 'DOCTOR_NOT_FOUND');
+        throw new AppError('Doctor not found', 404, ERROR_CODES.DOCTOR_NOT_FOUND);
       }
     }
 
@@ -181,7 +185,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     const appointments = await prisma.appointment.findMany({
@@ -217,7 +221,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     // Verify doctor exists
@@ -226,7 +230,7 @@ export class PatientService {
     });
 
     if (!doctor) {
-      throw new AppError('Doctor not found', 404, 'DOCTOR_NOT_FOUND');
+      throw new AppError('Doctor not found', 404, ERROR_CODES.DOCTOR_NOT_FOUND);
     }
 
     // Check for appointment conflicts (same doctor, same time)
@@ -244,7 +248,7 @@ export class PatientService {
       throw new AppError(
         'Doctor already has an appointment at this time',
         409,
-        'APPOINTMENT_CONFLICT'
+        ERROR_CODES.APPOINTMENT_CONFLICT
       );
     }
 
@@ -282,7 +286,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     const [questions, appointments] = await Promise.all([
@@ -303,6 +307,9 @@ export class PatientService {
             },
           },
           answers: {
+            where: {
+              isApproved: true, // Only show approved answers (moderation visibility)
+            },
             include: {
               doctor: {
                 include: {
@@ -359,7 +366,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     // Verify appointment exists and belongs to patient
@@ -371,7 +378,7 @@ export class PatientService {
     });
 
     if (!appointment) {
-      throw new AppError('Appointment not found', 404, 'APPOINTMENT_NOT_FOUND');
+      throw new AppError('Appointment not found', 404, ERROR_CODES.APPOINTMENT_NOT_FOUND);
     }
 
     // Check if appointment is completed
@@ -379,7 +386,7 @@ export class PatientService {
       throw new AppError(
         'Can only rate completed appointments',
         400,
-        'APPOINTMENT_NOT_COMPLETED'
+        ERROR_CODES.APPOINTMENT_NOT_COMPLETED
       );
     }
 
@@ -392,12 +399,12 @@ export class PatientService {
     });
 
     if (existingRating) {
-      throw new AppError('Rating already exists for this appointment', 409, 'RATING_EXISTS');
+      throw new AppError('Rating already exists for this appointment', 409, ERROR_CODES.RATING_EXISTS);
     }
 
     // Validate score
     if (input.score < 1 || input.score > 5) {
-      throw new AppError('Score must be between 1 and 5', 400, 'INVALID_SCORE');
+      throw new AppError('Score must be between 1 and 5', 400, ERROR_CODES.INVALID_SCORE);
     }
 
     // Create rating
@@ -446,7 +453,7 @@ export class PatientService {
     });
 
     if (!user || !user.patientProfile) {
-      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     const ratings = await prisma.rating.findMany({

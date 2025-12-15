@@ -3,6 +3,9 @@ import { z } from 'zod';
 import authService from '../services/auth.service';
 import { sendSuccess } from '../utils/apiResponse';
 import { asyncHandler, AppError } from '../middlewares/error.middleware';
+import { normalizeRegisterPayload, sanitizeTextFields } from '../utils/normalizers';
+import { env } from '../config/env';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 // Validation schemas
 export const registerSchema = z.object({  body: z.object({
@@ -44,12 +47,27 @@ export class AuthController {
    * POST /auth/register
    */
   register = asyncHandler(async (req: Request, res: Response) => {
-    // Normalize name/fullName for FE compatibility
-    const payload = {
-      ...req.body,
-      fullName: req.body.fullName || req.body.name,
-    };
-    const result = await authService.register(payload);
+    // Normalize and sanitize payload
+    const normalizedPayload = normalizeRegisterPayload(req.body);
+    const sanitizedPayload = sanitizeTextFields(normalizedPayload, ['fullName', 'bio', 'address'], {
+      fullName: 255,
+      bio: 5000,
+      address: 500,
+    });
+    
+    const result = await authService.register(sanitizedPayload);
+    
+    // Set refresh token in httpOnly cookie with security flags
+    if (result.refreshToken) {
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production', // HTTPS only in production
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
+      });
+    }
+    
     sendSuccess(res, result, undefined, 201);
   });
 
@@ -59,6 +77,18 @@ export class AuthController {
    */
   login = asyncHandler(async (req: Request, res: Response) => {
     const result = await authService.login(req.body);
+    
+    // Set refresh token in httpOnly cookie with security flags
+    if (result.refreshToken) {
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
+      });
+    }
+    
     sendSuccess(res, result);
   });
 
@@ -71,10 +101,22 @@ export class AuthController {
     const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
     
     if (!refreshToken) {
-      throw new AppError('Refresh token is required', 401, 'REFRESH_TOKEN_MISSING');
+      throw new AppError('Refresh token is required', 401, ERROR_CODES.REFRESH_TOKEN_MISSING);
     }
     
     const result = await authService.refresh(refreshToken);
+    
+    // Update refresh token cookie if new token issued
+    if (result.refreshToken) {
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
+      });
+    }
+    
     sendSuccess(res, result);
   });
 
@@ -87,10 +129,19 @@ export class AuthController {
     const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
     
     if (!refreshToken) {
-      throw new AppError('Refresh token is required', 401, 'REFRESH_TOKEN_MISSING');
+      throw new AppError('Refresh token is required', 401, ERROR_CODES.REFRESH_TOKEN_MISSING);
     }
     
     const result = await authService.logout(refreshToken);
+    
+    // Clear refresh token cookie
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      path: '/',
+    });
+    
     sendSuccess(res, result);
   });
 

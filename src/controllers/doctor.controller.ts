@@ -3,6 +3,7 @@ import { z } from 'zod';
 import doctorService from '../services/doctor.service';
 import { sendSuccess } from '../utils/apiResponse';
 import { asyncHandler } from '../middlewares/error.middleware';
+import { normalizeAnswerPayload, sanitizeTextFields } from '../utils/normalizers';
 
 // Validation schemas
 export const createAnswerSchema = z.object({
@@ -72,12 +73,13 @@ export class DoctorController {
     const userId = req.user!.id;
     const { id } = req.params;
     
-    // Normalize FE payload: 'answer' -> 'content'
-    const payload = {
-      content: req.body.content || req.body.answer,
-    };
+    // Normalize and sanitize FE payload
+    const normalizedPayload = normalizeAnswerPayload(req.body);
+    const sanitizedPayload = sanitizeTextFields(normalizedPayload, ['content'], {
+      content: 10000,
+    });
     
-    const result = await doctorService.answerQuestion(userId, id, payload);
+    const result = await doctorService.answerQuestion(userId, id, sanitizedPayload);
     sendSuccess(res, result, undefined, 201);
   });
 

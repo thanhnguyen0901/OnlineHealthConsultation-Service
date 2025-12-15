@@ -44,6 +44,23 @@ export const updateSpecialtySchema = z.object({
   }),
 });
 
+export const queryPaginationSchema = z.object({
+  page: z.string().optional().transform((val) => val ? parseInt(val) : 1),
+  limit: z.string().optional().transform((val) => val ? parseInt(val) : 20),
+});
+
+export const queryUsersSchema = z.object({
+  role: z.enum(['PATIENT', 'DOCTOR', 'ADMIN']).optional(),
+  isActive: z.string().optional().transform((val) => val === 'true'),
+  search: z.string().optional(),
+  page: z.string().optional().transform((val) => val ? parseInt(val) : 1),
+  limit: z.string().optional().transform((val) => val ? parseInt(val) : 20),
+});
+
+export const idParamSchema = z.object({
+  id: z.string().min(1, 'ID is required'),
+});
+
 export class AdminController {
   /**
    * Get all users
@@ -149,7 +166,7 @@ export class AdminController {
    * Get all specialties
    * GET /admin/specialties
    */
-  getSpecialties = asyncHandler(async (req: Request, res: Response) => {
+  getSpecialties = asyncHandler(async (_req: Request, res: Response) => {
     const result = await adminService.getSpecialties();
     sendSuccess(res, result);
   });

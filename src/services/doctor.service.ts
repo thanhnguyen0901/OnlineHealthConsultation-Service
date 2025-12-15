@@ -1,5 +1,7 @@
 import prisma from '../config/db';
 import { AppError } from '../middlewares/error.middleware';
+import { isValidAppointmentTransition } from '../constants/statuses';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 export interface CreateAnswerInput {
   content: string;
@@ -243,7 +245,7 @@ export class DoctorService {
     });
 
     if (!user || !user.doctorProfile) {
-      throw new AppError('Doctor profile not found', 404, 'PROFILE_NOT_FOUND');
+      throw new AppError('Doctor profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
     // Verify appointment belongs to this doctor
@@ -255,7 +257,18 @@ export class DoctorService {
     });
 
     if (!appointment) {
-      throw new AppError('Appointment not found', 404, 'APPOINTMENT_NOT_FOUND');
+      throw new AppError('Appointment not found', 404, ERROR_CODES.APPOINTMENT_NOT_FOUND);
+    }
+
+    // Validate status transition (state machine)
+    if (input.status && input.status !== appointment.status) {
+      if (!isValidAppointmentTransition(appointment.status, input.status)) {
+        throw new AppError(
+          `Cannot transition appointment from ${appointment.status} to ${input.status}`,
+          400,
+          ERROR_CODES.INVALID_STATUS_TRANSITION
+        );
+      }
     }
 
     const updatedAppointment = await prisma.appointment.update({

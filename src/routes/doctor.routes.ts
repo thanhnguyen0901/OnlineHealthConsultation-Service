@@ -19,17 +19,17 @@ router.use(authenticate, requireDoctor);
 router.get('/me', doctorController.getMe);
 
 // Questions
-router.get('/questions', validate(getQuestionsQuerySchema), doctorController.getQuestions);
-router.post('/questions/:id/answers', validate(createAnswerSchema), doctorController.answerQuestion);
+router.get('/questions', validate({ query: getQuestionsQuerySchema.shape.query }), doctorController.getQuestions);
+router.post('/questions/:id/answers', validate({ body: createAnswerSchema.shape.body }), doctorController.answerQuestion);
 // Alias for FE compatibility (singular 'answer')
-router.post('/questions/:id/answer', validate(createAnswerSchema), doctorController.answerQuestion);
+router.post('/questions/:id/answer', validate({ body: createAnswerSchema.shape.body }), doctorController.answerQuestion);
 
 // Appointments
-router.get('/appointments', validate(getAppointmentsQuerySchema), doctorController.getAppointments);
-router.put('/appointments/:id', validate(updateAppointmentSchema), doctorController.updateAppointment);
+router.get('/appointments', validate({ query: getAppointmentsQuerySchema.shape.query }), doctorController.getAppointments);
+router.put('/appointments/:id', validate({ body: updateAppointmentSchema.shape.body }), doctorController.updateAppointment);
 
 // Schedule
 router.get('/schedule', doctorController.getSchedule);
-router.post('/schedule', validate(updateScheduleSchema), doctorController.updateSchedule);
+router.post('/schedule', validate({ body: updateScheduleSchema.shape.body }), doctorController.updateSchedule);
 
 export default router;

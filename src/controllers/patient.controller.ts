@@ -3,6 +3,13 @@ import { z } from 'zod';
 import patientService from '../services/patient.service';
 import { sendSuccess } from '../utils/apiResponse';
 import { asyncHandler, AppError } from '../middlewares/error.middleware';
+import {
+  normalizeQuestionPayload,
+  normalizeAppointmentPayload,
+  normalizeRatingPayload,
+  sanitizeTextFields,
+} from '../utils/normalizers';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 // Validation schemas
 export const updateProfileSchema = z.object({
@@ -96,20 +103,14 @@ export class PatientController {
   createQuestion = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     
-    // Normalize FE payload: 'question' -> 'title' + 'content'
-    let payload;
-    if (req.body.question) {
-      const questionText = req.body.question;
-      payload = {
-        title: questionText.substring(0, 80) || 'Question',
-        content: questionText,
-        doctorId: req.body.doctorId,
-      };
-    } else {
-      payload = req.body;
-    }
+    // Normalize and sanitize FE payload
+    const normalizedPayload = normalizeQuestionPayload(req.body);
+    const sanitizedPayload = sanitizeTextFields(normalizedPayload, ['title', 'content'], {
+      title: 255,
+      content: 10000,
+    });
     
-    const result = await patientService.createQuestion(userId, payload);
+    const result = await patientService.createQuestion(userId, sanitizedPayload);
     sendSuccess(res, result, undefined, 201);
   });
 
@@ -130,30 +131,19 @@ export class PatientController {
   createAppointment = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     
-    // Normalize FE payload: 'date' + 'time' -> 'scheduledAt'
-    let payload;
-    if (req.body.date && req.body.time) {
-      const scheduledAt = new Date(`${req.body.date}T${req.body.time}:00.000Z`);
-      payload = {
-        doctorId: req.body.doctorId,
-        scheduledAt,
-        reason: req.body.reason || req.body.notes || 'Consultation',
-        notes: req.body.notes,
-      };
-    } else {
-      payload = {
-        ...req.body,
-        scheduledAt: new Date(req.body.scheduledAt),
-        reason: req.body.reason || 'Consultation',
-      };
-    }
+    // Normalize and sanitize FE payload
+    const normalizedPayload = normalizeAppointmentPayload(req.body);
+    const sanitizedPayload = sanitizeTextFields(normalizedPayload, ['reason', 'notes'], {
+      reason: 1000,
+      notes: 2000,
+    });
     
     // Validate future date
-    if (payload.scheduledAt <= new Date()) {
-      throw new AppError('Appointment must be scheduled in the future', 400, 'INVALID_DATE');
+    if (sanitizedPayload.scheduledAt <= new Date()) {
+      throw new AppError('Appointment must be scheduled in the future', 400, ERROR_CODES.INVALID_DATE);
     }
     
-    const result = await patientService.createAppointment(userId, payload);
+    const result = await patientService.createAppointment(userId, sanitizedPayload);
     sendSuccess(res, result, undefined, 201);
   });
 
@@ -174,15 +164,13 @@ export class PatientController {
   createRating = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     
-    // Normalize FE payload: 'consultationId' -> 'appointmentId', 'rating' -> 'score'
-    const payload = {
-      appointmentId: req.body.appointmentId || req.body.consultationId,
-      doctorId: req.body.doctorId,
-      score: req.body.score || req.body.rating,
-      comment: req.body.comment,
-    };
+    // Normalize and sanitize FE payload
+    const normalizedPayload = normalizeRatingPayload(req.body);
+    const sanitizedPayload = sanitizeTextFields(normalizedPayload, ['comment'], {
+      comment: 2000,
+    });
     
-    const result = await patientService.createRating(userId, payload);
+    const result = await patientService.createRating(userId, sanitizedPayload);
     sendSuccess(res, result, undefined, 201);
   });
 

@@ -20,7 +20,9 @@ export const registerSchema = z.object({  body: z.object({
     specialty: z.string().optional(),
     bio: z.string().optional(),
     dateOfBirth: z.string().optional().transform((val) => val ? new Date(val) : undefined),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'male', 'female', 'other'])
+      .transform((val) => val.toUpperCase() as 'MALE' | 'FEMALE' | 'OTHER')
+      .optional(),
     phone: z.string().optional(),
     address: z.string().optional(),
   }).refine(data => data.fullName || data.name, {

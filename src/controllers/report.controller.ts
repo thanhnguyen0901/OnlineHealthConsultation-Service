@@ -1,9 +1,29 @@
 import { Request, Response } from 'express';
+import { z } from 'zod';
 import reportService from '../services/report.service';
 import { sendSuccess } from '../utils/apiResponse';
 import { asyncHandler } from '../middlewares/error.middleware';
 
+// Validation schema for reports query
+export const getReportsQuerySchema = z.object({
+  startDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+  endDate: z.string().optional().transform((val) => val ? new Date(val) : undefined),
+});
+
 export class ReportController {
+  /**
+   * Get aggregated reports with optional date filtering
+   * GET /reports?startDate=2024-01-01&endDate=2024-12-31
+   */
+  getReports = asyncHandler(async (req: Request, res: Response) => {
+    const { startDate, endDate } = req.query;
+    const result = await reportService.getReports(
+      startDate ? new Date(startDate as string) : undefined,
+      endDate ? new Date(endDate as string) : undefined
+    );
+    sendSuccess(res, result);
+  });
+
   /**
    * Get overall statistics
    * GET /admin/stats

@@ -7,6 +7,7 @@ import adminController, {
   queryPaginationSchema,
   queryUsersSchema,
   idParamSchema,
+  updateAppointmentSchema,
 } from '../controllers/admin.controller';
 import reportController from '../controllers/report.controller';
 import { authenticate } from '../middlewares/auth.middleware';
@@ -44,7 +45,7 @@ router.delete('/specialties/:id', validate({ params: idParamSchema }), adminCont
 
 // Appointment management
 router.get('/appointments', validate({ query: queryPaginationSchema }), adminController.getAppointments);
-router.put('/appointments/:id', validate({ params: idParamSchema }), adminController.updateAppointment);
+router.put('/appointments/:id', validate({ params: idParamSchema, body: updateAppointmentSchema.shape.body }), adminController.updateAppointment);
 
 // Moderation
 router.get('/moderation/questions', validate({ query: queryPaginationSchema }), adminController.getQuestionsForModeration);

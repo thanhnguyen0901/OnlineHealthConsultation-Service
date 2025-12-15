@@ -15,7 +15,9 @@ import { ERROR_CODES } from '../constants/errorCodes';
 export const updateProfileSchema = z.object({
   body: z.object({
     dateOfBirth: z.string().optional().transform((val) => val ? new Date(val) : undefined),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'male', 'female', 'other'])
+      .transform((val) => val.toUpperCase() as 'MALE' | 'FEMALE' | 'OTHER')
+      .optional(),
     phone: z.string().optional(),
     address: z.string().optional(),
     medicalHistory: z.string().optional(),

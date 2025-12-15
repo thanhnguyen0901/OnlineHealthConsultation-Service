@@ -163,6 +163,33 @@ export class ReportService {
   }
 
   /**
+   * Get aggregated reports with optional date filtering
+   * Returns combined statistics, appointments chart, and questions chart
+   */
+  async getReports(startDate?: Date, endDate?: Date) {
+    const [statistics, appointmentsChart, questionsChart] = await Promise.all([
+      this.getStatistics(),
+      this.getAppointmentsChart(startDate, endDate),
+      this.getQuestionsChart(startDate, endDate),
+    ]);
+
+    return [
+      {
+        type: 'statistics',
+        data: statistics,
+      },
+      {
+        type: 'appointmentsChart',
+        data: appointmentsChart,
+      },
+      {
+        type: 'questionsChart',
+        data: questionsChart,
+      },
+    ];
+  }
+
+  /**
    * Get appointments chart data
    */
   async getAppointmentsChart(from?: Date, to?: Date) {

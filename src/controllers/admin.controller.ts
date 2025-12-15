@@ -14,7 +14,9 @@ export const createUserSchema = z.object({
     specialtyId: z.string().optional(),
     bio: z.string().optional(),
     dateOfBirth: z.string().optional().transform((val) => val ? new Date(val) : undefined),
-    gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+    gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'male', 'female', 'other'])
+      .transform((val) => val.toUpperCase() as 'MALE' | 'FEMALE' | 'OTHER')
+      .optional(),
     phone: z.string().optional(),
     address: z.string().optional(),
   }),
@@ -59,6 +61,17 @@ export const queryUsersSchema = z.object({
 
 export const idParamSchema = z.object({
   id: z.string().min(1, 'ID is required'),
+});
+
+export const updateAppointmentSchema = z.object({
+  body: z.object({
+    status: z.enum([
+      'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED',
+      'pending', 'confirmed', 'completed', 'cancelled'
+    ])
+      .transform((val) => val.toUpperCase() as 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED')
+      .optional(),
+  }),
 });
 
 export class AdminController {
@@ -219,6 +232,7 @@ export class AdminController {
    */
   updateAppointment = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
+    // Status is already normalized to uppercase by validation schema
     const { status } = req.body;
     const result = await adminService.updateAppointment(id, status);
     sendSuccess(res, result);

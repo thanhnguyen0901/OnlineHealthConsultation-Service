@@ -7,7 +7,11 @@ import { asyncHandler } from '../middlewares/error.middleware';
 // Validation schemas
 export const createAnswerSchema = z.object({
   body: z.object({
-    content: z.string().min(1, 'Content is required'),
+    // Accept either 'content' (BE) or 'answer' (FE)
+    content: z.string().optional(),
+    answer: z.string().optional(),
+  }).refine(data => data.content || data.answer, {
+    message: 'Either content or answer is required',
   }),
 });
 
@@ -67,7 +71,13 @@ export class DoctorController {
   answerQuestion = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const { id } = req.params;
-    const result = await doctorService.answerQuestion(userId, id, req.body);
+    
+    // Normalize FE payload: 'answer' -> 'content'
+    const payload = {
+      content: req.body.content || req.body.answer,
+    };
+    
+    const result = await doctorService.answerQuestion(userId, id, payload);
     sendSuccess(res, result, undefined, 201);
   });
 

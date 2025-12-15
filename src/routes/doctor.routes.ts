@@ -21,6 +21,8 @@ router.get('/me', doctorController.getMe);
 // Questions
 router.get('/questions', validate(getQuestionsQuerySchema), doctorController.getQuestions);
 router.post('/questions/:id/answers', validate(createAnswerSchema), doctorController.answerQuestion);
+// Alias for FE compatibility (singular 'answer')
+router.post('/questions/:id/answer', validate(createAnswerSchema), doctorController.answerQuestion);
 
 // Appointments
 router.get('/appointments', validate(getAppointmentsQuerySchema), doctorController.getAppointments);

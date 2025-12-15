@@ -1,6 +1,7 @@
 import express, { Application, Request, Response } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import { env } from './config/env';
 import routes from './routes';
 import { errorHandler } from './middlewares/error.middleware';
@@ -16,6 +17,7 @@ app.use(
   })
 );
 
+app.use(cookieParser()); // Add cookie parser for refresh token support
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

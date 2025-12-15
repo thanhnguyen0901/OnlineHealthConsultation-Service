@@ -104,6 +104,35 @@ export class AdminController {
   });
 
   /**
+   * Create a doctor (FE compatibility)
+   * POST /admin/doctors
+   */
+  createDoctor = asyncHandler(async (req: Request, res: Response) => {
+    const result = await adminService.createDoctor(req.body);
+    sendSuccess(res, result, undefined, 201);
+  });
+
+  /**
+   * Update a doctor (FE compatibility)
+   * PUT /admin/doctors/:id
+   */
+  updateDoctor = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await adminService.updateDoctor(id, req.body);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Delete a doctor (FE compatibility)
+   * DELETE /admin/doctors/:id
+   */
+  deleteDoctor = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await adminService.deleteDoctor(id);
+    sendSuccess(res, result);
+  });
+
+  /**
    * Get all patients
    * GET /admin/patients
    */
@@ -234,6 +263,39 @@ export class AdminController {
     const { id } = req.params;
     const { status } = req.body;
     const result = await adminService.moderateRating(id, status);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Get unified moderation items (FE compatibility)
+   * GET /admin/moderation
+   */
+  getModerationItems = asyncHandler(async (req: Request, res: Response) => {
+    const { page, limit } = req.query;
+    const result = await adminService.getModerationItems(
+      page ? parseInt(page as string) : 1,
+      limit ? parseInt(limit as string) : 20
+    );
+    sendSuccess(res, result.items, result.pagination);
+  });
+
+  /**
+   * Approve a moderation item (FE compatibility)
+   * PUT /admin/moderation/:id/approve
+   */
+  approveModerationItem = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await adminService.approveModerationItem(id);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Reject a moderation item (FE compatibility)
+   * PUT /admin/moderation/:id/reject
+   */
+  rejectModerationItem = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await adminService.rejectModerationItem(id);
     sendSuccess(res, result);
   });
 }

@@ -31,5 +31,6 @@ router.get('/history', patientController.getHistory);
 
 // Ratings
 router.post('/ratings', validate(createRatingSchema), patientController.createRating);
+router.get('/ratings', patientController.getRatings);
 
 export default router;

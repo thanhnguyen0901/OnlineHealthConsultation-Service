@@ -5,6 +5,7 @@ import adminController, {
   createSpecialtySchema,
   updateSpecialtySchema,
 } from '../controllers/admin.controller';
+import reportController from '../controllers/report.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { requireAdmin } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validation.middleware';
@@ -14,6 +15,9 @@ const router = Router();
 // All routes require authentication and ADMIN role
 router.use(authenticate, requireAdmin);
 
+// Stats (alias for FE compatibility)
+router.get('/stats', reportController.getOverallStats);
+
 // User management
 router.get('/users', adminController.getUsers);
 router.post('/users', validate(createUserSchema), adminController.createUser);
@@ -22,6 +26,9 @@ router.delete('/users/:id', adminController.deleteUser);
 
 // Doctor management
 router.get('/doctors', adminController.getDoctors);
+router.post('/doctors', validate(createUserSchema), adminController.createDoctor);
+router.put('/doctors/:id', validate(updateUserSchema), adminController.updateDoctor);
+router.delete('/doctors/:id', adminController.deleteDoctor);
 
 // Patient management
 router.get('/patients', adminController.getPatients);
@@ -44,5 +51,10 @@ router.patch('/answers/:id/moderate', adminController.moderateAnswer);
 
 router.get('/moderation/ratings', adminController.getRatingsForModeration);
 router.patch('/ratings/:id/moderate', adminController.moderateRating);
+
+// Unified moderation endpoints (FE compatibility)
+router.get('/moderation', adminController.getModerationItems);
+router.put('/moderation/:id/approve', adminController.approveModerationItem);
+router.put('/moderation/:id/reject', adminController.rejectModerationItem);
 
 export default router;

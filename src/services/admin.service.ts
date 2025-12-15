@@ -257,6 +257,98 @@ export class AdminService {
   }
 
   /**
+   * Create a doctor (wrapper around createUser for FE compatibility)
+   */
+  async createDoctor(input: CreateUserInput) {
+    // Force role to be DOCTOR
+    const doctorInput = {
+      ...input,
+      role: 'DOCTOR' as const,
+    };
+
+    if (!input.specialtyId) {
+      throw new AppError('Specialty ID is required for doctors', 400, 'SPECIALTY_REQUIRED');
+    }
+
+    const user = await this.createUser(doctorInput);
+    return user;
+  }
+
+  /**
+   * Update a doctor
+   */
+  async updateDoctor(doctorId: string, input: any) {
+    // doctorId here is the user ID (FE sends user.id)
+    const user = await prisma.user.findUnique({
+      where: { id: doctorId },
+      include: { doctorProfile: true },
+    });
+
+    if (!user || user.role !== 'DOCTOR' || !user.doctorProfile) {
+      throw new AppError('Doctor not found', 404, 'DOCTOR_NOT_FOUND');
+    }
+
+    // Separate user fields from doctor profile fields
+    const { specialtyId, bio, yearsOfExperience, ...userFields } = input;
+
+    // Update user if there are user fields
+    if (Object.keys(userFields).length > 0) {
+      await prisma.user.update({
+        where: { id: doctorId },
+        data: userFields,
+      });
+    }
+
+    // Update doctor profile if there are doctor fields
+    const doctorFields: any = {};
+    if (specialtyId) doctorFields.specialtyId = specialtyId;
+    if (bio !== undefined) doctorFields.bio = bio;
+    if (yearsOfExperience !== undefined) doctorFields.yearsOfExperience = yearsOfExperience;
+
+    if (Object.keys(doctorFields).length > 0) {
+      await prisma.doctorProfile.update({
+        where: { id: user.doctorProfile.id },
+        data: doctorFields,
+      });
+    }
+
+    // Return updated user with doctor profile
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: doctorId },
+      include: {
+        doctorProfile: {
+          include: {
+            specialty: true,
+          },
+        },
+      },
+    });
+
+    return updatedUser;
+  }
+
+  /**
+   * Delete a doctor (deactivate)
+   */
+  async deleteDoctor(doctorId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: doctorId },
+      include: { doctorProfile: true },
+    });
+
+    if (!user || user.role !== 'DOCTOR') {
+      throw new AppError('Doctor not found', 404, 'DOCTOR_NOT_FOUND');
+    }
+
+    await prisma.user.update({
+      where: { id: doctorId },
+      data: { isActive: false },
+    });
+
+    return { message: 'Doctor deactivated successfully' };
+  }
+
+  /**
    * Get all patients
    */
   async getPatients(page: number = 1, limit: number = 20) {
@@ -649,6 +741,184 @@ export class AdminService {
     }
 
     return updatedRating;
+  }
+
+  /**
+   * Get unified moderation items (questions, answers, ratings)
+   * Returns items with composite ID format: type_entityId
+   */
+  async getModerationItems(page: number = 1, limit: number = 20) {
+    // Get pending questions
+    const questions = await prisma.question.findMany({
+      where: { status: 'PENDING' },
+      include: {
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+              },
+            },
+          },
+        },
+      },
+      take: 100, // Get enough to merge
+    });
+
+    // Get pending answers
+    const answers = await prisma.answer.findMany({
+      where: { isApproved: false },
+      include: {
+        doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+              },
+            },
+          },
+        },
+        question: {
+          select: {
+            title: true,
+          },
+        },
+      },
+      take: 100,
+    });
+
+    // Get ratings for moderation
+    const ratings = await prisma.rating.findMany({
+      where: { status: 'VISIBLE' },
+      include: {
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+              },
+            },
+          },
+        },
+        doctor: {
+          include: {
+            user: {
+              select: {
+                fullName: true,
+              },
+            },
+          },
+        },
+      },
+      take: 100,
+    });
+
+    // Normalize to unified format
+    const items = [
+      ...questions.map(q => ({
+        id: `QUESTION_${q.id}`,
+        type: 'QUESTION' as const,
+        contentPreview: q.title,
+        content: q.content,
+        createdAt: q.createdAt,
+        author: q.patient.user.fullName,
+        authorId: q.patient.user.id,
+        status: q.status,
+        entityId: q.id,
+      })),
+      ...answers.map(a => ({
+        id: `ANSWER_${a.id}`,
+        type: 'ANSWER' as const,
+        contentPreview: a.content.substring(0, 100),
+        content: a.content,
+        createdAt: a.createdAt,
+        author: a.doctor.user.fullName,
+        authorId: a.doctor.user.id,
+        status: a.isApproved ? 'APPROVED' : 'PENDING',
+        entityId: a.id,
+      })),
+      ...ratings.map(r => ({
+        id: `RATING_${r.id}`,
+        type: 'RATING' as const,
+        contentPreview: `Rating: ${r.score}/5 for Dr. ${r.doctor.user.fullName}`,
+        content: r.comment || '',
+        createdAt: r.createdAt,
+        author: r.patient.user.fullName,
+        authorId: r.patient.user.id,
+        status: r.status,
+        entityId: r.id,
+      })),
+    ];
+
+    // Sort by createdAt desc
+    items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+    // Paginate
+    const skip = (page - 1) * limit;
+    const paginatedItems = items.slice(skip, skip + limit);
+
+    return {
+      items: paginatedItems,
+      pagination: {
+        page,
+        limit,
+        total: items.length,
+        totalPages: Math.ceil(items.length / limit),
+      },
+    };
+  }
+
+  /**
+   * Approve a moderation item
+   */
+  async approveModerationItem(compositeId: string) {
+    const [type, entityId] = compositeId.split('_');
+
+    if (!type || !entityId) {
+      throw new AppError('Invalid moderation item ID format', 400, 'INVALID_ID_FORMAT');
+    }
+
+    switch (type) {
+      case 'QUESTION':
+        return this.moderateQuestion(entityId, 'ANSWERED');
+      
+      case 'ANSWER':
+        return this.moderateAnswer(entityId, true);
+      
+      case 'RATING':
+        return this.moderateRating(entityId, 'VISIBLE');
+      
+      default:
+        throw new AppError('Invalid moderation item type', 400, 'INVALID_TYPE');
+    }
+  }
+
+  /**
+   * Reject a moderation item
+   */
+  async rejectModerationItem(compositeId: string) {
+    const [type, entityId] = compositeId.split('_');
+
+    if (!type || !entityId) {
+      throw new AppError('Invalid moderation item ID format', 400, 'INVALID_ID_FORMAT');
+    }
+
+    switch (type) {
+      case 'QUESTION':
+        return this.moderateQuestion(entityId, 'MODERATED');
+      
+      case 'ANSWER':
+        return this.moderateAnswer(entityId, false);
+      
+      case 'RATING':
+        return this.moderateRating(entityId, 'HIDDEN');
+      
+      default:
+        throw new AppError('Invalid moderation item type', 400, 'INVALID_TYPE');
+    }
   }
 }
 

@@ -18,8 +18,15 @@ router.get('/health', (req, res) => {
 
 // Mount routes
 router.use('/auth', authRoutes);
+
+// Mount patient routes under both plural and singular paths (FE compatibility)
 router.use('/patients', patientRoutes);
+router.use('/patient', patientRoutes); // Alias for frontend
+
+// Mount doctor routes under both plural and singular paths (FE compatibility)
 router.use('/doctors', doctorRoutes);
+router.use('/doctor', doctorRoutes); // Alias for frontend
+
 router.use('/admin', adminRoutes);
 router.use('/reports', reportRoutes);
 

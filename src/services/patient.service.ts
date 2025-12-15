@@ -229,6 +229,25 @@ export class PatientService {
       throw new AppError('Doctor not found', 404, 'DOCTOR_NOT_FOUND');
     }
 
+    // Check for appointment conflicts (same doctor, same time)
+    const conflictingAppointment = await prisma.appointment.findFirst({
+      where: {
+        doctorId: input.doctorId,
+        scheduledAt: input.scheduledAt,
+        status: {
+          in: ['PENDING', 'CONFIRMED'],
+        },
+      },
+    });
+
+    if (conflictingAppointment) {
+      throw new AppError(
+        'Doctor already has an appointment at this time',
+        409,
+        'APPOINTMENT_CONFLICT'
+      );
+    }
+
     const appointment = await prisma.appointment.create({
       data: {
         patientId: user.patientProfile.id,
@@ -415,6 +434,48 @@ export class PatientService {
     });
 
     return rating;
+  }
+
+  /**
+   * Get all ratings by patient
+   */
+  async getRatings(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { patientProfile: true },
+    });
+
+    if (!user || !user.patientProfile) {
+      throw new AppError('Patient profile not found', 404, 'PROFILE_NOT_FOUND');
+    }
+
+    const ratings = await prisma.rating.findMany({
+      where: { patientId: user.patientProfile.id },
+      include: {
+        doctor: {
+          include: {
+            user: {
+              select: {
+                fullName: true,
+                email: true,
+              },
+            },
+            specialty: true,
+          },
+        },
+        appointment: {
+          select: {
+            scheduledAt: true,
+            reason: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return ratings;
   }
 }
 

@@ -352,6 +352,11 @@ export class PatientService {
               specialty: true,
             },
           },
+          ratings: {
+            where: {
+              patientId: user.patientProfile.id,
+            },
+          },
         },
         orderBy: {
           scheduledAt: 'desc',

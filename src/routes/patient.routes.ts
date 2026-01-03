@@ -5,13 +5,18 @@ import patientController, {
   createAppointmentSchema,
   createRatingSchema,
 } from '../controllers/patient.controller';
+import adminController from '../controllers/admin.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { requirePatient } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validation.middleware';
 
 const router = Router();
 
-// All routes require authentication and PATIENT role
+// Public endpoints (no auth required) for booking
+router.get('/specialties', adminController.getSpecialties);
+router.get('/doctors', adminController.getDoctors);
+
+// All routes below require authentication and PATIENT role
 router.use(authenticate, requirePatient);
 
 // Profile

@@ -62,7 +62,19 @@ export class DoctorController {
     const userId = req.user!.id;
     const { status, page, limit } = req.query as any;
     const result = await doctorService.getQuestions(userId, status, page, limit);
-    sendSuccess(res, result.questions, result.pagination);
+    
+    // Transform nested structure to flat structure for frontend
+    const transformedQuestions = result.questions.map((q: any) => ({
+      id: q.id,
+      patientId: q.patientId,
+      patientName: q.patient?.user?.fullName || '',
+      question: q.question || q.content || '',
+      status: q.status?.toLowerCase() || 'pending',
+      createdAt: q.createdAt,
+      answer: q.answers?.[0]?.content || null,
+    }));
+    
+    sendSuccess(res, transformedQuestions, result.pagination);
   });
 
   /**
@@ -112,7 +124,9 @@ export class DoctorController {
   getSchedule = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const result = await doctorService.getSchedule(userId);
-    sendSuccess(res, result);
+    // Return schedule array directly, not wrapped in object
+    const scheduleArray = result.schedule || [];
+    sendSuccess(res, scheduleArray);
   });
 
   /**

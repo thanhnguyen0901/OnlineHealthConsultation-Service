@@ -156,7 +156,31 @@ export class PatientController {
   getHistory = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const result = await patientService.getHistory(userId);
-    sendSuccess(res, result);
+    
+    // Transform nested structure to flat structure for frontend
+    const transformedQuestions = result.questions.map((q: any) => ({
+      id: q.id,
+      question: q.content || '',
+      status: q.status?.toLowerCase() || 'pending',
+      createdAt: q.createdAt,
+      doctorId: q.doctorId || '',
+      doctorName: q.doctor?.user?.fullName || '',
+      answer: q.answers?.[0]?.content || null,
+    }));
+    
+    const transformedAppointments = result.appointments.map((a: any) => ({
+      id: a.id,
+      doctorName: a.doctor?.user?.fullName || '',
+      date: a.scheduledAt,
+      status: a.status?.toLowerCase() || '',
+      notes: a.notes || '',
+      hasRating: (a.ratings && a.ratings.length > 0) || false,
+    }));
+    
+    sendSuccess(res, {
+      questions: transformedQuestions,
+      appointments: transformedAppointments,
+    });
   });
 
   /**

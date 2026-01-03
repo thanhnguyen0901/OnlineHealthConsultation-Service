@@ -24,6 +24,8 @@ async function main() {
   const cardiology = await prisma.specialty.create({
     data: {
       name: 'Cardiology',
+      nameEn: 'Cardiology',
+      nameVi: 'Tim mạch',
       description: 'Chẩn đoán và điều trị các bệnh về tim mạch',
       isActive: true,
     },
@@ -32,6 +34,8 @@ async function main() {
   const dermatology = await prisma.specialty.create({
     data: {
       name: 'Dermatology',
+      nameEn: 'Dermatology',
+      nameVi: 'Da liễu',
       description: 'Chẩn đoán và điều trị các bệnh về da liễu',
       isActive: true,
     },
@@ -40,6 +44,8 @@ async function main() {
   const pediatrics = await prisma.specialty.create({
     data: {
       name: 'Pediatrics',
+      nameEn: 'Pediatrics',
+      nameVi: 'Nhi khoa',
       description: 'Chăm sóc sức khỏe cho trẻ em và thanh thiếu niên',
       isActive: true,
     },
@@ -48,6 +54,8 @@ async function main() {
   const orthopedics = await prisma.specialty.create({
     data: {
       name: 'Orthopedics',
+      nameEn: 'Orthopedics',
+      nameVi: 'Chấn thương chỉnh hình',
       description: 'Điều trị các rối loạn về xương khớp',
       isActive: true,
     },
@@ -56,6 +64,8 @@ async function main() {
   const generalMedicine = await prisma.specialty.create({
     data: {
       name: 'General Medicine',
+      nameEn: 'General Medicine',
+      nameVi: 'Đa khoa',
       description: 'Chăm sóc sức khỏe tổng quát và ban đầu',
       isActive: true,
     },

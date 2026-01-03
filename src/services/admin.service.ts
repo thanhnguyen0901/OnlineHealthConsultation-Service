@@ -24,11 +24,15 @@ export interface UpdateUserInput {
 
 export interface CreateSpecialtyInput {
   name: string;
+  nameEn: string;
+  nameVi: string;
   description?: string;
 }
 
 export interface UpdateSpecialtyInput {
   name?: string;
+  nameEn?: string;
+  nameVi?: string;
   description?: string;
   isActive?: boolean;
 }

@@ -34,6 +34,8 @@ export const updateUserSchema = z.object({
 export const createSpecialtySchema = z.object({
   body: z.object({
     name: z.string().min(1, 'Name is required'),
+    nameEn: z.string().min(1, 'English name is required'),
+    nameVi: z.string().min(1, 'Vietnamese name is required'),
     description: z.string().optional(),
   }),
 });
@@ -41,6 +43,8 @@ export const createSpecialtySchema = z.object({
 export const updateSpecialtySchema = z.object({
   body: z.object({
     name: z.string().optional(),
+    nameEn: z.string().optional(),
+    nameVi: z.string().optional(),
     description: z.string().optional(),
     isActive: z.boolean().optional(),
   }),

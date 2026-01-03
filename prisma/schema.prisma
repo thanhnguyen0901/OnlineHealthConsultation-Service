@@ -105,7 +105,9 @@ model DoctorProfile {
 
 model Specialty {
   id          String    @id @default(cuid())
-  name        String    @unique
+  name        String    @unique // Kept for backward compatibility
+  nameEn      String
+  nameVi      String
   description String?   @db.Text
   isActive    Boolean   @default(true)
   createdAt   DateTime  @default(now())

@@ -233,6 +233,15 @@ export class PatientService {
       throw new AppError('Doctor not found', 404, ERROR_CODES.DOCTOR_NOT_FOUND);
     }
 
+    // P1-2 Fix: Validate appointment date must be in the future
+    if (input.scheduledAt <= new Date()) {
+      throw new AppError(
+        'Appointment must be scheduled for a future date',
+        400,
+        ERROR_CODES.INVALID_DATE
+      );
+    }
+
     // Check for appointment conflicts (same doctor, same time)
     const conflictingAppointment = await prisma.appointment.findFirst({
       where: {

@@ -166,15 +166,19 @@ export class DoctorService {
         where: { id: existingAnswer.id },
         data: {
           content: input.content,
+          // P2-4 Fix: Reset approval when updating answer
+          isApproved: false,
         },
       });
     } else {
       // Create new answer
+      // P2-4 Fix: Explicitly set isApproved to false for moderation
       answer = await prisma.answer.create({
         data: {
           questionId,
           doctorId: user.doctorProfile.id,
           content: input.content,
+          isApproved: false,
         },
       });
     }
@@ -336,6 +340,51 @@ export class DoctorService {
     return {
       schedule: updatedProfile.schedule ? JSON.parse(updatedProfile.schedule) : null,
     };
+  }
+
+  /**
+   * Get featured doctors (public)
+   * P2-3 Fix: Returns top 6 doctors for homepage
+   */
+  async getFeaturedDoctors() {
+    const doctors = await prisma.doctorProfile.findMany({
+      take: 6,
+      orderBy: [
+        { ratingAverage: 'desc' },
+        { createdAt: 'desc' },
+      ],
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+          },
+        },
+        specialty: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+      where: {
+        user: {
+          isActive: true,
+        },
+      },
+    });
+
+    // Transform to match FE expectations
+    return doctors.map(doctor => ({
+      id: doctor.id,
+      fullName: doctor.user.fullName,
+      specialtyName: doctor.specialty.name,
+      specialtyId: doctor.specialtyId,
+      yearsOfExperience: doctor.yearsOfExperience,
+      bio: doctor.bio,
+      ratingAverage: doctor.ratingAverage,
+      ratingCount: doctor.ratingCount,
+    }));
   }
 }
 

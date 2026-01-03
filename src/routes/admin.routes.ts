@@ -61,4 +61,7 @@ router.get('/moderation', validate({ query: queryPaginationSchema }), adminContr
 router.put('/moderation/:id/approve', validate({ params: idParamSchema }), adminController.approveModerationItem);
 router.put('/moderation/:id/reject', validate({ params: idParamSchema }), adminController.rejectModerationItem);
 
+// Export controller instance for public endpoint use
+export { adminController };
+
 export default router;

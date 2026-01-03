@@ -32,4 +32,7 @@ router.put('/appointments/:id', validate({ body: updateAppointmentSchema.shape.b
 router.get('/schedule', doctorController.getSchedule);
 router.post('/schedule', validate({ body: updateScheduleSchema.shape.body }), doctorController.updateSchedule);
 
+// Export controller instance for public endpoint use
+export { doctorController };
+
 export default router;

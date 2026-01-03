@@ -124,6 +124,16 @@ export class DoctorController {
     const result = await doctorService.updateSchedule(userId, req.body);
     sendSuccess(res, result);
   });
+
+  /**
+   * Get featured doctors (public endpoint)
+   * GET /doctors/featured
+   * P2-3 Fix: Homepage featured doctors
+   */
+  getFeaturedDoctors = asyncHandler(async (_req: Request, res: Response) => {
+    const result = await doctorService.getFeaturedDoctors();
+    sendSuccess(res, result);
+  });
 }
 
 export default new DoctorController();

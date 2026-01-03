@@ -69,35 +69,95 @@ Backend RESTful API for the Online Health Consultation System built with Node.js
 
 ## ⚡ Quick Start
 
-### Option 1: Using Docker (Recommended)
+### Prerequisites
+- Node.js 18+ và npm
+- Docker & Docker Compose
+
+### 🚀 Setup trong 3 bước
 
 ```bash
-# Install dependencies
+# 1. Clone và cài đặt dependencies
 npm install
 
-# Start MySQL database with Docker
+# 2. Start database và khởi tạo data
 docker-compose up -d
+npm run prisma:generate
+npm run prisma:migrate
+npm run prisma:seed
 
-# Wait a few seconds for MySQL to start, then run migrations
-npx prisma migrate dev
-
-# Seed database with test data
-npx prisma db seed
-
-# Start development server
+# 3. Start development server
 npm run dev
 ```
 
-### Option 2: Using Local MySQL
+**Server sẽ chạy tại**: http://localhost:3000
+
+**Test credentials** xem trong [DATABASE_SETUP.md](./DATABASE_SETUP.md)
+
+### 🔄 Reset Database (Khởi tạo lại từ đầu)
+
+**Windows:**
+```bash
+reset-db.bat
+```
+
+**Linux/Mac:**
+```bash
+chmod +x reset-db.sh
+./reset-db.sh
+```
+
+**Hoặc thủ công:**
+```bash
+docker-compose down -v
+docker-compose up -d
+# Chờ 15 giây
+npm run prisma:generate
+npm run prisma:migrate  
+npm run prisma:seed
+```
+
+---
+
+## 📦 Installation
+
+### Bước 1: Clone Repository
 
 ```bash
-# Install dependencies
+git clone <repository-url>
+cd OnlineHealthConsultation-Service
+```
+
+### Bước 2: Install Dependencies
+
+```bash
 npm install
+```
 
-# Configure .env file with your database credentials
-# See Configuration section below
+### Bước 3: Configure Environment
 
-# Generate Prisma Client
+Copy file `.env.example` thành `.env` và cấu hình:
+
+```bash
+cp .env.example .env
+```
+
+### Bước 4: Start Database
+
+```bash
+docker-compose up -d
+```
+
+### Bước 5: Setup Database Schema & Data
+
+```bash
+npm run prisma:generate  # Tạo Prisma Client
+npm run prisma:migrate   # Chạy migrations
+npm run prisma:seed      # Tạo sample data
+```
+
+---
+
+## ⚙️ Configuration
 npm run prisma:generate
 
 # Run migrations

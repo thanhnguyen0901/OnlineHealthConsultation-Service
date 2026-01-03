@@ -19,6 +19,16 @@ router.get('/health', (_req, res) => {
 // Mount routes
 router.use('/auth', authRoutes);
 
+// Public routes (no auth required)
+import { adminController } from './admin.routes';
+import { doctorController } from './doctor.routes';
+
+// P1-1 Fix: Public specialty endpoint for patient pages
+router.get('/specialties', adminController.getSpecialties);
+
+// P2-3 Fix: Public featured doctors endpoint for homepage
+router.get('/doctors/featured', doctorController.getFeaturedDoctors);
+
 // Mount patient routes under both plural and singular paths (FE compatibility)
 router.use('/patients', patientRoutes);
 router.use('/patient', patientRoutes); // Alias for frontend

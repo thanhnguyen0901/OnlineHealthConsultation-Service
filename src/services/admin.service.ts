@@ -46,7 +46,8 @@ export class AdminService {
       where.role = role;
     }
     
-    if (isActive !== undefined) {
+    // Only add isActive filter if explicitly set to true or false
+    if (typeof isActive === 'boolean') {
       where.isActive = isActive;
     }
     

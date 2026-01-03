@@ -53,7 +53,7 @@ export const queryPaginationSchema = z.object({
 
 export const queryUsersSchema = z.object({
   role: z.enum(['PATIENT', 'DOCTOR', 'ADMIN']).optional(),
-  isActive: z.string().optional().transform((val) => val === 'true'),
+  isActive: z.string().optional().transform((val) => val !== undefined ? val === 'true' : undefined),
   search: z.string().optional(),
   page: z.string().optional().transform((val) => val ? parseInt(val) : 1),
   limit: z.string().optional().transform((val) => val ? parseInt(val) : 20),
@@ -83,7 +83,7 @@ export class AdminController {
     const { role, isActive, search, page, limit } = req.query;
     const result = await adminService.getUsers({
       role: role as string,
-      isActive: isActive === 'true',
+      isActive: isActive as boolean | undefined,
       search: search as string,
       page: page ? parseInt(page as string) : undefined,
       limit: limit ? parseInt(limit as string) : undefined,
@@ -130,7 +130,20 @@ export class AdminController {
       page ? parseInt(page as string) : undefined,
       limit ? parseInt(limit as string) : undefined
     );
-    sendSuccess(res, result.doctors, result.pagination);
+    
+    // Transform doctorProfile structure to flat structure for frontend
+    const transformedDoctors = result.doctors.map((doc: any) => ({
+      id: doc.user.id,
+      email: doc.user.email,
+      fullName: doc.user.fullName,
+      isActive: doc.user.isActive,
+      specialtyId: doc.specialtyId,
+      specialtyName: doc.specialty?.name || '',
+      bio: doc.bio,
+      role: 'DOCTOR',
+    }));
+    
+    sendSuccess(res, transformedDoctors, result.pagination);
   });
 
   /**
@@ -223,7 +236,23 @@ export class AdminController {
       page ? parseInt(page as string) : undefined,
       limit ? parseInt(limit as string) : undefined
     );
-    sendSuccess(res, result.appointments, result.pagination);
+    
+    // Transform nested structure to flat structure for frontend
+    const transformedAppointments = result.appointments.map((apt: any) => ({
+      id: apt.id,
+      patientId: apt.patientId,
+      patientName: apt.patient?.user?.fullName || '',
+      doctorId: apt.doctorId,
+      doctorName: apt.doctor?.user?.fullName || '',
+      specialtyId: apt.doctor?.specialtyId || '',
+      specialtyName: apt.doctor?.specialty?.name || '',
+      date: apt.scheduledAt,
+      time: apt.scheduledAt ? new Date(apt.scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '',
+      status: apt.status?.toLowerCase() || 'pending',
+      notes: apt.notes,
+    }));
+    
+    sendSuccess(res, transformedAppointments, result.pagination);
   });
 
   /**

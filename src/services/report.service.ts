@@ -32,25 +32,18 @@ export class ReportService {
     ]);
 
     return {
-      users: {
-        total: totalUsers,
-        doctors: totalDoctors,
-        patients: totalPatients,
-      },
-      specialties: totalSpecialties,
-      consultations: {
-        totalQuestions,
-        answeredQuestions,
-        pendingQuestions,
-      },
-      appointments: {
-        total: totalAppointments,
-        pending: pendingAppointments,
-        completed: completedAppointments,
-      },
-      ratings: {
-        total: totalRatings,
-      },
+      // Flat structure for FE compatibility
+      totalUsers,
+      totalDoctors,
+      totalPatients,
+      totalSpecialties,
+      totalQuestions,
+      totalAppointments,
+      totalRatings,
+      pendingAppointments,
+      completedAppointments,
+      answeredQuestions,
+      pendingQuestions,
     };
   }
 

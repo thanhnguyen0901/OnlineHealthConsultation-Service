@@ -20,9 +20,18 @@ export const signAccessToken = (payload: TokenPayload): string => {
  * Sign a refresh token
  */
 export const signRefreshToken = (payload: TokenPayload): string => {
-  return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
-    expiresIn: env.JWT_REFRESH_EXPIRE,
-  } as SignOptions);
+  // Add timestamp and random to ensure uniqueness
+  return jwt.sign(
+    { 
+      ...payload, 
+      iat: Math.floor(Date.now() / 1000),
+      jti: `${Date.now()}-${Math.random().toString(36).substring(7)}`
+    }, 
+    env.JWT_REFRESH_SECRET, 
+    {
+      expiresIn: env.JWT_REFRESH_EXPIRE,
+    } as SignOptions
+  );
 };
 
 /**

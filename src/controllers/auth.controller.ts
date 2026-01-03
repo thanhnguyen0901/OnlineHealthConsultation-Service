@@ -64,7 +64,7 @@ export class AuthController {
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production', // HTTPS only in production
-        sameSite: 'strict',
+        sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for dev cross-origin
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: '/',
       });
@@ -85,7 +85,7 @@ export class AuthController {
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for dev cross-origin
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: '/',
       });
@@ -113,7 +113,7 @@ export class AuthController {
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for dev cross-origin
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: '/',
       });
@@ -140,7 +140,7 @@ export class AuthController {
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for dev cross-origin
       path: '/',
     });
     

@@ -63,15 +63,17 @@ async function main() {
 
   console.log(`✅ Created 5 specialties\n`);
 
-  // Hash password (all test accounts use: password123)
-  const passwordHash = await bcrypt.hash('password123', 10);
+  // Hash passwords for test accounts (match QUICK_START.md)
+  const adminPasswordHash = await bcrypt.hash('Admin@123', 10);
+  const doctorPasswordHash = await bcrypt.hash('Doctor@123', 10);
+  const patientPasswordHash = await bcrypt.hash('Patient@123', 10);
 
   // Create admin user
   console.log('👨‍💼 Creating admin user...');
   const admin = await prisma.user.create({
     data: {
-      email: 'admin@healthconsult.com',
-      passwordHash,
+      email: 'admin@healthcare.com',
+      passwordHash: adminPasswordHash,
       fullName: 'Quản trị viên hệ thống',
       role: 'ADMIN',
       isActive: true,
@@ -83,9 +85,9 @@ async function main() {
   console.log('👨‍⚕️ Creating doctors...');
   const drSmith = await prisma.user.create({
     data: {
-      email: 'dr.smith@healthconsult.com',
-      passwordHash,
-      fullName: 'BS. Nguyễn Văn An',
+      email: 'nguyen.van.hung@healthcare.com',
+      passwordHash: doctorPasswordHash,
+      fullName: 'BS. Nguyễn Văn Hùng',
       role: 'DOCTOR',
       isActive: true,
       doctorProfile: {
@@ -102,9 +104,9 @@ async function main() {
 
   const drJohnson = await prisma.user.create({
     data: {
-      email: 'dr.johnson@healthconsult.com',
-      passwordHash,
-      fullName: 'BS. Trần Thị Bình',
+      email: 'tran.thi.lan@healthcare.com',
+      passwordHash: doctorPasswordHash,
+      fullName: 'BS. Trần Thị Lan',
       role: 'DOCTOR',
       isActive: true,
       doctorProfile: {
@@ -121,9 +123,9 @@ async function main() {
 
   const drLee = await prisma.user.create({
     data: {
-      email: 'dr.lee@healthconsult.com',
-      passwordHash,
-      fullName: 'BS. Lê Minh Châu',
+      email: 'le.van.minh@healthcare.com',
+      passwordHash: doctorPasswordHash,
+      fullName: 'BS. Lê Văn Minh',
       role: 'DOCTOR',
       isActive: true,
       doctorProfile: {
@@ -140,9 +142,9 @@ async function main() {
 
   const drNguyen = await prisma.user.create({
     data: {
-      email: 'dr.nguyen@healthconsult.com',
-      passwordHash,
-      fullName: 'BS. Phạm Hoàng Dũng',
+      email: 'pham.thi.nga@healthcare.com',
+      passwordHash: doctorPasswordHash,
+      fullName: 'BS. Phạm Thị Nga',
       role: 'DOCTOR',
       isActive: true,
       doctorProfile: {
@@ -163,15 +165,15 @@ async function main() {
   console.log('👥 Creating patients...');
   const patient1 = await prisma.user.create({
     data: {
-      email: 'patient1@example.com',
-      passwordHash,
-      fullName: 'Nguyễn Thị Hoa',
+      email: 'vo.van.nam@gmail.com',
+      passwordHash: patientPasswordHash,
+      fullName: 'Võ Văn Nam',
       role: 'PATIENT',
       isActive: true,
       patientProfile: {
         create: {
           dateOfBirth: new Date('1990-05-15'),
-          gender: 'FEMALE',
+          gender: 'MALE',
           phone: '0901234567',
           address: '123 Nguyễn Huệ, Q.1, TP.HCM',
           medicalHistory: 'Tiền sử dị ứng với penicillin',
@@ -182,15 +184,15 @@ async function main() {
 
   const patient2 = await prisma.user.create({
     data: {
-      email: 'patient2@example.com',
-      passwordHash,
-      fullName: 'Trần Văn Nam',
+      email: 'hoang.thi.thao@gmail.com',
+      passwordHash: patientPasswordHash,
+      fullName: 'Hoàng Thị Thảo',
       role: 'PATIENT',
       isActive: true,
       patientProfile: {
         create: {
           dateOfBirth: new Date('1985-08-20'),
-          gender: 'MALE',
+          gender: 'FEMALE',
           phone: '0912345678',
           address: '456 Lê Lợi, Q.3, TP.HCM',
           medicalHistory: 'Cao huyết áp, đang điều trị',
@@ -201,15 +203,15 @@ async function main() {
 
   const patient3 = await prisma.user.create({
     data: {
-      email: 'patient3@example.com',
-      passwordHash,
-      fullName: 'Lê Thị Mai',
+      email: 'nguyen.van.khanh@gmail.com',
+      passwordHash: patientPasswordHash,
+      fullName: 'Nguyễn Văn Khánh',
       role: 'PATIENT',
       isActive: true,
       patientProfile: {
         create: {
           dateOfBirth: new Date('1995-03-10'),
-          gender: 'FEMALE',
+          gender: 'MALE',
           phone: '0923456789',
           address: '789 Trần Hưng Đạo, Q.5, TP.HCM',
         },

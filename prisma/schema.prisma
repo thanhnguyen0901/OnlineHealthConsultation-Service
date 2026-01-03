@@ -200,7 +200,7 @@ model Rating {
 model RefreshToken {
   id        String   @id @default(cuid())
   userId    String
-  token     String   @unique
+  token     String   @db.Text
   expiresAt DateTime
   revoked   Boolean  @default(false)
   createdAt DateTime @default(now())
@@ -208,7 +208,7 @@ model RefreshToken {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([token(length: 255)])
   @@index([userId])
-  @@index([token])
   @@map("refresh_tokens")
 }

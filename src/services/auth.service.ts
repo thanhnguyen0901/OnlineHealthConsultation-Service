@@ -2,6 +2,7 @@ import prisma from '../config/db';
 import { hashPassword, comparePassword } from '../utils/password';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { AppError } from '../middlewares/error.middleware';
+import crypto from 'crypto';
 
 export interface RegisterInput {
   email: string;
@@ -24,9 +25,55 @@ export interface LoginInput {
 
 export class AuthService {
   /**
+   * Hash refresh token using SHA-256
+   */
+  private hashToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  /**
+   * Create user session with hashed refresh token
+   */
+  private async createSession(
+    userId: string,
+    refreshToken: string,
+    userAgent?: string,
+    ipAddress?: string
+  ) {
+    const refreshTokenHash = this.hashToken(refreshToken);
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+
+    await prisma.userSession.create({
+      data: {
+        userId,
+        refreshTokenHash,
+        expiresAt,
+        userAgent,
+        ipAddress,
+      },
+    });
+  }
+
+  /**
+   * Revoke all user sessions (security measure on token reuse detection)
+   */
+  private async revokeAllUserSessions(userId: string) {
+    await prisma.userSession.updateMany({
+      where: {
+        userId,
+        revokedAt: null,
+      },
+      data: {
+        revokedAt: new Date(),
+      },
+    });
+  }
+
+  /**
    * Register a new user
    */
-  async register(input: RegisterInput) {
+  async register(input: RegisterInput, userAgent?: string, ipAddress?: string) {
     const { email, password, fullName, role, ...profileData } = input;
 
     // Check if user already exists
@@ -90,21 +137,12 @@ export class AuthService {
       role: user.role,
     });
 
-    // Store refresh token in database
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
-
-    await prisma.refreshToken.create({
-      data: {
-        userId: user.id,
-        token: refreshToken,
-        expiresAt,
-      },
-    });
+    // Store refresh token hash in database
+    await this.createSession(user.id, refreshToken, userAgent, ipAddress);
 
     return {
       accessToken,
-      refreshToken,
+      refreshToken, // Will be set as HttpOnly cookie by controller
       user: {
         id: user.id,
         email: user.email,
@@ -119,7 +157,7 @@ export class AuthService {
   /**
    * Login user
    */
-  async login(input: LoginInput) {
+  async login(input: LoginInput, userAgent?: string, ipAddress?: string) {
     const { email, password } = input;
 
     // Find user
@@ -163,21 +201,12 @@ export class AuthService {
       role: user.role,
     });
 
-    // Store refresh token
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
-
-    await prisma.refreshToken.create({
-      data: {
-        userId: user.id,
-        token: refreshToken,
-        expiresAt,
-      },
-    });
+    // Store refresh token hash
+    await this.createSession(user.id, refreshToken, userAgent, ipAddress);
 
     return {
       accessToken,
-      refreshToken,
+      refreshToken, // Will be set as HttpOnly cookie by controller
       user: {
         id: user.id,
         email: user.email,
@@ -190,10 +219,10 @@ export class AuthService {
   }
 
   /**
-   * Refresh access token
+   * Refresh access token with token rotation
    */
-  async refresh(refreshToken: string) {
-    // Verify refresh token
+  async refresh(refreshToken: string, userAgent?: string, ipAddress?: string) {
+    // Verify refresh token JWT
     let payload;
     try {
       payload = verifyRefreshToken(refreshToken);
@@ -201,19 +230,30 @@ export class AuthService {
       throw new AppError('Invalid refresh token', 401, 'INVALID_REFRESH_TOKEN');
     }
 
-    // Check if refresh token exists in database and is not revoked
-    const storedToken = await prisma.refreshToken.findFirst({
-      where: {
-        token: refreshToken,
-        revoked: false,
-        expiresAt: {
-          gt: new Date(),
-        },
-      },
+    // Hash the token and lookup in database
+    const refreshTokenHash = this.hashToken(refreshToken);
+    const session = await prisma.userSession.findUnique({
+      where: { refreshTokenHash },
     });
 
-    if (!storedToken) {
-      throw new AppError('Refresh token not found or expired', 401, 'INVALID_REFRESH_TOKEN');
+    if (!session) {
+      throw new AppError('Refresh token not found', 401, 'INVALID_REFRESH_TOKEN');
+    }
+
+    // Check if token is expired
+    if (session.expiresAt < new Date()) {
+      throw new AppError('Refresh token expired', 401, 'REFRESH_TOKEN_EXPIRED');
+    }
+
+    // Security: Check for token reuse (already revoked but not expired)
+    if (session.revokedAt) {
+      // Token reuse detected! Revoke all user sessions
+      await this.revokeAllUserSessions(session.userId);
+      throw new AppError(
+        'Token reuse detected - all sessions revoked for security',
+        401,
+        'TOKEN_REUSE_DETECTED'
+      );
     }
 
     // Generate new tokens
@@ -229,41 +269,48 @@ export class AuthService {
       role: payload.role,
     });
 
-    // Revoke old refresh token and store new one
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
+    // Rotate refresh token: revoke old, create new
+    const newRefreshTokenHash = this.hashToken(newRefreshToken);
+    const newExpiresAt = new Date();
+    newExpiresAt.setDate(newExpiresAt.getDate() + 7);
 
     await prisma.$transaction([
-      prisma.refreshToken.update({
-        where: { id: storedToken.id },
-        data: { revoked: true },
+      // Revoke old session
+      prisma.userSession.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
       }),
-      prisma.refreshToken.create({
+      // Create new session
+      prisma.userSession.create({
         data: {
-          userId: payload.id,
-          token: newRefreshToken,
-          expiresAt,
+          userId: session.userId,
+          refreshTokenHash: newRefreshTokenHash,
+          expiresAt: newExpiresAt,
+          userAgent,
+          ipAddress,
         },
       }),
     ]);
 
     return {
       accessToken: newAccessToken,
-      refreshToken: newRefreshToken,
+      refreshToken: newRefreshToken, // Will be set as HttpOnly cookie by controller
     };
   }
 
   /**
-   * Logout user (revoke refresh token)
+   * Logout user (revoke refresh token session)
    */
   async logout(refreshToken: string) {
-    await prisma.refreshToken.updateMany({
+    const refreshTokenHash = this.hashToken(refreshToken);
+
+    await prisma.userSession.updateMany({
       where: {
-        token: refreshToken,
-        revoked: false,
+        refreshTokenHash,
+        revokedAt: null,
       },
       data: {
-        revoked: true,
+        revokedAt: new Date(),
       },
     });
 

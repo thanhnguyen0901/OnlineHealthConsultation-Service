@@ -20,8 +20,22 @@ app.use(helmet({
 // CORS configuration
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
-    credentials: true,
+    origin: (origin, callback) => {
+      // Allow multiple origins (comma-separated in env)
+      const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
+
+      // Allow requests with no origin (mobile apps, Postman, curl)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
+    credentials: true, // CRITICAL: Allow cookies to be sent with requests
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    allowedHeaders: ['Authorization', 'Content-Type'],
   })
 );
 

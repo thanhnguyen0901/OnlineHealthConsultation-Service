@@ -11,10 +11,13 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   JWT_SECRET: z.string().min(1, 'JWT_SECRET is required'),
   JWT_REFRESH_SECRET: z.string().min(1, 'JWT_REFRESH_SECRET is required'),
-  JWT_ACCESS_EXPIRE: z.string().default('30m'),
+  JWT_ACCESS_EXPIRE: z.string().default('15m'),
   JWT_REFRESH_EXPIRE: z.string().default('7d'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
   BCRYPT_ROUNDS: z.string().default('10').transform(Number),
+  COOKIE_SECURE: z.string().default('false').transform((val) => val === 'true'),
+  COOKIE_SAMESITE: z.enum(['none', 'lax', 'strict']).default('lax'),
+  COOKIE_DOMAIN: z.string().optional(),
 });
 
 // Validate and parse environment variables

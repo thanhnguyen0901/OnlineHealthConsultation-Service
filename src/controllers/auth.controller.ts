@@ -57,20 +57,28 @@ export class AuthController {
       address: 500,
     });
     
-    const result = await authService.register(sanitizedPayload);
+    // Extract metadata
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.ip || req.socket.remoteAddress;
     
-    // Set refresh token in httpOnly cookie with security flags
+    const result = await authService.register(sanitizedPayload, userAgent, ipAddress);
+    
+    // Set refresh token in httpOnly cookie
     if (result.refreshToken) {
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
-        secure: env.NODE_ENV === 'production', // HTTPS only in production
-        sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for dev cross-origin
+        secure: env.COOKIE_SECURE,
+        sameSite: env.COOKIE_SAMESITE,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/',
+        path: '/api/auth/refresh',
+        ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
       });
     }
     
-    sendSuccess(res, result, undefined, 201);
+    // Remove refreshToken from response body (security: only in httpOnly cookie)
+    const { refreshToken, ...responseData } = result;
+    
+    sendSuccess(res, responseData, undefined, 201);
   });
 
   /**
@@ -78,20 +86,28 @@ export class AuthController {
    * POST /auth/login
    */
   login = asyncHandler(async (req: Request, res: Response) => {
-    const result = await authService.login(req.body);
+    // Extract metadata
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.ip || req.socket.remoteAddress;
     
-    // Set refresh token in httpOnly cookie with security flags
+    const result = await authService.login(req.body, userAgent, ipAddress);
+    
+    // Set refresh token in httpOnly cookie
     if (result.refreshToken) {
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for dev cross-origin
+        secure: env.COOKIE_SECURE,
+        sameSite: env.COOKIE_SAMESITE,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/',
+        path: '/api/auth/refresh',
+        ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
       });
     }
     
-    sendSuccess(res, result);
+    // Remove refreshToken from response body (security: only in httpOnly cookie)
+    const { refreshToken, ...responseData } = result;
+    
+    sendSuccess(res, responseData);
   });
 
   /**
@@ -99,27 +115,35 @@ export class AuthController {
    * POST /auth/refresh
    */
   refresh = asyncHandler(async (req: Request, res: Response) => {
-    // Get refresh token from body or cookie (FE compatibility)
-    const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
+    // Get refresh token ONLY from cookie (no body support for security)
+    const refreshToken = req.cookies?.refreshToken;
     
     if (!refreshToken) {
       throw new AppError('Refresh token is required', 401, ERROR_CODES.REFRESH_TOKEN_MISSING);
     }
     
-    const result = await authService.refresh(refreshToken);
+    // Extract metadata
+    const userAgent = req.headers['user-agent'];
+    const ipAddress = req.ip || req.socket.remoteAddress;
     
-    // Update refresh token cookie if new token issued
+    const result = await authService.refresh(refreshToken, userAgent, ipAddress);
+    
+    // Set NEW refresh token cookie (rotation)
     if (result.refreshToken) {
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
-        secure: env.NODE_ENV === 'production',
-        sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for dev cross-origin
+        secure: env.COOKIE_SECURE,
+        sameSite: env.COOKIE_SAMESITE,
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/',
+        path: '/api/auth/refresh',
+        ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
       });
     }
     
-    sendSuccess(res, result);
+    // Remove refreshToken from response body (security: only in httpOnly cookie)
+    const { refreshToken: _, ...responseData } = result;
+    
+    sendSuccess(res, responseData);
   });
 
   /**
@@ -127,8 +151,8 @@ export class AuthController {
    * POST /auth/logout
    */
   logout = asyncHandler(async (req: Request, res: Response) => {
-    // Get refresh token from body or cookie (FE compatibility)
-    const refreshToken = req.body.refreshToken || req.cookies?.refreshToken;
+    // Get refresh token ONLY from cookie (no body support)
+    const refreshToken = req.cookies?.refreshToken;
     
     if (!refreshToken) {
       throw new AppError('Refresh token is required', 401, ERROR_CODES.REFRESH_TOKEN_MISSING);
@@ -139,9 +163,10 @@ export class AuthController {
     // Clear refresh token cookie
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      secure: env.NODE_ENV === 'production',
-      sameSite: env.NODE_ENV === 'production' ? 'strict' : 'lax', // Lax for dev cross-origin
-      path: '/',
+      secure: env.COOKIE_SECURE,
+      sameSite: env.COOKIE_SAMESITE,
+      path: '/api/auth/refresh',
+      ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
     });
     
     sendSuccess(res, result);

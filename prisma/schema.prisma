@@ -53,6 +53,7 @@ model User {
   patientProfile PatientProfile?
   doctorProfile  DoctorProfile?
   refreshTokens  RefreshToken[]
+  sessions       UserSession[]
 
   @@index([email])
   @@index([role])
@@ -213,4 +214,23 @@ model RefreshToken {
   @@unique([token(length: 255)])
   @@index([userId])
   @@map("refresh_tokens")
+}
+
+model UserSession {
+  id               String    @id @default(cuid())
+  userId           String
+  refreshTokenHash String    @unique // SHA-256 hash of refresh token
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  lastUsedAt       DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  userAgent        String?   @db.Text
+  ipAddress        String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([refreshTokenHash])
+  @@index([expiresAt])
+  @@map("user_sessions")
 }

@@ -33,8 +33,8 @@ echo "🔧 Generating Prisma Client..."
 npx prisma generate
 
 echo ""
-echo "📦 Running migrations..."
-npx prisma migrate deploy
+echo "📦 Pushing schema to database..."
+npx prisma db push --accept-data-loss
 
 echo ""
 echo "🌱 Seeding database..."

@@ -33,14 +33,14 @@ docker-compose up -d
 timeout /t 15 /nobreak
 ```
 
-### Bước 3: Chạy Migration và Seed Data
+### Bước 3: Push Schema và Seed Data
 
 ```bash
 # Tạo Prisma Client
 npx prisma generate
 
-# Chạy migrations (tạo tables trong database)
-npx prisma migrate deploy
+# Tạo tables trong database từ schema.prisma
+npx prisma db push
 
 # Seed data mẫu (tạo users, specialties, questions...)
 npx ts-node prisma/seed.ts
@@ -57,7 +57,7 @@ npx ts-node prisma/seed.ts
 npm run dev
 ```
 
-✅ **Server chạy tại:** http://localhost:3000
+✅ **Server chạy tại:** http://localhost:4000
 
 ---
 
@@ -67,10 +67,10 @@ npm run dev
 
 ```bash
 # Health check
-curl http://localhost:3000/api/health
+curl http://localhost:4000/api/health
 
 # Lấy danh sách chuyên khoa
-curl http://localhost:3000/api/specialties
+curl http://localhost:4000/api/specialties
 ```
 
 ### Xem Database (GUI)
@@ -87,14 +87,14 @@ Truy cập: http://localhost:5555
 
 | Role | Email | Password |
 |------|-------|----------|
-| **Admin** | admin@healthconsult.com | password123 |
-| **Doctor** | dr.smith@healthconsult.com | password123 |
-| **Doctor** | dr.johnson@healthconsult.com | password123 |
-| **Doctor** | dr.lee@healthconsult.com | password123 |
-| **Doctor** | dr.nguyen@healthconsult.com | password123 |
-| **Patient** | patient1@example.com | password123 |
-| **Patient** | patient2@example.com | password123 |
-| **Patient** | patient3@example.com | password123 |
+| **Admin** | admin@healthcare.com | Admin@123 |
+| **Doctor** | nguyen.van.hung@healthcare.com | Doctor@123 |
+| **Doctor** | tran.thi.lan@healthcare.com | Doctor@123 |
+| **Doctor** | le.van.minh@healthcare.com | Doctor@123 |
+| **Doctor** | pham.thi.nga@healthcare.com | Doctor@123 |
+| **Patient** | vo.van.nam@gmail.com | Patient@123 |
+| **Patient** | hoang.thi.thao@gmail.com | Patient@123 |
+| **Patient** | nguyen.van.khanh@gmail.com | Patient@123 |
 
 ---
 
@@ -109,7 +109,7 @@ docker-compose down -v
 docker-compose up -d
 timeout /t 15 /nobreak
 npx prisma generate
-npx prisma migrate deploy
+npx prisma db push
 npx ts-node prisma/seed.ts
 ```
 
@@ -120,7 +120,7 @@ npx ts-node prisma/seed.ts
 ```bash
 # Database
 npm run prisma:studio      # Mở database GUI (http://localhost:5555)
-npm run db:setup          # Setup database (generate + migrate + seed)
+npm run db:setup          # Setup database (generate + push + seed)
 
 # Development
 npm run dev               # Chạy server với hot reload
@@ -170,14 +170,14 @@ npx prisma generate
 
 ## 🌐 API Endpoints
 
-- **Root:** http://localhost:3000
-- **Health Check:** http://localhost:3000/api/health
-- **Specialties (Public):** http://localhost:3000/api/specialties
-- **Featured Doctors (Public):** http://localhost:3000/api/doctors/featured
-- **Auth:** http://localhost:3000/api/auth/login
-- **Admin:** http://localhost:3000/api/admin/*
-- **Doctor:** http://localhost:3000/api/doctor/*
-- **Patient:** http://localhost:3000/api/patient/*
+- **Root:** http://localhost:4000
+- **Health Check:** http://localhost:4000/api/health
+- **Specialties (Public):** http://localhost:4000/api/specialties
+- **Featured Doctors (Public):** http://localhost:4000/api/doctors/featured
+- **Auth:** http://localhost:4000/api/auth/login
+- **Admin:** http://localhost:4000/api/admin/*
+- **Doctor:** http://localhost:4000/api/doctor/*
+- **Patient:** http://localhost:4000/api/patient/*
 
 ---
 
@@ -187,9 +187,9 @@ npx prisma generate
 - [ ] `npm install` thành công
 - [ ] MySQL container running: `docker ps`
 - [ ] Database có tables: `npm run prisma:studio`
-- [ ] Server chạy: http://localhost:3000
-- [ ] API health OK: http://localhost:3000/api/health
-- [ ] Login thành công với admin@healthconsult.com
+- [ ] Server chạy: http://localhost:4000
+- [ ] API health OK: http://localhost:4000/api/health
+- [ ] Login thành công với admin@healthcare.com
 
 ---
 

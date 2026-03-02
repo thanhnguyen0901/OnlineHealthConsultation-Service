@@ -536,31 +536,31 @@ async function main() {
   console.log('═══════════════════════════════════════════════════════════\n');
   console.log('🎉 Database seed completed successfully!\n');
   console.log('═══════════════════════════════════════════════════════════\n');
-  console.log('📋 Test Credentials (Tất cả mật khẩu: password123)\n');
+  console.log('📋 Test Credentials\n');
   console.log('═══════════════════════════════════════════════════════════\n');
   
   console.log('👨‍💼 ADMIN:');
-  console.log('   Email: admin@healthconsult.com');
-  console.log('   Role: Quản trị viên\n');
+  console.log('   Email:    admin@healthcare.com');
+  console.log('   Password: Admin@123\n');
   
-  console.log('👨‍⚕️ DOCTORS:');
-  console.log('   1. dr.smith@healthconsult.com   - BS. Nguyễn Văn An (Tim mạch)');
-  console.log('   2. dr.johnson@healthconsult.com - BS. Trần Thị Bình (Da liễu)');
-  console.log('   3. dr.lee@healthconsult.com     - BS. Lê Minh Châu (Nhi khoa)');
-  console.log('   4. dr.nguyen@healthconsult.com  - BS. Phạm Hoàng Dũng (Chỉnh hình)\n');
+  console.log('👨‍⚕️ DOCTORS (Password: Doctor@123):');
+  console.log('   1. nguyen.van.hung@healthcare.com - BS. Nguyễn Văn Hùng (Tim mạch)');
+  console.log('   2. tran.thi.lan@healthcare.com    - BS. Trần Thị Lan (Da liễu)');
+  console.log('   3. le.van.minh@healthcare.com     - BS. Lê Văn Minh (Nhi khoa)');
+  console.log('   4. pham.thi.nga@healthcare.com    - BS. Phạm Thị Nga (Chấn thương chỉnh hình)\n');
   
-  console.log('👥 PATIENTS:');
-  console.log('   1. patient1@example.com - Nguyễn Thị Hoa');
-  console.log('   2. patient2@example.com - Trần Văn Nam');
-  console.log('   3. patient3@example.com - Lê Thị Mai\n');
+  console.log('👥 PATIENTS (Password: Patient@123):');
+  console.log('   1. vo.van.nam@gmail.com          - Võ Văn Nam');
+  console.log('   2. hoang.thi.thao@gmail.com      - Hoàng Thị Thảo');
+  console.log('   3. nguyen.van.khanh@gmail.com    - Nguyễn Văn Khánh\n');
   
   console.log('═══════════════════════════════════════════════════════════\n');
   console.log('📊 Sample Data Summary:\n');
   console.log(`   - Specialties: 5`);
-  console.log(`   - Users: ${1 + 4 + 3} (1 admin + 4 doctors + 3 patients)`);
-  console.log(`   - Questions: 4 (2 answered, 2 pending)`);
-  console.log(`   - Appointments: 3 (1 completed, 1 confirmed, 1 pending)`);
-  console.log(`   - Ratings: 1\n`);
+  console.log(`   - Users: 8 (1 admin + 4 doctors + 3 patients)`);
+  console.log(`   - Questions: 6 (3 answered-approved, 1 answered-pending-approve, 2 pending)`);
+  console.log(`   - Appointments: 7 (3 completed, 2 confirmed, 1 pending, 1 cancelled)`);
+  console.log(`   - Ratings: 3 (2 visible, 1 hidden)\n`);
   console.log('═══════════════════════════════════════════════════════════\n');
 }
 

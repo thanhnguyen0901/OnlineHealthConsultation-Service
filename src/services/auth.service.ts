@@ -7,7 +7,8 @@ import crypto from 'crypto';
 export interface RegisterInput {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   role: 'PATIENT' | 'DOCTOR';
   // Optional profile data
   specialty?: string;
@@ -74,7 +75,7 @@ export class AuthService {
    * Register a new user
    */
   async register(input: RegisterInput, userAgent?: string, ipAddress?: string) {
-    const { email, password, fullName, role, ...profileData } = input;
+    const { email, password, firstName, lastName, role, ...profileData } = input;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -93,7 +94,8 @@ export class AuthService {
       data: {
         email,
         passwordHash,
-        fullName,
+        firstName,
+        lastName,
         role,
         ...(role === 'PATIENT' && {
           patientProfile: {
@@ -146,7 +148,8 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        fullName: user.fullName,
+        firstName: user.firstName,
+        lastName: user.lastName,
         role: user.role,
         patientProfile: user.patientProfile,
         doctorProfile: user.doctorProfile,
@@ -210,7 +213,8 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        fullName: user.fullName,
+        firstName: user.firstName,
+        lastName: user.lastName,
         role: user.role,
         patientProfile: user.patientProfile,
         doctorProfile: user.doctorProfile,
@@ -340,7 +344,8 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
-      fullName: user.fullName,
+      firstName: user.firstName,
+      lastName: user.lastName,
       role: user.role,
       isActive: user.isActive,
       patientProfile: user.patientProfile,

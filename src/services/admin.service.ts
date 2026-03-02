@@ -5,7 +5,8 @@ import { hashPassword } from '../utils/password';
 export interface CreateUserInput {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   role: 'PATIENT' | 'DOCTOR' | 'ADMIN';
   specialtyId?: string;
   bio?: string;
@@ -17,7 +18,8 @@ export interface CreateUserInput {
 
 export interface UpdateUserInput {
   email?: string;
-  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   role?: 'PATIENT' | 'DOCTOR' | 'ADMIN';
   isActive?: boolean;
 }
@@ -58,7 +60,8 @@ export class AdminService {
     if (search) {
       where.OR = [
         { email: { contains: search } },
-        { fullName: { contains: search } },
+        { firstName: { contains: search } },
+        { lastName: { contains: search } },
       ];
     }
 
@@ -72,7 +75,8 @@ export class AdminService {
         select: {
           id: true,
           email: true,
-          fullName: true,
+          firstName: true,
+          lastName: true,
           role: true,
           isActive: true,
           createdAt: true,
@@ -120,7 +124,7 @@ export class AdminService {
    * Create a new user (any role)
    */
   async createUser(input: CreateUserInput) {
-    const { email, password, fullName, role, ...profileData } = input;
+    const { email, password, firstName, lastName, role, ...profileData } = input;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -139,7 +143,8 @@ export class AdminService {
       data: {
         email,
         passwordHash,
-        fullName,
+        firstName,
+        lastName,
         role,
         ...(role === 'PATIENT' && {
           patientProfile: {
@@ -237,7 +242,8 @@ export class AdminService {
             select: {
               id: true,
               email: true,
-              fullName: true,
+              firstName: true,
+              lastName: true,
               isActive: true,
             },
           },
@@ -294,7 +300,12 @@ export class AdminService {
     }
 
     // Separate user fields from doctor profile fields
-    const { specialtyId, bio, yearsOfExperience, ...userFields } = input;
+    const { specialtyId, bio, yearsOfExperience, firstName, lastName, ...restUserFields } = input;
+
+    // Update user fields directly (no name remapping needed)
+    const userFields: any = { ...restUserFields };
+    if (firstName !== undefined) userFields.firstName = firstName;
+    if (lastName !== undefined) userFields.lastName = lastName;
 
     // Update user if there are user fields
     if (Object.keys(userFields).length > 0) {
@@ -368,7 +379,8 @@ export class AdminService {
             select: {
               id: true,
               email: true,
-              fullName: true,
+              firstName: true,
+              lastName: true,
               isActive: true,
             },
           },
@@ -470,19 +482,36 @@ export class AdminService {
   /**
    * Get all appointments
    */
-  async getAppointments(page: number = 1, limit: number = 20) {
+  async getAppointments(page: number = 1, limit: number = 20, status?: string, startDate?: string, endDate?: string) {
     const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (status) {
+      where.status = status.toUpperCase();
+    }
+    if (startDate || endDate) {
+      where.scheduledAt = {};
+      if (startDate) where.scheduledAt.gte = new Date(startDate);
+      if (endDate) {
+        // Include the entire end day
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.scheduledAt.lte = end;
+      }
+    }
 
     const [appointments, total] = await Promise.all([
       prisma.appointment.findMany({
         skip,
         take: limit,
+        where,
         include: {
           patient: {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                   email: true,
                 },
               },
@@ -492,7 +521,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                   email: true,
                 },
               },
@@ -504,7 +534,7 @@ export class AdminService {
           scheduledAt: 'desc',
         },
       }),
-      prisma.appointment.count(),
+      prisma.appointment.count({ where }),
     ]);
 
     return {
@@ -538,7 +568,8 @@ export class AdminService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
           },
@@ -547,7 +578,8 @@ export class AdminService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
           },
@@ -573,7 +605,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -582,7 +615,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -662,7 +696,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -671,7 +706,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -762,7 +798,8 @@ export class AdminService {
             user: {
               select: {
                 id: true,
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
           },
@@ -780,7 +817,8 @@ export class AdminService {
             user: {
               select: {
                 id: true,
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
           },
@@ -803,7 +841,8 @@ export class AdminService {
             user: {
               select: {
                 id: true,
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
           },
@@ -812,7 +851,8 @@ export class AdminService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
           },
@@ -829,7 +869,7 @@ export class AdminService {
         contentPreview: q.title,
         content: q.content,
         createdAt: q.createdAt,
-        author: q.patient.user.fullName,
+        author: `${q.patient.user.firstName} ${q.patient.user.lastName}`,
         authorId: q.patient.user.id,
         status: q.status,
         entityId: q.id,
@@ -840,7 +880,7 @@ export class AdminService {
         contentPreview: a.content.substring(0, 100),
         content: a.content,
         createdAt: a.createdAt,
-        author: a.doctor.user.fullName,
+        author: `${a.doctor.user.firstName} ${a.doctor.user.lastName}`,
         authorId: a.doctor.user.id,
         status: a.isApproved ? 'APPROVED' : 'PENDING',
         entityId: a.id,
@@ -848,10 +888,10 @@ export class AdminService {
       ...ratings.map(r => ({
         id: `RATING_${r.id}`,
         type: 'RATING' as const,
-        contentPreview: `Rating: ${r.score}/5 for Dr. ${r.doctor.user.fullName}`,
+        contentPreview: `Rating: ${r.score}/5 for Dr. ${r.doctor.user.firstName} ${r.doctor.user.lastName}`,
         content: r.comment || '',
         createdAt: r.createdAt,
-        author: r.patient.user.fullName,
+        author: `${r.patient.user.firstName} ${r.patient.user.lastName}`,
         authorId: r.patient.user.id,
         status: r.status,
         entityId: r.id,

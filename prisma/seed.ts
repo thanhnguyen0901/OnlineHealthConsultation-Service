@@ -84,7 +84,8 @@ async function main() {
     data: {
       email: 'admin@healthcare.com',
       passwordHash: adminPasswordHash,
-      fullName: 'Quản trị viên hệ thống',
+      firstName: 'Quản trị viên',
+      lastName: 'hệ thống',
       role: 'ADMIN',
       isActive: true,
     },
@@ -97,7 +98,8 @@ async function main() {
     data: {
       email: 'nguyen.van.hung@healthcare.com',
       passwordHash: doctorPasswordHash,
-      fullName: 'BS. Nguyễn Văn Hùng',
+      firstName: 'Nguyễn Văn',
+      lastName: 'Hùng',
       role: 'DOCTOR',
       isActive: true,
       doctorProfile: {
@@ -116,7 +118,8 @@ async function main() {
     data: {
       email: 'tran.thi.lan@healthcare.com',
       passwordHash: doctorPasswordHash,
-      fullName: 'BS. Trần Thị Lan',
+      firstName: 'Trần Thị',
+      lastName: 'Lan',
       role: 'DOCTOR',
       isActive: true,
       doctorProfile: {
@@ -135,7 +138,8 @@ async function main() {
     data: {
       email: 'le.van.minh@healthcare.com',
       passwordHash: doctorPasswordHash,
-      fullName: 'BS. Lê Văn Minh',
+      firstName: 'Lê Văn',
+      lastName: 'Minh',
       role: 'DOCTOR',
       isActive: true,
       doctorProfile: {
@@ -154,7 +158,8 @@ async function main() {
     data: {
       email: 'pham.thi.nga@healthcare.com',
       passwordHash: doctorPasswordHash,
-      fullName: 'BS. Phạm Thị Nga',
+      firstName: 'Phạm Thị',
+      lastName: 'Nga',
       role: 'DOCTOR',
       isActive: true,
       doctorProfile: {
@@ -177,7 +182,8 @@ async function main() {
     data: {
       email: 'vo.van.nam@gmail.com',
       passwordHash: patientPasswordHash,
-      fullName: 'Võ Văn Nam',
+      firstName: 'Võ Văn',
+      lastName: 'Nam',
       role: 'PATIENT',
       isActive: true,
       patientProfile: {
@@ -196,7 +202,8 @@ async function main() {
     data: {
       email: 'hoang.thi.thao@gmail.com',
       passwordHash: patientPasswordHash,
-      fullName: 'Hoàng Thị Thảo',
+      firstName: 'Hoàng Thị',
+      lastName: 'Thảo',
       role: 'PATIENT',
       isActive: true,
       patientProfile: {
@@ -215,7 +222,8 @@ async function main() {
     data: {
       email: 'nguyen.van.khanh@gmail.com',
       passwordHash: patientPasswordHash,
-      fullName: 'Nguyễn Văn Khánh',
+      firstName: 'Nguyễn Văn',
+      lastName: 'Khánh',
       role: 'PATIENT',
       isActive: true,
       patientProfile: {

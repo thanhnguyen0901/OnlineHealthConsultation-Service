@@ -2,9 +2,11 @@ import { Router } from 'express';
 import adminController, {
   createUserSchema,
   updateUserSchema,
+  updateDoctorSchema,
   createSpecialtySchema,
   updateSpecialtySchema,
   queryPaginationSchema,
+  queryAppointmentsSchema,
   queryUsersSchema,
   idParamSchema,
   updateAppointmentSchema,
@@ -31,7 +33,7 @@ router.delete('/users/:id', validate({ params: idParamSchema }), adminController
 // Doctor management
 router.get('/doctors', validate({ query: queryPaginationSchema }), adminController.getDoctors);
 router.post('/doctors', validate({ body: createUserSchema.shape.body }), adminController.createDoctor);
-router.put('/doctors/:id', validate({ params: idParamSchema, body: updateUserSchema.shape.body }), adminController.updateDoctor);
+router.put('/doctors/:id', validate({ params: idParamSchema, body: updateDoctorSchema.shape.body }), adminController.updateDoctor);
 router.delete('/doctors/:id', validate({ params: idParamSchema }), adminController.deleteDoctor);
 
 // Patient management
@@ -44,7 +46,7 @@ router.put('/specialties/:id', validate({ params: idParamSchema, body: updateSpe
 router.delete('/specialties/:id', validate({ params: idParamSchema }), adminController.deleteSpecialty);
 
 // Appointment management
-router.get('/appointments', validate({ query: queryPaginationSchema }), adminController.getAppointments);
+router.get('/appointments', validate({ query: queryAppointmentsSchema }), adminController.getAppointments);
 router.put('/appointments/:id', validate({ params: idParamSchema, body: updateAppointmentSchema.shape.body }), adminController.updateAppointment);
 
 // Moderation

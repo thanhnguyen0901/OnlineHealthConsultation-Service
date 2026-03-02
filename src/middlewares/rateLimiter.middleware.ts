@@ -28,7 +28,7 @@ export const authRateLimiter = rateLimit({
  */
 export const refreshRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Limit each IP to 5 refresh requests per windowMs
+  max: env.NODE_ENV === 'development' ? 100 : 5, // Higher limit in development (StrictMode fires effects twice)
   message: {
     error: {
       message: 'Too many refresh token requests, please try again later',

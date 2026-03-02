@@ -9,7 +9,9 @@ export const createUserSchema = z.object({
   body: z.object({
     email: z.string().email('Invalid email format'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    fullName: z.string().min(1, 'Full name is required'),
+    // FE sends `name` (normalized field); accept either and normalize to `fullName`
+    fullName: z.string().min(1, 'Full name is required').optional(),
+    name: z.string().min(1, 'Full name is required').optional(),
     role: z.enum(['PATIENT', 'DOCTOR', 'ADMIN']),
     specialtyId: z.string().optional(),
     bio: z.string().optional(),
@@ -19,14 +21,32 @@ export const createUserSchema = z.object({
       .optional(),
     phone: z.string().optional(),
     address: z.string().optional(),
+  }).refine((data) => data.fullName || data.name, {
+    message: 'Full name is required',
+    path: ['fullName'],
+  }).transform((data) => {
+    const { name, ...rest } = data;
+    return { ...rest, fullName: rest.fullName ?? name! };
   }),
 });
 
 export const updateUserSchema = z.object({
   body: z.object({
+    name: z.string().optional(),       // FE sends normalized `name` field
     email: z.string().email().optional(),
     fullName: z.string().optional(),
     role: z.enum(['PATIENT', 'DOCTOR', 'ADMIN']).optional(),
+    isActive: z.boolean().optional(),
+  }),
+});
+
+export const updateDoctorSchema = z.object({
+  body: z.object({
+    name: z.string().optional(),       // FE sends normalized `name` field
+    email: z.string().email().optional(),
+    specialtyId: z.string().optional(),
+    bio: z.string().optional(),
+    yearsOfExperience: z.number().optional(),
     isActive: z.boolean().optional(),
   }),
 });
@@ -53,6 +73,14 @@ export const updateSpecialtySchema = z.object({
 export const queryPaginationSchema = z.object({
   page: z.string().optional().transform((val) => val ? parseInt(val) : 1),
   limit: z.string().optional().transform((val) => val ? parseInt(val) : 20),
+});
+
+export const queryAppointmentsSchema = z.object({
+  page: z.string().optional().transform((val) => val ? parseInt(val) : 1),
+  limit: z.string().optional().transform((val) => val ? parseInt(val) : 20),
+  status: z.enum(['pending', 'confirmed', 'completed', 'cancelled', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED']).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
 });
 
 export const queryUsersSchema = z.object({
@@ -166,7 +194,21 @@ export class AdminController {
   updateDoctor = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
     const result = await adminService.updateDoctor(id, req.body);
-    sendSuccess(res, result);
+
+    // Transform to the same flat structure used by getDoctors so the FE
+    // can update its Redux store correctly after a successful update.
+    const transformedDoctor = {
+      id: (result as any).id,
+      email: (result as any).email,
+      fullName: (result as any).fullName,
+      isActive: (result as any).isActive,
+      specialtyId: (result as any).doctorProfile?.specialtyId,
+      specialtyName: (result as any).doctorProfile?.specialty?.name || '',
+      bio: (result as any).doctorProfile?.bio,
+      role: 'DOCTOR',
+    };
+
+    sendSuccess(res, transformedDoctor);
   });
 
   /**
@@ -235,10 +277,13 @@ export class AdminController {
    * GET /admin/appointments
    */
   getAppointments = asyncHandler(async (req: Request, res: Response) => {
-    const { page, limit } = req.query;
+    const { page, limit, status, startDate, endDate } = req.query;
     const result = await adminService.getAppointments(
       page ? parseInt(page as string) : undefined,
-      limit ? parseInt(limit as string) : undefined
+      limit ? parseInt(limit as string) : undefined,
+      status as string | undefined,
+      startDate as string | undefined,
+      endDate as string | undefined
     );
     
     // Transform nested structure to flat structure for frontend
@@ -268,7 +313,25 @@ export class AdminController {
     // Status is already normalized to uppercase by validation schema
     const { status } = req.body;
     const result = await adminService.updateAppointment(id, status);
-    sendSuccess(res, result);
+
+    // Transform to same flat structure as getAppointments so FE Redux store stays consistent
+    const transformed = {
+      id: (result as any).id,
+      patientId: (result as any).patientId,
+      patientName: (result as any).patient?.user?.fullName || '',
+      doctorId: (result as any).doctorId,
+      doctorName: (result as any).doctor?.user?.fullName || '',
+      specialtyId: (result as any).doctor?.specialtyId || '',
+      specialtyName: (result as any).doctor?.specialty?.name || '',
+      date: (result as any).scheduledAt,
+      time: (result as any).scheduledAt
+        ? new Date((result as any).scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+        : '',
+      status: (result as any).status?.toLowerCase() || 'pending',
+      notes: (result as any).notes,
+    };
+
+    sendSuccess(res, transformed);
   });
 
   /**

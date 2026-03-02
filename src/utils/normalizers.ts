@@ -4,15 +4,24 @@
  */
 
 /**
- * Normalize registration payload
- * Accepts: {name} OR {fullName}
- * Returns: {fullName}
+ * Normalize registration payload.
+ * Accepts firstName/lastName directly, or a combined fullName/name string.
+ * Splits combined names on the first space and returns { ...body, firstName, lastName }
+ * without the legacy fullName/name fields.
  */
 export function normalizeRegisterPayload(body: any) {
-  return {
-    ...body,
-    fullName: body.fullName || body.name,
-  };
+  // If individual name parts are already provided, strip any legacy combined field.
+  if (body.firstName || body.lastName) {
+    const { fullName, name, ...rest } = body;
+    return rest;
+  }
+  // Split a combined name string into firstName and lastName.
+  const raw = ((body.fullName || body.name) as string | undefined)?.trim() ?? '';
+  const spaceIdx = raw.indexOf(' ');
+  const firstName = spaceIdx >= 0 ? raw.slice(0, spaceIdx) : raw;
+  const lastName = spaceIdx >= 0 ? raw.slice(spaceIdx + 1).trim() : '';
+  const { fullName, name, ...rest } = body;
+  return { ...rest, firstName, lastName };
 }
 
 /**

@@ -1,6 +1,8 @@
 import prisma from '../config/db';
 import { AppError } from '../middlewares/error.middleware';
 import { hashPassword } from '../utils/password';
+import { newId } from '../utils/id';
+import { recalcDoctorRating } from '../utils/rating';
 
 export interface CreateUserInput {
   email: string;
@@ -25,14 +27,14 @@ export interface UpdateUserInput {
 }
 
 export interface CreateSpecialtyInput {
-  name: string;
+  // `name` is derived from `nameEn`; do not include it in API input.
   nameEn: string;
   nameVi: string;
   description?: string;
 }
 
 export interface UpdateSpecialtyInput {
-  name?: string;
+  // `name` is auto-synced from `nameEn`; do not include it in API input.
   nameEn?: string;
   nameVi?: string;
   description?: string;
@@ -141,6 +143,7 @@ export class AdminService {
     // Create user with profile if needed
     const user = await prisma.user.create({
       data: {
+        id: newId(),
         email,
         passwordHash,
         firstName,
@@ -149,6 +152,7 @@ export class AdminService {
         ...(role === 'PATIENT' && {
           patientProfile: {
             create: {
+              id: newId(),
               dateOfBirth: profileData.dateOfBirth,
               gender: profileData.gender,
               phone: profileData.phone,
@@ -159,6 +163,7 @@ export class AdminService {
         ...(role === 'DOCTOR' && profileData.specialtyId && {
           doctorProfile: {
             create: {
+              id: newId(),
               specialtyId: profileData.specialtyId,
               bio: profileData.bio,
             },
@@ -409,7 +414,7 @@ export class AdminService {
   async getSpecialties() {
     const specialties = await prisma.specialty.findMany({
       orderBy: {
-        name: 'asc',
+        nameEn: 'asc',
       },
     });
 
@@ -420,8 +425,9 @@ export class AdminService {
    * Create a specialty
    */
   async createSpecialty(input: CreateSpecialtyInput) {
+    // `name` mirrors `nameEn` (legacy uniqueness alias kept in sync by code)
     const specialty = await prisma.specialty.create({
-      data: input,
+      data: { id: newId(), name: input.nameEn, ...input },
     });
 
     return specialty;
@@ -439,9 +445,15 @@ export class AdminService {
       throw new AppError('Specialty not found', 404, 'SPECIALTY_NOT_FOUND');
     }
 
+    // Keep `name` in sync with `nameEn` whenever nameEn is updated
+    const updateData: typeof input & { name?: string } = { ...input };
+    if (input.nameEn !== undefined) {
+      updateData.name = input.nameEn;
+    }
+
     const updatedSpecialty = await prisma.specialty.update({
       where: { id: specialtyId },
-      data: input,
+      data: updateData,
     });
 
     return updatedSpecialty;
@@ -744,42 +756,17 @@ export class AdminService {
       throw new AppError('Rating not found', 404, 'RATING_NOT_FOUND');
     }
 
-    const updatedRating = await prisma.rating.update({
-      where: { id: ratingId },
-      data: { status },
-    });
-
-    // Recalculate doctor's rating average
-    const doctorRatings = await prisma.rating.findMany({
-      where: {
-        doctorId: rating.doctorId,
-        status: 'VISIBLE',
-      },
-      select: {
-        score: true,
-      },
-    });
-
-    if (doctorRatings.length > 0) {
-      const totalScore = doctorRatings.reduce((sum, r) => sum + r.score, 0);
-      const averageRating = totalScore / doctorRatings.length;
-
-      await prisma.doctorProfile.update({
-        where: { id: rating.doctorId },
-        data: {
-          ratingAverage: averageRating,
-          ratingCount: doctorRatings.length,
-        },
+    // Update status and recalculate doctor stats atomically
+    const updatedRating = await prisma.$transaction(async (tx) => {
+      const updated = await tx.rating.update({
+        where: { id: ratingId },
+        data: { status },
       });
-    } else {
-      await prisma.doctorProfile.update({
-        where: { id: rating.doctorId },
-        data: {
-          ratingAverage: 0,
-          ratingCount: 0,
-        },
-      });
-    }
+
+      await recalcDoctorRating(rating.doctorId, tx);
+
+      return updated;
+    });
 
     return updatedRating;
   }

@@ -11,9 +11,12 @@ import { ERROR_CODES } from '../constants/errorCodes';
 export const registerSchema = z.object({  body: z.object({
     email: z.string().email('Invalid email format'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    // Accept either 'fullName' or 'name' from frontend (normalize to fullName)
-    fullName: z.string().min(1, 'Full name is required').optional(),
-    name: z.string().min(1, 'Name is required').optional(),
+    // Accept firstName/lastName separately, or a combined fullName/name for legacy clients.
+    // normalizeRegisterPayload will split fullName/name into firstName+lastName before the service call.
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    fullName: z.string().optional(),  // legacy combined-name field
+    name: z.string().optional(),      // legacy combined-name field
     role: z.enum(['PATIENT', 'DOCTOR'], {
       errorMap: () => ({ message: 'Role must be either PATIENT or DOCTOR' }),
     }),
@@ -25,8 +28,8 @@ export const registerSchema = z.object({  body: z.object({
       .optional(),
     phone: z.string().optional(),
     address: z.string().optional(),
-  }).refine(data => data.fullName || data.name, {
-    message: 'Either fullName or name is required',
+  }).refine(data => data.firstName || data.fullName || data.name, {
+    message: 'firstName or a combined fullName/name field is required',
   }),
 });
 
@@ -51,8 +54,9 @@ export class AuthController {
   register = asyncHandler(async (req: Request, res: Response) => {
     // Normalize and sanitize payload
     const normalizedPayload = normalizeRegisterPayload(req.body);
-    const sanitizedPayload = sanitizeTextFields(normalizedPayload, ['fullName', 'bio', 'address'], {
-      fullName: 255,
+    const sanitizedPayload = sanitizeTextFields(normalizedPayload, ['firstName', 'lastName', 'bio', 'address'], {
+      firstName: 100,
+      lastName: 100,
       bio: 5000,
       address: 500,
     });

@@ -297,7 +297,8 @@ export class ReportService {
       include: {
         user: {
           select: {
-            fullName: true,
+            firstName: true,
+            lastName: true,
             email: true,
           },
         },
@@ -307,8 +308,8 @@ export class ReportService {
 
     return doctors.map((d) => ({
       id: d.id,
-      doctorName: d.user.fullName,
-      specialty: d.specialty.name,
+      doctorName: `${d.user.firstName} ${d.user.lastName}`.trim(),
+      specialty: d.specialty.nameEn,
       ratingAverage: d.ratingAverage,
       ratingCount: d.ratingCount,
       yearsOfExperience: d.yearsOfExperience,

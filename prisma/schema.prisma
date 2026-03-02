@@ -41,7 +41,7 @@ enum RatingStatus {
 }
 
 model User {
-  id           String    @id @default(cuid())
+  id           String    @id @db.Char(36)
   email        String    @unique
   passwordHash String
   firstName    String
@@ -53,7 +53,6 @@ model User {
 
   patientProfile PatientProfile?
   doctorProfile  DoctorProfile?
-  refreshTokens  RefreshToken[]
   sessions       UserSession[]
 
   @@index([email])
@@ -62,8 +61,8 @@ model User {
 }
 
 model PatientProfile {
-  id             String    @id @default(cuid())
-  userId         String    @unique
+  id             String    @id @db.Char(36)
+  userId         String    @unique @db.Char(36)
   dateOfBirth    DateTime?
   gender         Gender?
   phone          String?
@@ -82,15 +81,16 @@ model PatientProfile {
 }
 
 model DoctorProfile {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  specialtyId       String
+  id                String   @id @db.Char(36)
+  userId            String   @unique @db.Char(36)
+  specialtyId       String   @db.Char(36)
   bio               String?  @db.Text
   yearsOfExperience Int      @default(0)
   ratingAverage     Float    @default(0)
   ratingCount       Int      @default(0)
-  schedule          String?  @db.Text // JSON string for schedule data
-  createdAt         DateTime @default(now())
+  schedule          String?   @db.Text // JSON array of ScheduleSlot — validated by src/utils/schedule.ts
+  scheduleUpdatedAt DateTime? // set on every schedule write
+  createdAt         DateTime  @default(now())
   updatedAt         DateTime @updatedAt
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -106,7 +106,7 @@ model DoctorProfile {
 }
 
 model Specialty {
-  id          String    @id @default(cuid())
+  id          String    @id @db.Char(36)
   name        String    @unique // Kept for backward compatibility
   nameEn      String
   nameVi      String
@@ -121,9 +121,9 @@ model Specialty {
 }
 
 model Question {
-  id        String         @id @default(cuid())
-  patientId String
-  doctorId  String?
+  id        String         @id @db.Char(36)
+  patientId String         @db.Char(36)
+  doctorId  String?        @db.Char(36)
   title     String
   content   String         @db.Text
   status    QuestionStatus @default(PENDING)
@@ -141,9 +141,9 @@ model Question {
 }
 
 model Answer {
-  id         String   @id @default(cuid())
-  questionId String
-  doctorId   String
+  id         String   @id @db.Char(36)
+  questionId String   @db.Char(36)
+  doctorId   String   @db.Char(36)
   content    String   @db.Text
   isApproved Boolean  @default(false)
   createdAt  DateTime @default(now())
@@ -158,9 +158,9 @@ model Answer {
 }
 
 model Appointment {
-  id          String            @id @default(cuid())
-  patientId   String
-  doctorId    String
+  id          String            @id @db.Char(36)
+  patientId   String            @db.Char(36)
+  doctorId    String            @db.Char(36)
   scheduledAt DateTime
   status      AppointmentStatus @default(PENDING)
   reason      String            @db.Text
@@ -180,10 +180,10 @@ model Appointment {
 }
 
 model Rating {
-  id            String       @id @default(cuid())
-  patientId     String
-  doctorId      String
-  appointmentId String
+  id            String       @id @db.Char(36)
+  patientId     String       @db.Char(36)
+  doctorId      String       @db.Char(36)
+  appointmentId String       @db.Char(36)
   score         Int // 1-5
   comment       String?      @db.Text
   status        RatingStatus @default(VISIBLE)
@@ -201,25 +201,9 @@ model Rating {
   @@map("ratings")
 }
 
-model RefreshToken {
-  id        String   @id @default(cuid())
-  userId    String
-  token     String   @db.Text
-  expiresAt DateTime
-  revoked   Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([token(length: 255)])
-  @@index([userId])
-  @@map("refresh_tokens")
-}
-
 model UserSession {
-  id               String    @id @default(cuid())
-  userId           String
+  id               String    @id @db.Char(36)
+  userId           String    @db.Char(36)
   refreshTokenHash String    @unique // SHA-256 hash of refresh token
   expiresAt        DateTime
   revokedAt        DateTime?

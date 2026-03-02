@@ -1,5 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { uuidv7 } from 'uuidv7';
+
+/** Generate a new UUID v7 primary key. */
+const newId = () => uuidv7();
 
 const prisma = new PrismaClient();
 
@@ -12,7 +16,6 @@ async function main() {
   await prisma.answer.deleteMany();
   await prisma.question.deleteMany();
   await prisma.appointment.deleteMany();
-  await prisma.refreshToken.deleteMany();
   await prisma.patientProfile.deleteMany();
   await prisma.doctorProfile.deleteMany();
   await prisma.user.deleteMany();
@@ -23,6 +26,7 @@ async function main() {
   console.log('🏥 Creating specialties...');
   const cardiology = await prisma.specialty.create({
     data: {
+      id: newId(),
       name: 'Cardiology',
       nameEn: 'Cardiology',
       nameVi: 'Tim mạch',
@@ -33,6 +37,7 @@ async function main() {
 
   const dermatology = await prisma.specialty.create({
     data: {
+      id: newId(),
       name: 'Dermatology',
       nameEn: 'Dermatology',
       nameVi: 'Da liễu',
@@ -43,6 +48,7 @@ async function main() {
 
   const pediatrics = await prisma.specialty.create({
     data: {
+      id: newId(),
       name: 'Pediatrics',
       nameEn: 'Pediatrics',
       nameVi: 'Nhi khoa',
@@ -53,6 +59,7 @@ async function main() {
 
   const orthopedics = await prisma.specialty.create({
     data: {
+      id: newId(),
       name: 'Orthopedics',
       nameEn: 'Orthopedics',
       nameVi: 'Chấn thương chỉnh hình',
@@ -63,6 +70,7 @@ async function main() {
 
   const generalMedicine = await prisma.specialty.create({
     data: {
+      id: newId(),
       name: 'General Medicine',
       nameEn: 'General Medicine',
       nameVi: 'Đa khoa',
@@ -82,6 +90,7 @@ async function main() {
   console.log('👨‍💼 Creating admin user...');
   const admin = await prisma.user.create({
     data: {
+      id: newId(),
       email: 'admin@healthcare.com',
       passwordHash: adminPasswordHash,
       firstName: 'Quản trị viên',
@@ -94,8 +103,25 @@ async function main() {
 
   // Create doctors
   console.log('👨‍⚕️ Creating doctors...');
+
+  // Representative schedule for Doctor 1 — two slots per day for a full next work-week.
+  // Shape must match ScheduleSlot (src/utils/schedule.ts).
+  const now = new Date();
+  const nextMonday = new Date(now);
+  nextMonday.setDate(now.getDate() + ((8 - now.getDay()) % 7 || 7)); // next Mon
+  const seedSchedule = Array.from({ length: 5 }, (_, i) => {
+    const d = new Date(nextMonday);
+    d.setDate(nextMonday.getDate() + i);
+    const dateStr = d.toISOString().slice(0, 10);
+    return [
+      { date: dateStr, startTime: '08:00', endTime: '12:00', available: true },
+      { date: dateStr, startTime: '14:00', endTime: '17:00', available: true },
+    ];
+  }).flat();
+
   const drSmith = await prisma.user.create({
     data: {
+      id: newId(),
       email: 'nguyen.van.hung@healthcare.com',
       passwordHash: doctorPasswordHash,
       firstName: 'Nguyễn Văn',
@@ -104,11 +130,12 @@ async function main() {
       isActive: true,
       doctorProfile: {
         create: {
+          id: newId(),
           specialtyId: cardiology.id,
           bio: 'Bác sĩ tim mạch với hơn 15 năm kinh nghiệm. Chuyên về tim mạch dự phòng và quản lý bệnh tim.',
           yearsOfExperience: 15,
-          ratingAverage: 4.8,
-          ratingCount: 45,
+          schedule: JSON.stringify(seedSchedule),
+          scheduleUpdatedAt: new Date(),
         },
       },
     },
@@ -116,6 +143,7 @@ async function main() {
 
   const drJohnson = await prisma.user.create({
     data: {
+      id: newId(),
       email: 'tran.thi.lan@healthcare.com',
       passwordHash: doctorPasswordHash,
       firstName: 'Trần Thị',
@@ -124,11 +152,10 @@ async function main() {
       isActive: true,
       doctorProfile: {
         create: {
+          id: newId(),
           specialtyId: dermatology.id,
           bio: 'Bác sĩ da liễu được chứng nhận, chuyên về da liễu y khoa và thẩm mỹ.',
           yearsOfExperience: 10,
-          ratingAverage: 4.6,
-          ratingCount: 32,
         },
       },
     },
@@ -136,6 +163,7 @@ async function main() {
 
   const drLee = await prisma.user.create({
     data: {
+      id: newId(),
       email: 'le.van.minh@healthcare.com',
       passwordHash: doctorPasswordHash,
       firstName: 'Lê Văn',
@@ -144,11 +172,10 @@ async function main() {
       isActive: true,
       doctorProfile: {
         create: {
+          id: newId(),
           specialtyId: pediatrics.id,
           bio: 'Bác sĩ nhi khoa tận tâm chăm sóc toàn diện cho trẻ em ở mọi lứa tuổi.',
           yearsOfExperience: 8,
-          ratingAverage: 4.9,
-          ratingCount: 28,
         },
       },
     },
@@ -156,6 +183,7 @@ async function main() {
 
   const drNguyen = await prisma.user.create({
     data: {
+      id: newId(),
       email: 'pham.thi.nga@healthcare.com',
       passwordHash: doctorPasswordHash,
       firstName: 'Phạm Thị',
@@ -164,11 +192,10 @@ async function main() {
       isActive: true,
       doctorProfile: {
         create: {
+          id: newId(),
           specialtyId: orthopedics.id,
           bio: 'Chuyên gia chấn thương chỉnh hình với kinh nghiệm điều trị chấn thương thể thao.',
           yearsOfExperience: 12,
-          ratingAverage: 4.7,
-          ratingCount: 38,
         },
       },
     },
@@ -180,6 +207,7 @@ async function main() {
   console.log('👥 Creating patients...');
   const patient1 = await prisma.user.create({
     data: {
+      id: newId(),
       email: 'vo.van.nam@gmail.com',
       passwordHash: patientPasswordHash,
       firstName: 'Võ Văn',
@@ -188,6 +216,7 @@ async function main() {
       isActive: true,
       patientProfile: {
         create: {
+          id: newId(),
           dateOfBirth: new Date('1990-05-15'),
           gender: 'MALE',
           phone: '0901234567',
@@ -200,6 +229,7 @@ async function main() {
 
   const patient2 = await prisma.user.create({
     data: {
+      id: newId(),
       email: 'hoang.thi.thao@gmail.com',
       passwordHash: patientPasswordHash,
       firstName: 'Hoàng Thị',
@@ -208,6 +238,7 @@ async function main() {
       isActive: true,
       patientProfile: {
         create: {
+          id: newId(),
           dateOfBirth: new Date('1985-08-20'),
           gender: 'FEMALE',
           phone: '0912345678',
@@ -220,6 +251,7 @@ async function main() {
 
   const patient3 = await prisma.user.create({
     data: {
+      id: newId(),
       email: 'nguyen.van.khanh@gmail.com',
       passwordHash: patientPasswordHash,
       firstName: 'Nguyễn Văn',
@@ -228,6 +260,7 @@ async function main() {
       isActive: true,
       patientProfile: {
         create: {
+          id: newId(),
           dateOfBirth: new Date('1995-03-10'),
           gender: 'MALE',
           phone: '0923456789',
@@ -254,6 +287,7 @@ async function main() {
   // Question 1: ANSWERED + có answer được approve
   const question1 = await prisma.question.create({
     data: {
+      id: newId(),
       patientId: patients[0].id,
       doctorId: doctors[0].id, // Cardiology
       title: 'Hỏi về triệu chứng đau ngực',
@@ -264,6 +298,7 @@ async function main() {
 
   await prisma.answer.create({
     data: {
+      id: newId(),
       questionId: question1.id,
       doctorId: doctors[0].id,
       content: 'Đau ngực khi vận động có thể là dấu hiệu của bệnh tim mạch. Bạn nên đến khám trực tiếp để được thăm khám và làm các xét nghiệm cần thiết như điện tâm đồ, siêu âm tim. Trong lúc chờ khám, hạn chế vận động mạnh và theo dõi triệu chứng.',
@@ -274,6 +309,7 @@ async function main() {
   // Question 2: ANSWERED + có answer được approve
   const question2 = await prisma.question.create({
     data: {
+      id: newId(),
       patientId: patients[1].id,
       doctorId: doctors[1].id, // Dermatology
       title: 'Da bị mụn nhiều',
@@ -284,6 +320,7 @@ async function main() {
 
   await prisma.answer.create({
     data: {
+      id: newId(),
       questionId: question2.id,
       doctorId: doctors[1].id,
       content: 'Mụn có nhiều nguyên nhân khác nhau. Bạn nên: 1) Vệ sinh da đúng cách 2 lần/ngày, 2) Tránh sờ tay lên mặt, 3) Ăn uống lành mạnh, hạn chế đồ ngọt và dầu mỡ. Nếu mụn nhiều và nặng, nên đến khám để được kê đơn thuốc điều trị phù hợp.',
@@ -294,6 +331,7 @@ async function main() {
   // Question 3: PENDING (chưa trả lời) + có doctorId
   const question3 = await prisma.question.create({
     data: {
+      id: newId(),
       patientId: patients[2].id,
       doctorId: doctors[2].id, // Pediatrics
       title: 'Con bị sốt cao',
@@ -305,6 +343,7 @@ async function main() {
   // Question 4: PENDING (chưa assign doctor) - câu hỏi công khai
   const question4 = await prisma.question.create({
     data: {
+      id: newId(),
       patientId: patients[0].id,
       title: 'Tư vấn về chế độ ăn giảm cân',
       content: 'Tôi muốn giảm 5kg một cách lành mạnh, bác sĩ tư vấn giúp em.',
@@ -315,6 +354,7 @@ async function main() {
   // Question 5: ANSWERED nhưng answer chưa approve (để test moderation)
   const question5 = await prisma.question.create({
     data: {
+      id: newId(),
       patientId: patients[1].id,
       doctorId: doctors[3].id, // Orthopedics
       title: 'Đau khớp gối khi chạy bộ',
@@ -325,6 +365,7 @@ async function main() {
 
   await prisma.answer.create({
     data: {
+      id: newId(),
       questionId: question5.id,
       doctorId: doctors[3].id,
       content: 'Đau khớp gối khi chạy có thể do nhiều nguyên nhân. Bạn nên nghỉ ngơi, chườm lạnh vùng đau, và đến khám để kiểm tra chấn thương. Băng bảo vệ có thể hỗ trợ nhưng cần tư vấn trực tiếp.',
@@ -335,6 +376,7 @@ async function main() {
   // Question 6: MODERATED (đã được kiểm duyệt)
   const question6 = await prisma.question.create({
     data: {
+      id: newId(),
       patientId: patients[2].id,
       doctorId: doctors[0].id,
       title: 'Tư vấn về cao huyết áp',
@@ -345,6 +387,7 @@ async function main() {
 
   await prisma.answer.create({
     data: {
+      id: newId(),
       questionId: question6.id,
       doctorId: doctors[0].id,
       content: 'Huyết áp 150/95 thuộc mức cao độ 1. Nên bắt đầu thay đổi lối sống (giảm muối, tập thể dục) và có thể cần thuốc. Đưa bố đến khám để được tư vấn cụ thể.',
@@ -357,15 +400,14 @@ async function main() {
   // Create sample appointments với đầy đủ các trạng thái
   console.log('📅 Creating sample appointments...');
   
-  const now = new Date();
-  
   // Appointment 1: COMPLETED (1 tuần trước) - đã có rating
-  const lastWeek = new Date(now);
+  const lastWeek = new Date();
   lastWeek.setDate(lastWeek.getDate() - 7);
   lastWeek.setHours(10, 0, 0, 0);
 
   const appointment1 = await prisma.appointment.create({
     data: {
+      id: newId(),
       patientId: patients[0].id,
       doctorId: doctors[0].id,
       scheduledAt: lastWeek,
@@ -382,6 +424,7 @@ async function main() {
 
   const appointment2 = await prisma.appointment.create({
     data: {
+      id: newId(),
       patientId: patients[1].id,
       doctorId: doctors[1].id,
       scheduledAt: threeDaysAgo,
@@ -398,6 +441,7 @@ async function main() {
 
   await prisma.appointment.create({
     data: {
+      id: newId(),
       patientId: patients[1].id,
       doctorId: doctors[2].id,
       scheduledAt: tomorrow,
@@ -413,6 +457,7 @@ async function main() {
 
   await prisma.appointment.create({
     data: {
+      id: newId(),
       patientId: patients[2].id,
       doctorId: doctors[2].id,
       scheduledAt: nextWeek,
@@ -428,6 +473,7 @@ async function main() {
 
   await prisma.appointment.create({
     data: {
+      id: newId(),
       patientId: patients[0].id,
       doctorId: doctors[3].id,
       scheduledAt: yesterday,
@@ -444,6 +490,7 @@ async function main() {
 
   await prisma.appointment.create({
     data: {
+      id: newId(),
       patientId: patients[2].id,
       doctorId: doctors[1].id,
       scheduledAt: threeDaysLater,
@@ -460,6 +507,7 @@ async function main() {
   // Rating 1: VISIBLE - cho appointment1
   await prisma.rating.create({
     data: {
+      id: newId(),
       patientId: patients[0].id,
       doctorId: doctors[0].id,
       appointmentId: appointment1.id,
@@ -472,6 +520,7 @@ async function main() {
   // Rating 2: VISIBLE - cho appointment2 (mới đánh giá)
   await prisma.rating.create({
     data: {
+      id: newId(),
       patientId: patients[1].id,
       doctorId: doctors[1].id,
       appointmentId: appointment2.id,
@@ -487,6 +536,7 @@ async function main() {
   
   const oldAppointment = await prisma.appointment.create({
     data: {
+      id: newId(),
       patientId: patients[2].id,
       doctorId: doctors[3].id,
       scheduledAt: twoWeeksAgo,
@@ -498,6 +548,7 @@ async function main() {
 
   await prisma.rating.create({
     data: {
+      id: newId(),
       patientId: patients[2].id,
       doctorId: doctors[3].id,
       appointmentId: oldAppointment.id,
@@ -510,34 +561,25 @@ async function main() {
   console.log('✅ Created 3 sample ratings (2 visible, 1 hidden)\n');
 
   // Update doctors' rating averages dựa trên ratings thực tế
-  console.log('📊 Updating doctor rating statistics...');
-  
-  // Doctor 1 (Cardiology): 1 rating = 5
-  await prisma.doctorProfile.update({
-    where: { id: doctors[0].id },
-    data: {
-      ratingAverage: 5.0,
-      ratingCount: 1,
-    },
-  });
+  console.log('📊 Recalculating doctor rating statistics from actual seed ratings...');
 
-  // Doctor 2 (Dermatology): 1 rating = 4
-  await prisma.doctorProfile.update({
-    where: { id: doctors[1].id },
-    data: {
-      ratingAverage: 4.0,
-      ratingCount: 1,
-    },
-  });
+  // Recalculate each doctor profile using only VISIBLE ratings (mirrors production logic)
+  async function recalcInSeed(doctorProfileId: string) {
+    const result = await prisma.rating.aggregate({
+      where: { doctorId: doctorProfileId, status: 'VISIBLE' },
+      _avg: { score: true },
+      _count: { score: true },
+    });
+    await prisma.doctorProfile.update({
+      where: { id: doctorProfileId },
+      data: {
+        ratingAverage: result._avg.score ?? 0,
+        ratingCount: result._count.score,
+      },
+    });
+  }
 
-  // Doctor 4 (Orthopedics): 1 rating (hidden) = 2 (nhưng vẫn tính)
-  await prisma.doctorProfile.update({
-    where: { id: doctors[3].id },
-    data: {
-      ratingAverage: 2.0,
-      ratingCount: 1,
-    },
-  });
+  await Promise.all(doctors.map((d) => recalcInSeed(d.id)));
 
   console.log('✅ Updated doctor ratings\n');
 

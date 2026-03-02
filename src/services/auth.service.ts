@@ -2,6 +2,7 @@ import prisma from '../config/db';
 import { hashPassword, comparePassword } from '../utils/password';
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/jwt';
 import { AppError } from '../middlewares/error.middleware';
+import { newId } from '../utils/id';
 import crypto from 'crypto';
 
 export interface RegisterInput {
@@ -47,6 +48,7 @@ export class AuthService {
 
     await prisma.userSession.create({
       data: {
+        id: newId(),
         userId,
         refreshTokenHash,
         expiresAt,
@@ -92,6 +94,7 @@ export class AuthService {
     // Create user with profile
     const user = await prisma.user.create({
       data: {
+        id: newId(),
         email,
         passwordHash,
         firstName,
@@ -100,6 +103,7 @@ export class AuthService {
         ...(role === 'PATIENT' && {
           patientProfile: {
             create: {
+              id: newId(),
               dateOfBirth: profileData.dateOfBirth,
               gender: profileData.gender,
               phone: profileData.phone,
@@ -110,6 +114,7 @@ export class AuthService {
         ...(role === 'DOCTOR' && {
           doctorProfile: {
             create: {
+              id: newId(),
               specialtyId: profileData.specialty || '',
               bio: profileData.bio,
             },
@@ -287,6 +292,7 @@ export class AuthService {
       // Create new session
       prisma.userSession.create({
         data: {
+          id: newId(),
           userId: session.userId,
           refreshTokenHash: newRefreshTokenHash,
           expiresAt: newExpiresAt,

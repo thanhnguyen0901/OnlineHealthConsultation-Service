@@ -3,15 +3,19 @@ import { z } from 'zod';
 import adminService from '../services/admin.service';
 import { sendSuccess } from '../utils/apiResponse';
 import { asyncHandler } from '../middlewares/error.middleware';
+import { normalizeRegisterPayload } from '../utils/normalizers';
 
 // Validation schemas
 export const createUserSchema = z.object({
   body: z.object({
     email: z.string().email('Invalid email format'),
     password: z.string().min(6, 'Password must be at least 6 characters'),
-    // FE sends `name` (normalized field); accept either and normalize to `fullName`
-    fullName: z.string().min(1, 'Full name is required').optional(),
-    name: z.string().min(1, 'Full name is required').optional(),
+    // Accept firstName/lastName separately, or a combined fullName/name for legacy clients.
+    // normalizeRegisterPayload (called in the handler) will split fullName/name into firstName+lastName.
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    fullName: z.string().optional(),  // legacy combined-name field
+    name: z.string().optional(),      // legacy combined-name field
     role: z.enum(['PATIENT', 'DOCTOR', 'ADMIN']),
     specialtyId: z.string().optional(),
     bio: z.string().optional(),
@@ -21,20 +25,17 @@ export const createUserSchema = z.object({
       .optional(),
     phone: z.string().optional(),
     address: z.string().optional(),
-  }).refine((data) => data.fullName || data.name, {
-    message: 'Full name is required',
-    path: ['fullName'],
-  }).transform((data) => {
-    const { name, ...rest } = data;
-    return { ...rest, fullName: rest.fullName ?? name! };
+  }).refine((data) => data.firstName || data.fullName || data.name, {
+    message: 'firstName or a combined fullName/name field is required',
+    path: ['firstName'],
   }),
 });
 
 export const updateUserSchema = z.object({
   body: z.object({
-    name: z.string().optional(),       // FE sends normalized `name` field
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
     email: z.string().email().optional(),
-    fullName: z.string().optional(),
     role: z.enum(['PATIENT', 'DOCTOR', 'ADMIN']).optional(),
     isActive: z.boolean().optional(),
   }),
@@ -53,7 +54,7 @@ export const updateDoctorSchema = z.object({
 
 export const createSpecialtySchema = z.object({
   body: z.object({
-    name: z.string().min(1, 'Name is required'),
+    // `name` is derived from `nameEn` by the service; callers supply nameEn + nameVi only.
     nameEn: z.string().min(1, 'English name is required'),
     nameVi: z.string().min(1, 'Vietnamese name is required'),
     description: z.string().optional(),
@@ -62,7 +63,7 @@ export const createSpecialtySchema = z.object({
 
 export const updateSpecialtySchema = z.object({
   body: z.object({
-    name: z.string().optional(),
+    // `name` is auto-synced to `nameEn` by the service.
     nameEn: z.string().optional(),
     nameVi: z.string().optional(),
     description: z.string().optional(),
@@ -128,7 +129,8 @@ export class AdminController {
    * POST /admin/users
    */
   createUser = asyncHandler(async (req: Request, res: Response) => {
-    const result = await adminService.createUser(req.body);
+    const normalizedPayload = normalizeRegisterPayload(req.body);
+    const result = await adminService.createUser(normalizedPayload);
     sendSuccess(res, result, undefined, 201);
   });
 
@@ -167,10 +169,11 @@ export class AdminController {
     const transformedDoctors = result.doctors.map((doc: any) => ({
       id: doc.user.id,
       email: doc.user.email,
-      fullName: doc.user.fullName,
+      firstName: doc.user.firstName,
+      lastName: doc.user.lastName,
       isActive: doc.user.isActive,
       specialtyId: doc.specialtyId,
-      specialtyName: doc.specialty?.name || '',
+      specialtyName: doc.specialty?.nameEn || '',
       bio: doc.bio,
       role: 'DOCTOR',
     }));
@@ -200,10 +203,11 @@ export class AdminController {
     const transformedDoctor = {
       id: (result as any).id,
       email: (result as any).email,
-      fullName: (result as any).fullName,
+      firstName: (result as any).firstName,
+      lastName: (result as any).lastName,
       isActive: (result as any).isActive,
       specialtyId: (result as any).doctorProfile?.specialtyId,
-      specialtyName: (result as any).doctorProfile?.specialty?.name || '',
+      specialtyName: (result as any).doctorProfile?.specialty?.nameEn || '',
       bio: (result as any).doctorProfile?.bio,
       role: 'DOCTOR',
     };
@@ -290,11 +294,11 @@ export class AdminController {
     const transformedAppointments = result.appointments.map((apt: any) => ({
       id: apt.id,
       patientId: apt.patientId,
-      patientName: apt.patient?.user?.fullName || '',
+      patientName: `${apt.patient?.user?.firstName ?? ''} ${apt.patient?.user?.lastName ?? ''}`.trim(),
       doctorId: apt.doctorId,
-      doctorName: apt.doctor?.user?.fullName || '',
+      doctorName: `${apt.doctor?.user?.firstName ?? ''} ${apt.doctor?.user?.lastName ?? ''}`.trim(),
       specialtyId: apt.doctor?.specialtyId || '',
-      specialtyName: apt.doctor?.specialty?.name || '',
+      specialtyName: apt.doctor?.specialty?.nameEn || '',
       date: apt.scheduledAt,
       time: apt.scheduledAt ? new Date(apt.scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '',
       status: apt.status?.toLowerCase() || 'pending',
@@ -318,11 +322,11 @@ export class AdminController {
     const transformed = {
       id: (result as any).id,
       patientId: (result as any).patientId,
-      patientName: (result as any).patient?.user?.fullName || '',
+      patientName: `${(result as any).patient?.user?.firstName ?? ''} ${(result as any).patient?.user?.lastName ?? ''}`.trim(),
       doctorId: (result as any).doctorId,
-      doctorName: (result as any).doctor?.user?.fullName || '',
+      doctorName: `${(result as any).doctor?.user?.firstName ?? ''} ${(result as any).doctor?.user?.lastName ?? ''}`.trim(),
       specialtyId: (result as any).doctor?.specialtyId || '',
-      specialtyName: (result as any).doctor?.specialty?.name || '',
+      specialtyName: (result as any).doctor?.specialty?.nameEn || '',
       date: (result as any).scheduledAt,
       time: (result as any).scheduledAt
         ? new Date((result as any).scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })

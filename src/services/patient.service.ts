@@ -1,6 +1,8 @@
 import prisma from '../config/db';
 import { AppError } from '../middlewares/error.middleware';
 import { ERROR_CODES } from '../constants/errorCodes';
+import { newId } from '../utils/id';
+import { recalcDoctorRating } from '../utils/rating';
 
 export interface UpdatePatientProfileInput {
   dateOfBirth?: Date;
@@ -47,7 +49,8 @@ export class PatientService {
 
     return {
       ...user.patientProfile,
-      fullName: user.fullName,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
     };
   }
@@ -93,7 +96,8 @@ export class PatientService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
                 email: true,
               },
             },
@@ -109,7 +113,8 @@ export class PatientService {
               include: {
                 user: {
                   select: {
-                    fullName: true,
+                    firstName: true,
+                    lastName: true,
                   },
                 },
               },
@@ -153,6 +158,7 @@ export class PatientService {
 
     const question = await prisma.question.create({
       data: {
+        id: newId(),
         patientId: user.patientProfile.id,
         doctorId: input.doctorId,
         title: input.title,
@@ -163,7 +169,8 @@ export class PatientService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
             specialty: true,
@@ -195,7 +202,8 @@ export class PatientService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
                 email: true,
               },
             },
@@ -263,6 +271,7 @@ export class PatientService {
 
     const appointment = await prisma.appointment.create({
       data: {
+        id: newId(),
         patientId: user.patientProfile.id,
         doctorId: input.doctorId,
         scheduledAt: input.scheduledAt,
@@ -273,7 +282,8 @@ export class PatientService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
             specialty: true,
@@ -309,7 +319,8 @@ export class PatientService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
               specialty: true,
@@ -324,7 +335,8 @@ export class PatientService {
                 include: {
                   user: {
                     select: {
-                      fullName: true,
+                      firstName: true,
+                      lastName: true,
                     },
                   },
                 },
@@ -346,7 +358,8 @@ export class PatientService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
               specialty: true,
@@ -421,37 +434,25 @@ export class PatientService {
       throw new AppError('Score must be between 1 and 5', 400, ERROR_CODES.INVALID_SCORE);
     }
 
-    // Create rating
-    const rating = await prisma.rating.create({
-      data: {
-        patientId: user.patientProfile.id,
-        doctorId: input.doctorId,
-        appointmentId: input.appointmentId,
-        score: input.score,
-        comment: input.comment,
-      },
-    });
+    // Capture profile ID before transaction to preserve TypeScript narrowing
+    const patientProfileId = user.patientProfile.id;
 
-    // Update doctor's rating average
-    const doctorRatings = await prisma.rating.findMany({
-      where: {
-        doctorId: input.doctorId,
-        status: 'VISIBLE',
-      },
-      select: {
-        score: true,
-      },
-    });
+    // Create rating and recalculate doctor stats atomically
+    const rating = await prisma.$transaction(async (tx) => {
+      const newRating = await tx.rating.create({
+        data: {
+          id: newId(),
+          patientId: patientProfileId,
+          doctorId: input.doctorId,
+          appointmentId: input.appointmentId,
+          score: input.score,
+          comment: input.comment,
+        },
+      });
 
-    const totalScore = doctorRatings.reduce((sum, r) => sum + r.score, 0);
-    const averageRating = totalScore / doctorRatings.length;
+      await recalcDoctorRating(input.doctorId, tx);
 
-    await prisma.doctorProfile.update({
-      where: { id: input.doctorId },
-      data: {
-        ratingAverage: averageRating,
-        ratingCount: doctorRatings.length,
-      },
+      return newRating;
     });
 
     return rating;
@@ -477,7 +478,8 @@ export class PatientService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
                 email: true,
               },
             },

@@ -2,6 +2,8 @@ import prisma from '../config/db';
 import { AppError } from '../middlewares/error.middleware';
 import { isValidAppointmentTransition } from '../constants/statuses';
 import { ERROR_CODES } from '../constants/errorCodes';
+import { newId } from '../utils/id';
+import type { ScheduleArray } from '../utils/schedule';
 
 export interface CreateAnswerInput {
   content: string;
@@ -13,7 +15,8 @@ export interface UpdateAppointmentInput {
 }
 
 export interface UpdateScheduleInput {
-  schedule: any; // JSON data for schedule
+  /** Validated array of day-slots; Zod schema in src/utils/schedule.ts */
+  schedule: ScheduleArray;
 }
 
 export class DoctorService {
@@ -48,7 +51,8 @@ export class DoctorService {
 
     return {
       ...user.doctorProfile,
-      fullName: user.fullName,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
       stats: {
         questionCount,
@@ -92,7 +96,8 @@ export class DoctorService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                   email: true,
                 },
               },
@@ -175,6 +180,7 @@ export class DoctorService {
       // P2-4 Fix: Explicitly set isApproved to false for moderation
       answer = await prisma.answer.create({
         data: {
+          id: newId(),
           questionId,
           doctorId: user.doctorProfile.id,
           content: input.content,
@@ -220,7 +226,8 @@ export class DoctorService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
                 email: true,
               },
             },
@@ -286,7 +293,8 @@ export class DoctorService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
           },
@@ -334,11 +342,13 @@ export class DoctorService {
       where: { id: user.doctorProfile.id },
       data: {
         schedule: JSON.stringify(input.schedule),
+        scheduleUpdatedAt: new Date(),
       },
     });
 
     return {
       schedule: updatedProfile.schedule ? JSON.parse(updatedProfile.schedule) : null,
+      scheduleUpdatedAt: updatedProfile.scheduleUpdatedAt,
     };
   }
 
@@ -357,13 +367,15 @@ export class DoctorService {
         user: {
           select: {
             id: true,
-            fullName: true,
+            firstName: true,
+            lastName: true,
           },
         },
         specialty: {
           select: {
             id: true,
             name: true,
+            nameEn: true,
           },
         },
       },
@@ -377,8 +389,9 @@ export class DoctorService {
     // Transform to match FE expectations
     return doctors.map(doctor => ({
       id: doctor.id,
-      fullName: doctor.user.fullName,
-      specialtyName: doctor.specialty.name,
+      firstName: doctor.user.firstName,
+      lastName: doctor.user.lastName,
+      specialtyName: doctor.specialty.nameEn,
       specialtyId: doctor.specialtyId,
       yearsOfExperience: doctor.yearsOfExperience,
       bio: doctor.bio,

@@ -8,12 +8,15 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate",
-    "prisma:push": "prisma db push",
-    "prisma:push:dev": "prisma db push --accept-data-loss",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:create": "prisma migrate dev --create-only",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:migrate:reset": "prisma migrate reset",
     "prisma:studio": "prisma studio",
     "prisma:seed": "ts-node prisma/seed.ts",
-    "db:reset": "npx prisma db push --force-reset && npm run prisma:seed",
-    "db:setup": "npm run prisma:generate && npm run prisma:push && npm run prisma:seed"
+    "db:reset": "npx prisma migrate reset --force",
+    "db:setup": "npm run prisma:generate && npm run prisma:migrate:deploy && npm run prisma:seed",
+    "verify:score": "ts-node scripts/verify-score-constraint.ts"
   },
   "keywords": [
     "healthcare",
@@ -39,6 +42,7 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
+    "uuidv7": "^1.1.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

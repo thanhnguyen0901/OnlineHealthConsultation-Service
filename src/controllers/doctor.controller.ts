@@ -4,6 +4,7 @@ import doctorService from '../services/doctor.service';
 import { sendSuccess } from '../utils/apiResponse';
 import { asyncHandler } from '../middlewares/error.middleware';
 import { normalizeAnswerPayload, sanitizeTextFields } from '../utils/normalizers';
+import { scheduleArraySchema } from '../utils/schedule';
 
 // Validation schemas
 export const createAnswerSchema = z.object({
@@ -25,7 +26,8 @@ export const updateAppointmentSchema = z.object({
 
 export const updateScheduleSchema = z.object({
   body: z.object({
-    schedule: z.any(), // Can be any valid JSON structure
+    // schedule must be an array of validated day-slots (see src/utils/schedule.ts)
+    schedule: scheduleArraySchema,
   }),
 });
 
@@ -67,7 +69,7 @@ export class DoctorController {
     const transformedQuestions = result.questions.map((q: any) => ({
       id: q.id,
       patientId: q.patientId,
-      patientName: q.patient?.user?.fullName || '',
+      patientName: `${q.patient?.user?.firstName ?? ''} ${q.patient?.user?.lastName ?? ''}`.trim(),
       question: q.question || q.content || '',
       status: q.status?.toLowerCase() || 'pending',
       createdAt: q.createdAt,

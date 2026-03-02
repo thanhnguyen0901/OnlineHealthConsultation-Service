@@ -33,14 +33,14 @@ docker-compose up -d
 timeout /t 15 /nobreak
 ```
 
-### Bước 3: Push Schema và Seed Data
+### Bước 3: Chạy Migration và Seed Data
 
 ```bash
 # Tạo Prisma Client
 npx prisma generate
 
-# Tạo tables trong database từ schema.prisma
-npx prisma db push
+# Chạy migrations để tạo tables trong database
+npx prisma migrate deploy
 
 # Seed data mẫu (tạo users, specialties, questions...)
 npx ts-node prisma/seed.ts
@@ -109,7 +109,7 @@ docker-compose down -v
 docker-compose up -d
 timeout /t 15 /nobreak
 npx prisma generate
-npx prisma db push
+npx prisma migrate deploy
 npx ts-node prisma/seed.ts
 ```
 
@@ -119,8 +119,11 @@ npx ts-node prisma/seed.ts
 
 ```bash
 # Database
-npm run prisma:studio      # Mở database GUI (http://localhost:5555)
-npm run db:setup          # Setup database (generate + push + seed)
+npm run prisma:studio        # Mở database GUI (http://localhost:5555)
+npm run prisma:migrate       # Tạo và chạy migration mới (dev)
+npm run prisma:migrate:deploy # Áp dụng migrations (production/CI)
+npm run db:setup             # Setup database (generate + migrate:deploy + seed)
+npm run db:reset             # Reset database + tự động seed (prisma migrate reset)
 
 # Development
 npm run dev               # Chạy server với hot reload

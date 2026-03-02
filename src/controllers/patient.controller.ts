@@ -164,13 +164,13 @@ export class PatientController {
       status: q.status?.toLowerCase() || 'pending',
       createdAt: q.createdAt,
       doctorId: q.doctorId || '',
-      doctorName: q.doctor?.user?.fullName || '',
+      doctorName: `${q.doctor?.user?.firstName ?? ''} ${q.doctor?.user?.lastName ?? ''}`.trim(),
       answer: q.answers?.[0]?.content || null,
     }));
     
     const transformedAppointments = result.appointments.map((a: any) => ({
       id: a.id,
-      doctorName: a.doctor?.user?.fullName || '',
+      doctorName: `${a.doctor?.user?.firstName ?? ''} ${a.doctor?.user?.lastName ?? ''}`.trim(),
       date: a.scheduledAt,
       status: a.status?.toLowerCase() || '',
       notes: a.notes || '',

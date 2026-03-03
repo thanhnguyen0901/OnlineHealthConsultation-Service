@@ -1,6 +1,6 @@
-# 🚀 Quick Start Guide - Windows
+# 🚀 Quick Start Guide
 
-Hướng dẫn chạy Backend API trên Windows.
+Hướng dẫn chạy Backend API trên **Windows** và **macOS**.
 
 ---
 
@@ -24,30 +24,26 @@ npm install
 
 ```bash
 # Dừng và xóa database cũ (nếu có)
-docker-compose down -v
+docker compose down -v
 
 # Khởi động MySQL container
-docker-compose up -d
+docker compose up -d
 
 # Chờ MySQL khởi động hoàn tất
-timeout /t 15 /nobreak
+# macOS / Linux:
+sleep 15
+# Windows (Command Prompt):
+# timeout /t 15 /nobreak
 ```
 
 ### Bước 3: Chạy Migration và Seed Data
 
 ```bash
-# Tạo Prisma Client
-npx prisma generate
-
-# Chạy migrations để tạo tables trong database
-npx prisma migrate deploy
-
-# Áp dụng MySQL triggers (Prisma không thể chạy do cú pháp DELIMITER)
-npm run db:triggers
-
-# Seed data mẫu (tạo users, specialties, questions...)
-npx ts-node prisma/seed.ts
+# Chạy đầy đủ: generate → migrate → triggers → seed
+npm run db:setup
 ```
+
+> `db:setup` tự động chạy: kiểm tra init.sql → tạo Prisma Client → migrate → áp dụng MySQL triggers → seed data.
 
 ✅ **Database đã sẵn sàng!**
 
@@ -104,17 +100,11 @@ Truy cập: http://localhost:5555
 ## 🔄 Reset Database (Khi cần làm lại từ đầu)
 
 ```bash
-# Cách 1: Dùng script tự động
-reset-db.bat
+# Cách 1: Script tự động với confirmation prompt (macOS / Linux)
+bash reset-db.sh
 
-# Cách 2: Chạy từng lệnh thủ công
-docker-compose down -v
-docker-compose up -d
-timeout /t 15 /nobreak
-npx prisma generate
-npx prisma migrate deploy
-npm run db:triggers
-npx ts-node prisma/seed.ts
+# Cách 2: Dùng npm script (cross-platform)
+npm run db:reset
 ```
 
 ---
@@ -123,23 +113,23 @@ npx ts-node prisma/seed.ts
 
 ```bash
 # Database
-npm run prisma:studio        # Mở database GUI (http://localhost:5555)
-npm run prisma:migrate       # Tạo và chạy migration mới (dev)
+npm run prisma:studio         # Mở database GUI (http://localhost:5555)
+npm run prisma:migrate        # Tạo và chạy migration mới (dev)
 npm run prisma:migrate:deploy # Áp dụng migrations (production/CI)
-npm run db:setup             # Setup database (check + generate + migrate:deploy + triggers + seed)
-npm run db:check             # CI guard: verify init.sql contains no table DDL
-npm run db:reset             # Reset database + tự động seed (prisma migrate reset)
+npm run db:setup              # Setup database (check → generate → migrate → triggers → seed)
+npm run db:check              # CI guard: verify init.sql không chứa table DDL
+npm run db:reset              # Reset toàn bộ database + seed lại (cross-platform)
 
 # Development
-npm run dev               # Chạy server với hot reload
-npm run build            # Build production
-npm start                # Chạy production server
+npm run dev                   # Chạy server với hot reload
+npm run build                 # Build production
+npm start                     # Chạy production server
 
 # Docker
-docker-compose up -d      # Start database
-docker-compose down       # Stop database
-docker-compose down -v    # Stop và xóa data
-docker ps                # Xem containers đang chạy
+docker compose up -d          # Start database
+docker compose down           # Stop database
+docker compose down -v        # Stop và xóa data
+docker ps                     # Xem containers đang chạy
 docker logs health_consultation_db  # Xem logs MySQL
 ```
 
@@ -150,11 +140,14 @@ docker logs health_consultation_db  # Xem logs MySQL
 ### Lỗi: Port 3306 đã được dùng
 
 ```bash
-# Tìm process đang dùng port 3306
-netstat -ano | findstr :3306
+# macOS / Linux — tìm process đang dùng port 3306:
+lsof -i :3306
 
-# Tắt MySQL service của Windows hoặc đổi port trong docker-compose.yml
+# Windows — tìm process đang dùng port 3306:
+netstat -ano | findstr :3306
 ```
+
+Dừng MySQL local hoặc đổi port trong `docker-compose.yml`.
 
 ### Lỗi: Docker container không start
 
@@ -163,8 +156,8 @@ netstat -ano | findstr :3306
 docker logs health_consultation_db
 
 # Restart Docker Desktop và thử lại
-docker-compose down
-docker-compose up -d
+docker compose down
+docker compose up -d
 ```
 
 ### Lỗi: Prisma Client không tìm thấy
@@ -202,5 +195,4 @@ npx prisma generate
 ---
 
 **Docs chi tiết:**
-- [DATABASE_SETUP.md](./DATABASE_SETUP.md) - Hướng dẫn chi tiết về database
 - [README.md](./README.md) - Full documentation

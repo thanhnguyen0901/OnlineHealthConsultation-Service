@@ -14,6 +14,8 @@ import { ERROR_CODES } from '../constants/errorCodes';
 // Validation schemas
 export const updateProfileSchema = z.object({
   body: z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
     dateOfBirth: z.string().optional().transform((val) => val ? new Date(val) : undefined),
     gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'male', 'female', 'other'])
       .transform((val) => val.toUpperCase() as 'MALE' | 'FEMALE' | 'OTHER')

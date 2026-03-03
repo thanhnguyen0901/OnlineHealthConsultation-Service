@@ -43,7 +43,10 @@ export const updateUserSchema = z.object({
 
 export const updateDoctorSchema = z.object({
   body: z.object({
-    name: z.string().optional(),       // FE sends normalized `name` field
+    // Accept both individual name parts (FE) and the legacy combined `name` field.
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    name: z.string().optional(),
     email: z.string().email().optional(),
     specialtyId: z.string().optional(),
     bio: z.string().optional(),
@@ -238,7 +241,20 @@ export class AdminController {
    */
   createDoctor = asyncHandler(async (req: Request, res: Response) => {
     const result = await adminService.createDoctor(req.body);
-    sendSuccess(res, result, undefined, 201);
+    // Return the same flat shape as getDoctors so the Redux normalizeDoctor
+    // helper can map specialtyId / specialtyName / bio correctly.
+    const transformed = {
+      id: (result as any).id,
+      email: (result as any).email,
+      firstName: (result as any).firstName,
+      lastName: (result as any).lastName,
+      isActive: (result as any).isActive,
+      specialtyId: (result as any).doctorProfile?.specialtyId ?? null,
+      specialtyName: (result as any).doctorProfile?.specialty?.nameEn ?? '',
+      bio: (result as any).doctorProfile?.bio ?? null,
+      role: 'DOCTOR',
+    };
+    sendSuccess(res, transformed, undefined, 201);
   });
 
   /**

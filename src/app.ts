@@ -71,6 +71,20 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Request logging
 if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
+  // Log request body in development so 400 validation failures are easy to debug.
+  // Auth routes are excluded to avoid logging passwords.
+  app.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {
+    if (
+      req.method !== 'GET' &&
+      !req.path.includes('/auth/login') &&
+      !req.path.includes('/auth/register') &&
+      !req.path.includes('/auth/refresh') &&
+      Object.keys(req.body ?? {}).length > 0
+    ) {
+      console.log(`[REQ BODY] ${req.method} ${req.path}`, JSON.stringify(req.body));
+    }
+    next();
+  });
 } else {
   app.use(morgan('combined'));
 }

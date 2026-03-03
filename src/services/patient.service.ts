@@ -6,6 +6,8 @@ import { newId } from '../utils/id';
 import { recalcDoctorRating } from '../utils/rating';
 
 export interface UpdatePatientProfileInput {
+  firstName?: string;
+  lastName?: string;
   dateOfBirth?: Date;
   gender?: 'MALE' | 'FEMALE' | 'OTHER';
   phone?: string;
@@ -71,12 +73,30 @@ export class PatientService {
       throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
-    const updatedProfile = await prisma.patientProfile.update({
-      where: { id: user.patientProfile.id },
-      data: input,
-    });
+    const { firstName, lastName, ...profileFields } = input;
 
-    return updatedProfile;
+    const [updatedUser, updatedProfile] = await prisma.$transaction([
+      // Update User name fields if provided
+      prisma.user.update({
+        where: { id: userId },
+        data: {
+          ...(firstName !== undefined && { firstName }),
+          ...(lastName !== undefined && { lastName }),
+        },
+      }),
+      // Update PatientProfile fields
+      prisma.patientProfile.update({
+        where: { id: user.patientProfile.id },
+        data: profileFields,
+      }),
+    ]);
+
+    return {
+      ...updatedProfile,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      email: updatedUser.email,
+    };
   }
 
   /**

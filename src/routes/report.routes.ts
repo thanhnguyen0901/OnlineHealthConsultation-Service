@@ -5,13 +5,13 @@ import reportController, {
   topDoctorsQuerySchema,
 } from '../controllers/report.controller';
 import { authenticate } from '../middlewares/auth.middleware';
-import { requireAdmin } from '../middlewares/role.middleware';
+import { requireRole } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validation.middleware';
 
 const router = Router();
 
-// All routes require authentication and ADMIN role
-router.use(authenticate, requireAdmin);
+// All routes require authentication — accessible by ADMIN and DOCTOR
+router.use(authenticate, requireRole(['ADMIN', 'DOCTOR']));
 
 // Aggregated reports endpoint (MUST BE FIRST - before /stats, /statistics, etc.)
 router.get('/', validate({ query: getReportsQuerySchema }), reportController.getReports);

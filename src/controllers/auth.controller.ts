@@ -89,7 +89,7 @@ export class AuthController {
         secure: env.COOKIE_SECURE,
         sameSite: env.COOKIE_SAMESITE,
         maxAge: REFRESH_COOKIE_MAX_AGE,
-        path: '/api/auth/refresh',
+        path: '/api/auth',
         ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
       });
     }
@@ -118,7 +118,7 @@ export class AuthController {
         secure: env.COOKIE_SECURE,
         sameSite: env.COOKIE_SAMESITE,
         maxAge: REFRESH_COOKIE_MAX_AGE,
-        path: '/api/auth/refresh',
+        path: '/api/auth',
         ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
       });
     }
@@ -171,7 +171,7 @@ export class AuthController {
         secure: env.COOKIE_SECURE,
         sameSite: env.COOKIE_SAMESITE,
         maxAge: REFRESH_COOKIE_MAX_AGE,
-        path: '/api/auth/refresh',
+        path: '/api/auth',
         ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
       });
     }
@@ -205,7 +205,7 @@ export class AuthController {
       httpOnly: true,
       secure: env.COOKIE_SECURE,
       sameSite: env.COOKIE_SAMESITE,
-      path: '/api/auth/refresh',
+      path: '/api/auth',
       ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
     });
     

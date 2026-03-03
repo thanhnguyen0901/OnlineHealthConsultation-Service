@@ -1,5 +1,6 @@
 import jwt, { SignOptions } from 'jsonwebtoken';
 import { env } from '../config/env';
+import { uuidv7 } from 'uuidv7';
 
 export interface TokenPayload {
   id: string;
@@ -19,14 +20,16 @@ export const signAccessToken = (payload: TokenPayload): string => {
 
 /**
  * Sign a refresh token.
- * Uniqueness is guaranteed by the SHA-256 hash of the full token string
- * (which incorporates the iat claim added by jsonwebtoken and payload entropy).
- * jti is intentionally omitted: it was generated but never stored or verified,
- * making it dead weight that only inflated token size.
+ * A unique `jti` (UUIDv7) is embedded so that every issued token produces a
+ * distinct SHA-256 hash even when two tokens are signed within the same second
+ * with identical payload fields — preventing the unique constraint violation on
+ * `user_sessions_refreshTokenHash_key`.
+ * The `jti` is not stored or verified separately; its sole purpose is entropy.
  */
 export const signRefreshToken = (payload: TokenPayload): string => {
   return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
     expiresIn: env.JWT_REFRESH_EXPIRE,
+    jwtid: uuidv7(),
   } as SignOptions);
 };
 

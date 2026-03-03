@@ -44,7 +44,7 @@ router.post('/questions/:id/answer', (req, res) => {
 router.get('/appointments', validate({ query: getAppointmentsQuerySchema.shape.query }), doctorController.getAppointments);
 // GET detail BEFORE PUT update to avoid any potential ordering ambiguity
 router.get('/appointments/:id', validate({ params: doctorIdParamSchema.shape.params }), doctorController.getAppointmentById);
-router.put('/appointments/:id', validate({ body: updateAppointmentSchema.shape.body }), doctorController.updateAppointment);
+router.put('/appointments/:id', validate({ params: doctorIdParamSchema.shape.params, body: updateAppointmentSchema.shape.body }), doctorController.updateAppointment);
 
 // Schedule
 router.get('/schedule', doctorController.getSchedule);

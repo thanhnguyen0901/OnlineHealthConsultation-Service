@@ -28,14 +28,20 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  // Log error for debugging (in production, use proper logging service)
+  // Log error for debugging (in production, use a proper logging service)
+  const statusCode =
+    err instanceof AppError
+      ? err.statusCode
+      : err instanceof ZodError
+      ? 400
+      : 500;
   if (process.env.NODE_ENV === 'development') {
-    console.error('Error:', err);
+    console.error(`[${statusCode}] Error:`, err);
   } else {
-    console.error('Error:', {
-      name: err.name,
-      message: err.message,
-      ...(err instanceof AppError && { code: err.code }),
+    // Always log 5xx; only log 4xx at warn level to reduce noise
+    const logger = statusCode >= 500 ? console.error : console.warn;
+    logger(`[${statusCode}] ${err.name}: ${err.message}`, {
+      ...(err instanceof AppError && { code: err.code, details: err.details }),
     });
   }
 

@@ -177,6 +177,7 @@ export class AuthController {
     }
     
     // Remove refreshToken from response body (security: only in httpOnly cookie)
+    // user + accessToken are included so clients do NOT need a second GET /auth/me
     const { refreshToken: _, ...responseData } = result;
     
     sendSuccess(res, responseData);

@@ -309,6 +309,23 @@ export class AuthService {
     // Derive expiry from JWT_REFRESH_EXPIRE so JWT TTL and DB TTL stay aligned
     const newExpiresAt = this.computeExpiresAt();
 
+    // Fetch user data now — before the transaction — so we can return it
+    // alongside the new tokens. This eliminates the need for a second
+    // GET /auth/me call from the client, closing the double-refresh race window.
+    const user = await prisma.user.findUnique({
+      where: { id: session.userId },
+      include: {
+        patientProfile: true,
+        doctorProfile: {
+          include: { specialty: true },
+        },
+      },
+    });
+
+    if (!user || !user.isActive) {
+      throw new AppError('User not found or deactivated', 403, ERROR_CODES.ACCOUNT_DEACTIVATED);
+    }
+
     await prisma.$transaction([
       // Revoke old session
       prisma.userSession.update({
@@ -335,6 +352,15 @@ export class AuthService {
     return {
       accessToken: newAccessToken,
       refreshToken: newRefreshToken, // Will be set as HttpOnly cookie by controller
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        patientProfile: user.patientProfile,
+        doctorProfile: user.doctorProfile,
+      },
     };
   }
 

@@ -12,8 +12,11 @@ export interface CreateAnswerInput {
 }
 
 export interface UpdateAppointmentInput {
-  status: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+  /** Status transition; omit when only rescheduling. */
+  status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
   notes?: string;
+  /** ISO 8601 datetime string for reschedule. */
+  scheduledAt?: string;
 }
 
 export interface UpdateScheduleInput {
@@ -179,20 +182,20 @@ export class DoctorService {
         where: { id: existingAnswer.id },
         data: {
           content: input.content,
-          // P2-4 Fix: Reset approval when updating answer
-          isApproved: false,
+          // P1-1 Fix: auto-approve so patient sees answer immediately (no admin gate)
+          isApproved: true,
         },
       });
     } else {
       // Create new answer
-      // P2-4 Fix: Explicitly set isApproved to false for moderation
+      // P1-1 Fix: auto-approve so patient sees answer immediately (no admin gate)
       answer = await prisma.answer.create({
         data: {
           id: newId(),
           questionId,
           doctorId: user.doctorProfile.id,
           content: input.content,
-          isApproved: false,
+          isApproved: true,
         },
       });
     }
@@ -417,7 +420,10 @@ export class DoctorService {
   }
 
   /**
-   * Update appointment status
+   * Update appointment status and/or reschedule (change scheduledAt).
+   * When scheduledAt is provided the appointment must be PENDING or CONFIRMED;
+   * conflict detection rejects times that overlap another confirmed/pending
+   * appointment for the same doctor.
    */
   async updateAppointment(
     userId: string,
@@ -456,11 +462,64 @@ export class DoctorService {
       }
     }
 
+    // Reschedule validation
+    if (input.scheduledAt !== undefined) {
+      // Only pending/confirmed appointments can be rescheduled
+      const reschedulableStatuses = ['PENDING', 'CONFIRMED'];
+      if (!reschedulableStatuses.includes(appointment.status)) {
+        throw new AppError(
+          `Cannot reschedule an appointment with status ${appointment.status}`,
+          400,
+          ERROR_CODES.INVALID_STATUS_TRANSITION
+        );
+      }
+
+      const newScheduledAt = new Date(input.scheduledAt);
+
+      // Must be in the future
+      if (newScheduledAt <= new Date()) {
+        throw new AppError(
+          'Rescheduled time must be in the future',
+          400,
+          ERROR_CODES.INVALID_SCHEDULED_AT
+        );
+      }
+
+      // Conflict detection: check for another PENDING/CONFIRMED appointment
+      // within a 1-hour window centred on the new time (±30 min).
+      const windowMs = 30 * 60 * 1000; // 30 minutes
+      const windowStart = new Date(newScheduledAt.getTime() - windowMs);
+      const windowEnd = new Date(newScheduledAt.getTime() + windowMs);
+
+      const conflict = await prisma.appointment.findFirst({
+        where: {
+          id: { not: appointmentId }, // exclude this appointment itself
+          doctorId: user.doctorProfile.id,
+          status: { in: ['PENDING', 'CONFIRMED'] },
+          scheduledAt: {
+            gte: windowStart,
+            lte: windowEnd,
+          },
+        },
+      });
+
+      if (conflict) {
+        throw new AppError(
+          'The selected time conflicts with another appointment',
+          409,
+          'APPOINTMENT_CONFLICT'
+        );
+      }
+    }
+
     const updatedAppointment = await prisma.appointment.update({
       where: { id: appointmentId },
       data: {
-        status: input.status,
-        notes: input.notes,
+        ...(input.status !== undefined && { status: input.status }),
+        ...(input.notes !== undefined && { notes: input.notes }),
+        ...(input.scheduledAt !== undefined && {
+          scheduledAt: new Date(input.scheduledAt),
+        }),
       },
       include: {
         patient: {

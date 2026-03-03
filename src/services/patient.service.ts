@@ -19,6 +19,8 @@ export interface CreateQuestionInput {
   title: string;
   content: string;
   doctorId?: string;
+  /** Specialty selected by the patient; used to auto-assign a doctor when doctorId is absent. */
+  specialtyId?: string;
 }
 
 export interface CreateAppointmentInput {
@@ -182,6 +184,27 @@ export class PatientService {
       if (!doctor) {
         throw new AppError('Doctor not found', 404, ERROR_CODES.DOCTOR_NOT_FOUND);
       }
+    } else if (input.specialtyId) {
+      // Auto-assign: pick the first active doctor of the requested specialty.
+      // This guarantees questions always reach a doctor's inbox and are never
+      // left with doctorId = null (P0-3 fix).
+      const assignedDoctor = await prisma.doctorProfile.findFirst({
+        where: {
+          specialtyId: input.specialtyId,
+          isActive: true,
+          user: { isActive: true, deletedAt: null },
+        },
+        orderBy: { createdAt: 'asc' },
+        select: { id: true },
+      });
+      if (!assignedDoctor) {
+        throw new AppError(
+          'No doctor is currently available for this specialty',
+          400,
+          ERROR_CODES.DOCTOR_NOT_FOUND,
+        );
+      }
+      input.doctorId = assignedDoctor.id;
     }
 
     const question = await prisma.question.create({

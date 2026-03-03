@@ -64,8 +64,7 @@ async function setupSeedData() {
   await prisma.specialty.create({
     data: {
       id: seedSpecialtyId,
-      name: `__verify_score_${seedSpecialtyId.slice(0, 8)}`,
-      nameEn: 'Test',
+      nameEn: `__verify_score_${seedSpecialtyId.slice(0, 8)}`,
       nameVi: 'Test',
     },
   });

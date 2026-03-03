@@ -45,6 +45,10 @@ export function normalizeQuestionPayload(body: any) {
  * Normalize appointment creation payload
  * Accepts: {date, time} OR {scheduledAt}
  * Returns: {doctorId, scheduledAt, reason, notes?}
+ *
+ * NOTE: `reason` is required at the Zod validation layer (createAppointmentSchema)
+ * so it is always present by the time this normalizer runs.
+ * No silent fallback is applied — callers MUST supply a non-empty reason.
  */
 export function normalizeAppointmentPayload(body: any) {
   if (body.date && body.time) {
@@ -52,14 +56,14 @@ export function normalizeAppointmentPayload(body: any) {
     return {
       doctorId: body.doctorId,
       scheduledAt,
-      reason: body.reason || body.notes || 'Consultation',
+      reason: body.reason as string,
       notes: body.notes,
     };
   }
   return {
     ...body,
     scheduledAt: new Date(body.scheduledAt),
-    reason: body.reason || 'Consultation',
+    reason: body.reason as string,
   };
 }
 

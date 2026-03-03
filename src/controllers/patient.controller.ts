@@ -43,8 +43,12 @@ export const createAppointmentSchema = z.object({
     scheduledAt: z.string().optional(),
     date: z.string().optional(),
     time: z.string().optional(),
-    reason: z.string().optional(),
+    // AUDIT-05: reason is TEXT NOT NULL in the DB; require it here so the
+    // client receives 400 (not a 500 Prisma constraint error) when it is absent.
+    reason: z.string().min(1, 'Reason for appointment is required'),
     notes: z.string().optional(),
+    /** Slot duration in minutes. Omit to use server default (60). Min 15, max 480. */
+    durationMinutes: z.number().int().min(15).max(480).optional(),
   }).refine(data => data.scheduledAt || (data.date && data.time), {
     message: 'Either scheduledAt or both date and time are required',
   }),
@@ -64,6 +68,13 @@ export const createRatingSchema = z.object({
     message: 'Either appointmentId or consultationId is required',
   }).refine(data => data.score || data.rating, {
     message: 'Either score or rating is required',
+  }),
+});
+
+/** Validates the :id route parameter (UUID / CUID). */
+export const idParamSchema = z.object({
+  params: z.object({
+    id: z.string().min(1, 'ID is required'),
   }),
 });
 
@@ -174,7 +185,7 @@ export class PatientController {
       date: a.scheduledAt,
       status: a.status?.toLowerCase() || '',
       notes: a.notes || '',
-      hasRating: (a.ratings && a.ratings.length > 0) || false,
+      hasRating: a.rating != null,
     }));
     
     sendSuccess(res, {
@@ -207,6 +218,39 @@ export class PatientController {
   getRatings = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const result = await patientService.getRatings(userId);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Get a single question with approved answers and doctor info.
+   * GET /patients/questions/:id
+   */
+  getQuestionById = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { id } = req.params;
+    const result = await patientService.getQuestionById(userId, id);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Get a single appointment with doctor and specialty info.
+   * GET /patients/appointments/:id
+   */
+  getAppointmentById = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { id } = req.params;
+    const result = await patientService.getAppointmentById(userId, id);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Cancel a patient's own PENDING or CONFIRMED appointment.
+   * PATCH /patients/appointments/:id/cancel
+   */
+  cancelAppointment = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { id } = req.params;
+    const result = await patientService.cancelAppointment(userId, id);
     sendSuccess(res, result);
   });
 }

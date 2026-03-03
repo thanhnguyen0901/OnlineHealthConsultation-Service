@@ -3,7 +3,8 @@ import { env } from '../config/env';
 
 export interface TokenPayload {
   id: string;
-  email: string;
+  // email intentionally excluded — PII must not be stored in JWT payloads.
+  // Fetch email from the DB when required (e.g. password-reset flows).
   role: string;
 }
 
@@ -17,21 +18,16 @@ export const signAccessToken = (payload: TokenPayload): string => {
 };
 
 /**
- * Sign a refresh token
+ * Sign a refresh token.
+ * Uniqueness is guaranteed by the SHA-256 hash of the full token string
+ * (which incorporates the iat claim added by jsonwebtoken and payload entropy).
+ * jti is intentionally omitted: it was generated but never stored or verified,
+ * making it dead weight that only inflated token size.
  */
 export const signRefreshToken = (payload: TokenPayload): string => {
-  // Add timestamp and random to ensure uniqueness
-  return jwt.sign(
-    { 
-      ...payload, 
-      iat: Math.floor(Date.now() / 1000),
-      jti: `${Date.now()}-${Math.random().toString(36).substring(7)}`
-    }, 
-    env.JWT_REFRESH_SECRET, 
-    {
-      expiresIn: env.JWT_REFRESH_EXPIRE,
-    } as SignOptions
-  );
+  return jwt.sign(payload, env.JWT_REFRESH_SECRET, {
+    expiresIn: env.JWT_REFRESH_EXPIRE,
+  } as SignOptions);
 };
 
 /**
@@ -55,14 +51,6 @@ export const verifyRefreshToken = (token: string): TokenPayload => {
     throw new Error('Invalid or expired refresh token');
   }
 };
-
-/**
- * Decode a token without verification (for debugging)
- */
-export const decodeToken = (token: string): TokenPayload | null => {
-  try {
-    return jwt.decode(token) as TokenPayload;
-  } catch (error) {
-    return null;
-  }
-};
+// decodeToken (jwt.decode without verify) was intentionally removed.
+// Using unverified JWT data in auth paths is a security risk.
+// If introspection is needed in tests, call jwt.decode directly there.

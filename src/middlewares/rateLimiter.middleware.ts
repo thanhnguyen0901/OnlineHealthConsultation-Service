@@ -43,6 +43,27 @@ export const refreshRateLimiter = rateLimit({
 });
 
 /**
+ * Rate limiter for the logout endpoint.
+ * Protects against DoS / session-destruction amplification attacks.
+ * Uses the same window and max as authRateLimiter (10 rps / 15 min in prod).
+ */
+export const logoutRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: env.NODE_ENV === 'development' ? 100 : 10,
+  message: {
+    error: {
+      message: 'Too many logout requests, please try again later',
+      code: ERROR_CODES.TOO_MANY_REQUESTS,
+    },
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (_req) => {
+    return env.NODE_ENV === 'development' && process.env.DISABLE_RATE_LIMIT === 'true';
+  },
+});
+
+/**
  * General API rate limiter
  */
 export const apiRateLimiter = rateLimit({

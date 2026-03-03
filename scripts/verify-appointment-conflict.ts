@@ -3,7 +3,7 @@
  *
  * Verifies the overlap-based appointment conflict detection introduced in F-010.
  *
- * Scenarios covered (APPOINTMENT_DURATION_MINUTES assumed = 30 min):
+ * Scenarios covered (durationMinutes = APPOINTMENT_DURATION_MINUTES, default 60 min):
  *
  *   SHOULD CONFLICT (doctor):
  *     1. Exact same time            T vs T              → 0 min gap
@@ -38,50 +38,60 @@ const dim   = (s: string) => `\x1b[2m${s}\x1b[0m`;
 let passed = 0;
 let failed = 0;
 
-// ── overlap helpers (mirrors patient.service.ts logic) ───────────────────────
-const D = env.APPOINTMENT_DURATION_MINUTES * 60 * 1000;
+// ── overlap helpers (mirrors updated patient.service.ts per-slot logic) ──────
+const durMin = env.APPOINTMENT_DURATION_MINUTES; // default slot size for this script
 
-function windowFor(t: Date): { gt: Date; lt: Date } {
-  return {
-    gt: new Date(t.getTime() - D),
-    lt: new Date(t.getTime() + D),
-  };
+/** Exact overlap of [A, A+dA) and [B, B+dB) — mirrors isOverlap() in the service. */
+function slotsOverlap(
+  aStart: Date, aDurMin: number,
+  bStart: Date, bDurMin: number,
+): boolean {
+  return aStart.getTime() <  bStart.getTime() + bDurMin * 60_000
+      && aStart.getTime() + aDurMin * 60_000 > bStart.getTime();
 }
 
 async function doctorHasConflict(
   doctorId: string,
   scheduledAt: Date,
-  excludeAppointmentId?: string
+  excludeAppointmentId?: string,
+  newDurMin = durMin,
 ): Promise<boolean> {
-  const w = windowFor(scheduledAt);
-  const row = await prisma.appointment.findFirst({
+  const newEnd = new Date(scheduledAt.getTime() + newDurMin * 60_000);
+  const candidates = await prisma.appointment.findMany({
     where: {
       doctorId,
       status: { in: ['PENDING', 'CONFIRMED'] },
-      scheduledAt: w,
+      scheduledAt: {
+        gt: new Date(scheduledAt.getTime() - 480 * 60_000),
+        lt: newEnd,
+      },
       ...(excludeAppointmentId ? { NOT: { id: excludeAppointmentId } } : {}),
     },
-    select: { id: true },
+    select: { id: true, scheduledAt: true, durationMinutes: true },
   });
-  return row !== null;
+  return candidates.some(e => slotsOverlap(e.scheduledAt, e.durationMinutes, scheduledAt, newDurMin));
 }
 
 async function patientHasConflict(
   patientProfileId: string,
   scheduledAt: Date,
-  excludeAppointmentId?: string
+  excludeAppointmentId?: string,
+  newDurMin = durMin,
 ): Promise<boolean> {
-  const w = windowFor(scheduledAt);
-  const row = await prisma.appointment.findFirst({
+  const newEnd = new Date(scheduledAt.getTime() + newDurMin * 60_000);
+  const candidates = await prisma.appointment.findMany({
     where: {
       patientId: patientProfileId,
       status: { in: ['PENDING', 'CONFIRMED'] },
-      scheduledAt: w,
+      scheduledAt: {
+        gt: new Date(scheduledAt.getTime() - 480 * 60_000),
+        lt: newEnd,
+      },
       ...(excludeAppointmentId ? { NOT: { id: excludeAppointmentId } } : {}),
     },
-    select: { id: true },
+    select: { id: true, scheduledAt: true, durationMinutes: true },
   });
-  return row !== null;
+  return candidates.some(e => slotsOverlap(e.scheduledAt, e.durationMinutes, scheduledAt, newDurMin));
 }
 
 // ── assert helpers ────────────────────────────────────────────────────────────
@@ -129,8 +139,7 @@ async function setup() {
   await prisma.specialty.create({
     data: {
       id: specialtyId,
-      name: `__verify_conflict_${specialtyId.slice(0, 8)}`,
-      nameEn: 'Test',
+      nameEn: `__verify_conflict_${specialtyId.slice(0, 8)}`,
       nameVi: 'Test',
     },
   });
@@ -177,6 +186,7 @@ async function setup() {
       patientId,
       doctorId: doctor1Id,
       scheduledAt: BASE_TIME,
+      durationMinutes: durMin,
       status: 'CONFIRMED',
       reason: '__verify_conflict_test',
     },
@@ -193,7 +203,6 @@ async function teardown() {
 
 // ── main ─────────────────────────────────────────────────────────────────────
 async function main() {
-  const durMin = env.APPOINTMENT_DURATION_MINUTES;
   console.log(`\n=== Appointment conflict detection (slot = ${durMin} min) ===\n`);
 
   await setup();
@@ -260,7 +269,7 @@ async function main() {
   console.log(
     `  Results: ${green(`${passed} passed`)}  ${failed > 0 ? red(`${failed} failed`) : `0 failed`}`
   );
-  console.log(dim(`  Duration assumption: ${durMin} min (APPOINTMENT_DURATION_MINUTES)`));
+  console.log(dim(`  Duration: ${durMin} min (APPOINTMENT_DURATION_MINUTES, stored as durationMinutes per slot)`));
   console.log(`─────────────────────────────────────────────────────────────\n`);
 
   if (failed > 0) process.exit(1);

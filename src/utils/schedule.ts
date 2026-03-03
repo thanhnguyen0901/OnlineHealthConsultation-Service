@@ -1,8 +1,12 @@
 /**
  * src/utils/schedule.ts
  *
- * Canonical Zod schema and TypeScript types for the doctor schedule JSON
- * stored in `doctor_profiles.schedule` (TEXT column).
+ * Canonical Zod schema and TypeScript types for the doctor schedule stored in
+ * `doctor_profiles.schedule` (MySQL JSON column).
+ *
+ * The column is typed as `Json?` in Prisma.  All writes are validated through
+ * `scheduleArraySchema` before reaching the database.  On reads the raw
+ * `Prisma.JsonValue` is cast to `ScheduleArray` via `asScheduleArray()`.
  *
  * Shape (array of day-slots):
  * [
@@ -26,6 +30,7 @@
  */
 
 import { z } from 'zod';
+import type { Prisma } from '@prisma/client';
 
 /** Regex for HH:MM (00:00 – 23:59) */
 const TIME_RE = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
@@ -58,3 +63,17 @@ export const scheduleArraySchema = z
 /** TypeScript type inferred from the schema */
 export type ScheduleSlot = z.infer<typeof scheduleSlotSchema>;
 export type ScheduleArray = z.infer<typeof scheduleArraySchema>;
+
+/**
+ * Cast a raw `Prisma.JsonValue` from the JSON column back to `ScheduleArray`.
+ *
+ * Safety: the column was written through `scheduleArraySchema` validation, and
+ * MySQL's JSON type guarantees the value is structurally valid JSON.  A runtime
+ * type-assertion is therefore sufficient — no re-parsing needed.
+ *
+ * Returns an empty array when the value is `null` (schedule not yet set).
+ */
+export function asScheduleArray(json: Prisma.JsonValue | null): ScheduleArray {
+  if (json === null || json === undefined) return [];
+  return json as unknown as ScheduleArray;
+}

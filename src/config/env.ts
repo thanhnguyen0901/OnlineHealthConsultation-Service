@@ -14,17 +14,21 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRE: z.string().default('15m'),
   JWT_REFRESH_EXPIRE: z.string().default('7d'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
-  BCRYPT_ROUNDS: z.string().default('10').transform(Number),
-  COOKIE_SECURE: z.string().default('false').transform((val) => val === 'true'),
+  // Raise from 10→12: each additional round doubles hashing time.
+  // 12 rounds ≈ 250–400 ms on modern hardware — acceptable for auth endpoints
+  // while making offline brute-force attacks ~4× more expensive than 10.
+  BCRYPT_ROUNDS: z.string().default('12').transform(Number),
+  COOKIE_SECURE: z.string().default('true').transform((val) => val === 'true'),
   COOKIE_SAMESITE: z.enum(['none', 'lax', 'strict']).default('lax'),
   COOKIE_DOMAIN: z.string().optional(),
   // Days after expiry/revocation before a dead session row is deleted (default 7)
   SESSION_CLEANUP_RETENTION_DAYS: z.string().default('7').transform(Number),
-  // Duration of a single appointment slot in minutes.
-  // Used by the conflict-detection window: any existing appointment whose
-  // scheduledAt falls inside (newStart - duration, newStart + duration) is
-  // considered overlapping.  Must match the slot size used by the booking UI.
-  APPOINTMENT_DURATION_MINUTES: z.string().default('30').transform(Number),
+  // Default appointment slot duration in minutes (RISK-10 context).
+  // The booking service now stores durationMinutes per-appointment (default 60)
+  // rather than using this shared env var for conflict detection.
+  // Retained here for the verify-appointment-conflict.ts script and any tooling
+  // that needs a configurable default when creating appointments programmatically.
+  APPOINTMENT_DURATION_MINUTES: z.string().default('60').transform(Number),
 });
 
 // Validate and parse environment variables

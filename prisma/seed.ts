@@ -134,7 +134,7 @@ async function main() {
           specialtyId: cardiology.id,
           bio: 'Bác sĩ tim mạch với hơn 15 năm kinh nghiệm. Chuyên về tim mạch dự phòng và quản lý bệnh tim.',
           yearsOfExperience: 15,
-          schedule: JSON.stringify(seedSchedule),
+          schedule: seedSchedule,
           scheduleUpdatedAt: new Date(),
         },
       },

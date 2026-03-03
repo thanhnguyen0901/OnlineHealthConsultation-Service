@@ -27,14 +27,12 @@ export interface UpdateUserInput {
 }
 
 export interface CreateSpecialtyInput {
-  // `name` is derived from `nameEn`; do not include it in API input.
   nameEn: string;
   nameVi: string;
   description?: string;
 }
 
 export interface UpdateSpecialtyInput {
-  // `name` is auto-synced from `nameEn`; do not include it in API input.
   nameEn?: string;
   nameVi?: string;
   description?: string;
@@ -42,6 +40,57 @@ export interface UpdateSpecialtyInput {
 }
 
 export class AdminService {
+  /**
+   * Get a single user by id (admin view — all fields)
+   */
+  async getUserById(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        patientProfile: {
+          select: {
+            id: true,
+            dateOfBirth: true,
+            gender: true,
+            phone: true,
+            address: true,
+            medicalHistory: true,
+            createdAt: true,
+          },
+        },
+        doctorProfile: {
+          select: {
+            id: true,
+            specialtyId: true,
+            bio: true,
+            yearsOfExperience: true,
+            ratingAverage: true,
+            ratingCount: true,
+            createdAt: true,
+            specialty: {
+              select: { id: true, nameEn: true, nameVi: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    return user;
+  }
+
   /**
    * Get all users with optional filters
    */
@@ -98,7 +147,7 @@ export class AdminService {
               ratingCount: true,
               specialty: {
                 select: {
-                  name: true,
+                  nameEn: true,
                 },
               },
             },
@@ -195,23 +244,39 @@ export class AdminService {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        ...input,
-        // Sync deletedAt with isActive changes:
-        // deactivating → stamp deletedAt; reactivating → clear it
-        ...(input.isActive === false && { deletedAt: new Date() }),
-        ...(input.isActive === true  && { deletedAt: null }),
-      },
-      include: {
-        patientProfile: true,
-        doctorProfile: {
-          include: {
-            specialty: true,
+    // RISK-02 fix: wrap user update + doctorProfile.isActive sync in one
+    // transaction so the two columns never diverge on partial failure.
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          ...input,
+          // Sync deletedAt with isActive changes:
+          // deactivating → stamp deletedAt; reactivating → clear it
+          ...(input.isActive === false && { deletedAt: new Date() }),
+          ...(input.isActive === true  && { deletedAt: null }),
+        },
+      });
+
+      // Keep DoctorProfile.isActive mirrored to User.isActive.
+      // updateMany is a no-op when the user has no doctor profile.
+      if (typeof input.isActive === 'boolean') {
+        await tx.doctorProfile.updateMany({
+          where: { userId },
+          data: { isActive: input.isActive },
+        });
+      }
+
+      // Re-fetch after all writes so every included field is up-to-date
+      return tx.user.findUniqueOrThrow({
+        where: { id: userId },
+        include: {
+          patientProfile: true,
+          doctorProfile: {
+            include: { specialty: true },
           },
         },
-      },
+      });
     });
 
     return updatedUser;
@@ -229,11 +294,18 @@ export class AdminService {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    // Soft delete by deactivating
-    await prisma.user.update({
-      where: { id: userId },
-      data: { isActive: false, deletedAt: new Date() },
-    });
+    // Soft delete: deactivate user and mirror onto DoctorProfile (RISK-02 fix)
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: { isActive: false, deletedAt: new Date() },
+      }),
+      // updateMany is a no-op when the user has no doctor profile
+      prisma.doctorProfile.updateMany({
+        where: { userId },
+        data: { isActive: false },
+      }),
+    ]);
 
     return { message: 'User deactivated successfully' };
   }
@@ -380,15 +452,44 @@ export class AdminService {
   }
 
   /**
-   * Get all patients
+   * Get all patients with optional search and isActive filter
    */
-  async getPatients(page: number = 1, limit: number = 20) {
+  async getPatients(
+    page: number = 1,
+    limit: number = 20,
+    search?: string,
+    isActive?: boolean
+  ) {
     const skip = (page - 1) * limit;
+
+    const where: any = {};
+
+    if (typeof isActive === 'boolean') {
+      where.user = { ...where.user, isActive };
+    }
+
+    if (search) {
+      where.user = {
+        ...where.user,
+        OR: [
+          { firstName: { contains: search } },
+          { lastName: { contains: search } },
+          { email: { contains: search } },
+        ],
+      };
+      // Also match phone on the patient profile itself
+      where.OR = [
+        { user: where.user },
+        { phone: { contains: search } },
+      ];
+      delete where.user;
+    }
 
     const [patients, total] = await Promise.all([
       prisma.patientProfile.findMany({
         skip,
         take: limit,
+        where,
         include: {
           user: {
             select: {
@@ -400,11 +501,9 @@ export class AdminService {
             },
           },
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
       }),
-      prisma.patientProfile.count(),
+      prisma.patientProfile.count({ where }),
     ]);
 
     return {
@@ -435,9 +534,8 @@ export class AdminService {
    * Create a specialty
    */
   async createSpecialty(input: CreateSpecialtyInput) {
-    // `name` mirrors `nameEn` (legacy uniqueness alias kept in sync by code)
     const specialty = await prisma.specialty.create({
-      data: { id: newId(), name: input.nameEn, ...input },
+      data: { id: newId(), ...input },
     });
 
     return specialty;
@@ -455,11 +553,7 @@ export class AdminService {
       throw new AppError('Specialty not found', 404, 'SPECIALTY_NOT_FOUND');
     }
 
-    // Keep `name` in sync with `nameEn` whenever nameEn is updated
-    const updateData: typeof input & { name?: string } = { ...input };
-    if (input.nameEn !== undefined) {
-      updateData.name = input.nameEn;
-    }
+    const updateData = { ...input };
 
     const updatedSpecialty = await prisma.specialty.update({
       where: { id: specialtyId },
@@ -499,6 +593,50 @@ export class AdminService {
     });
 
     return { message: 'Specialty deleted successfully' };
+  }
+
+  /**
+   * Get a single appointment by id (admin view — full detail)
+   */
+  async getAppointmentById(appointmentId: string) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        doctor: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+            specialty: {
+              select: { id: true, nameEn: true, nameVi: true },
+            },
+          },
+        },
+        // 0..1 relation — at most one rating per appointment
+        rating: true,
+      },
+    });
+
+    if (!appointment) {
+      throw new AppError('Appointment not found', 404, 'APPOINTMENT_NOT_FOUND');
+    }
+
+    return appointment;
   }
 
   /**
@@ -613,6 +751,30 @@ export class AdminService {
   }
 
   /**
+   * Archive (soft-delete) a question by setting its status to MODERATED.
+   *
+   * The Question model has no dedicated deletedAt column, so MODERATED is the
+   * domain-consistent way to remove a question from public visibility while
+   * preserving the record for audit purposes.
+   */
+  async archiveQuestion(questionId: string) {
+    const question = await prisma.question.findUnique({
+      where: { id: questionId },
+    });
+
+    if (!question) {
+      throw new AppError('Question not found', 404, 'QUESTION_NOT_FOUND');
+    }
+
+    const archived = await prisma.question.update({
+      where: { id: questionId },
+      data: { status: 'MODERATED' },
+    });
+
+    return { message: 'Question archived successfully', id: archived.id, status: archived.status };
+  }
+
+  /**
    * Get questions for moderation
    */
   async getQuestionsForModeration(page: number = 1, limit: number = 20) {
@@ -666,7 +828,7 @@ export class AdminService {
   /**
    * Moderate a question
    */
-  async moderateQuestion(questionId: string, status: string) {
+  async moderateQuestion(questionId: string, status: 'PENDING' | 'ANSWERED' | 'MODERATED') {
     const question = await prisma.question.findUnique({
       where: { id: questionId },
     });

@@ -42,6 +42,82 @@ export const getQuestionsQuerySchema = z.object({
 export const getAppointmentsQuerySchema = z.object({
   query: z.object({
     status: z.enum(['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED']).optional(),
+    page: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 1))
+      .pipe(z.number().int().min(1)),
+    limit: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 20))
+      .pipe(z.number().int().min(1).max(100)),
+  }),
+});
+
+/** Schema for PATCH /doctors/me — at least one field required. */
+export const updateProfileSchema = z.object({
+  body: z
+    .object({
+      bio: z.string().max(2000).optional(),
+      yearsOfExperience: z.number().int().min(0).max(60).optional(),
+      specialtyId: z.string().uuid('specialtyId must be a valid UUID').optional(),
+    })
+    .refine(
+      (data) => Object.values(data).some((v) => v !== undefined),
+      { message: 'At least one field must be provided' }
+    ),
+});
+
+/** Schema for GET /doctors/ratings pagination. */
+export const getRatingsQuerySchema = z.object({
+  query: z.object({
+    page: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 1))
+      .pipe(z.number().int().min(1)),
+    limit: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 20))
+      .pipe(z.number().int().min(1).max(100)),
+  }),
+});
+
+/** Reusable id-param schema for appointment detail routes. */
+export const doctorIdParamSchema = z.object({
+  params: z.object({
+    id: z.string().min(1, 'id is required'),
+  }),
+});
+
+/**
+ * Validates a public doctor-profile id parameter.
+ * Accepts any non-empty string — the service enforces the isActive/deletedAt
+ * guard, so the controller just needs to confirm the param is present.
+ */
+export const publicDoctorIdParamSchema = z.object({
+  id: z.string().min(1, 'id is required'),
+});
+
+/**
+ * Query params for the public doctor listing endpoint used by patients.
+ * All fields are optional; sensible defaults are applied in the service.
+ */
+export const getPublicDoctorsQuerySchema = z.object({
+  query: z.object({
+    specialtyId: z.string().optional(),
+    page: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 1))
+      .pipe(z.number().int().min(1)),
+    limit: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 20))
+      .pipe(z.number().int().min(1).max(100)),
   }),
 });
 
@@ -98,13 +174,49 @@ export class DoctorController {
   });
 
   /**
-   * Get appointments for doctor
+   * Get appointments for doctor with pagination
    * GET /doctors/appointments
    */
   getAppointments = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
-    const { status } = req.query as any;
-    const result = await doctorService.getAppointments(userId, status);
+    const { status, page, limit } = req.query as {
+      status?: string;
+      page?: number;
+      limit?: number;
+    };
+    const result = await doctorService.getAppointments(userId, status, page, limit);
+    sendSuccess(res, result.appointments, result.pagination);
+  });
+
+  /**
+   * Get a single appointment by id (doctor-owned only)
+   * GET /doctors/appointments/:id
+   */
+  getAppointmentById = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { id } = req.params;
+    const result = await doctorService.getAppointmentById(userId, id);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Get ratings for doctor (VISIBLE, paginated)
+   * GET /doctors/ratings
+   */
+  getRatings = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { page, limit } = req.query as { page?: number; limit?: number };
+    const result = await doctorService.getRatings(userId, page, limit);
+    sendSuccess(res, result.ratings, result.pagination);
+  });
+
+  /**
+   * Update own doctor profile (bio, yearsOfExperience, specialtyId)
+   * PATCH /doctors/me
+   */
+  updateProfile = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const result = await doctorService.updateProfile(userId, req.body);
     sendSuccess(res, result);
   });
 
@@ -138,6 +250,39 @@ export class DoctorController {
   updateSchedule = asyncHandler(async (req: Request, res: Response) => {
     const userId = req.user!.id;
     const result = await doctorService.updateSchedule(userId, req.body);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Public doctor listing for patient booking / browsing.
+   * GET /api/doctors
+   *
+   * AUDIT-02: replaces the admin-controller re-use.
+   * Only active, non-deleted doctors are returned; no admin-only fields exposed.
+   */
+  getPublicDoctors = asyncHandler(async (req: Request, res: Response) => {
+    const { specialtyId, page, limit } = req.query as any;
+    const result = await doctorService.getPublicDoctors(specialtyId, page, limit);
+    sendSuccess(res, result.doctors, result.pagination);
+  });
+
+  /**
+   * Public single-doctor profile
+   * GET /api/doctors/:id  (id = DoctorProfile.id, 36-char UUID)
+   */
+  getPublicDoctorById = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await doctorService.getPublicDoctorById(id);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Public doctor schedule
+   * GET /api/doctors/:id/schedule  (id = DoctorProfile.id, 36-char UUID)
+   */
+  getPublicDoctorSchedule = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await doctorService.getPublicDoctorSchedule(id);
     sendSuccess(res, result);
   });
 

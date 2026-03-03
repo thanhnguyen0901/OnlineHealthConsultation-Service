@@ -11,6 +11,9 @@ export const ERROR_CODES = {
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
   FORBIDDEN: 'FORBIDDEN',
   ACCOUNT_DEACTIVATED: 'ACCOUNT_DEACTIVATED',
+  // Sent when a client submits a body field that must NOT be in the body
+  // (e.g. refreshToken must only travel via httpOnly cookie, never in the body)
+  BODY_NOT_ALLOWED: 'BODY_NOT_ALLOWED',
   
   // Validation
   VALIDATION_ERROR: 'VALIDATION_ERROR',

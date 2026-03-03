@@ -331,7 +331,7 @@ export class ReportService {
     });
 
     return specialties.map((s) => ({
-      name: s.name,
+      name: s.nameEn,
       doctorCount: s.doctors.length,
     }));
   }

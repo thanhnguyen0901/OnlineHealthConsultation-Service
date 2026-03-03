@@ -6,6 +6,7 @@ import { newId } from '../utils/id';
 import crypto from 'crypto';
 import { cleanupUserSessions } from '../utils/sessionCleanup';
 import { ERROR_CODES } from '../constants/errorCodes';
+import env from '../config/env';
 
 export interface RegisterInput {
   email: string;
@@ -29,6 +30,31 @@ export interface LoginInput {
 
 export class AuthService {
   /**
+   * Parse a TTL string (e.g. "7d", "24h", "30m", "60s") to milliseconds.
+   * Falls back to 7 days for unrecognised formats.
+   */
+  private parseTtlMs(ttl: string): number {
+    const match = /^(\d+)([smhd])$/.exec(ttl);
+    if (!match) return 7 * 24 * 60 * 60 * 1000;
+    const value = parseInt(match[1], 10);
+    switch (match[2]) {
+      case 's': return value * 1_000;
+      case 'm': return value * 60 * 1_000;
+      case 'h': return value * 60 * 60 * 1_000;
+      case 'd': return value * 24 * 60 * 60 * 1_000;
+      default:  return 7 * 24 * 60 * 60 * 1_000;
+    }
+  }
+
+  /**
+   * Compute session expiry date driven by JWT_REFRESH_EXPIRE env variable.
+   * This keeps the DB session TTL in sync with the JWT TTL.
+   */
+  private computeExpiresAt(): Date {
+    return new Date(Date.now() + this.parseTtlMs(env.JWT_REFRESH_EXPIRE));
+  }
+
+  /**
    * Hash refresh token using SHA-256
    */
   private hashToken(token: string): string {
@@ -45,8 +71,8 @@ export class AuthService {
     ipAddress?: string
   ) {
     const refreshTokenHash = this.hashToken(refreshToken);
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
+    // Derive expiry from JWT_REFRESH_EXPIRE so JWT TTL and DB TTL stay aligned
+    const expiresAt = this.computeExpiresAt();
 
     await prisma.userSession.create({
       data: {
@@ -133,16 +159,14 @@ export class AuthService {
       },
     });
 
-    // Generate tokens
+    // Generate tokens — payload contains only id and role, never PII like email
     const accessToken = signAccessToken({
       id: user.id,
-      email: user.email,
       role: user.role,
     });
 
     const refreshToken = signRefreshToken({
       id: user.id,
-      email: user.email,
       role: user.role,
     });
 
@@ -198,16 +222,14 @@ export class AuthService {
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Generate tokens
+    // Generate tokens — payload contains only id and role, never PII like email
     const accessToken = signAccessToken({
       id: user.id,
-      email: user.email,
       role: user.role,
     });
 
     const refreshToken = signRefreshToken({
       id: user.id,
-      email: user.email,
       role: user.role,
     });
 
@@ -270,37 +292,37 @@ export class AuthService {
       );
     }
 
-    // Generate new tokens
+    // Generate new tokens — payload contains only id and role, never PII like email
     const newAccessToken = signAccessToken({
       id: payload.id,
-      email: payload.email,
       role: payload.role,
     });
 
     const newRefreshToken = signRefreshToken({
       id: payload.id,
-      email: payload.email,
       role: payload.role,
     });
 
     // Rotate refresh token: revoke old, create new
     const newRefreshTokenHash = this.hashToken(newRefreshToken);
-    const newExpiresAt = new Date();
-    newExpiresAt.setDate(newExpiresAt.getDate() + 7);
+    const now = new Date();
+    // Derive expiry from JWT_REFRESH_EXPIRE so JWT TTL and DB TTL stay aligned
+    const newExpiresAt = this.computeExpiresAt();
 
     await prisma.$transaction([
       // Revoke old session
       prisma.userSession.update({
         where: { id: session.id },
-        data: { revokedAt: new Date() },
+        data: { revokedAt: now },
       }),
-      // Create new session
+      // Create new session — set lastUsedAt to now to track the rotation event
       prisma.userSession.create({
         data: {
           id: newId(),
           userId: session.userId,
           refreshTokenHash: newRefreshTokenHash,
           expiresAt: newExpiresAt,
+          lastUsedAt: now,
           userAgent,
           ipAddress,
         },

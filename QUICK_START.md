@@ -42,6 +42,9 @@ npx prisma generate
 # Chạy migrations để tạo tables trong database
 npx prisma migrate deploy
 
+# Áp dụng MySQL triggers (Prisma không thể chạy do cú pháp DELIMITER)
+npm run db:triggers
+
 # Seed data mẫu (tạo users, specialties, questions...)
 npx ts-node prisma/seed.ts
 ```
@@ -110,6 +113,7 @@ docker-compose up -d
 timeout /t 15 /nobreak
 npx prisma generate
 npx prisma migrate deploy
+npm run db:triggers
 npx ts-node prisma/seed.ts
 ```
 
@@ -122,7 +126,8 @@ npx ts-node prisma/seed.ts
 npm run prisma:studio        # Mở database GUI (http://localhost:5555)
 npm run prisma:migrate       # Tạo và chạy migration mới (dev)
 npm run prisma:migrate:deploy # Áp dụng migrations (production/CI)
-npm run db:setup             # Setup database (generate + migrate:deploy + seed)
+npm run db:setup             # Setup database (check + generate + migrate:deploy + triggers + seed)
+npm run db:check             # CI guard: verify init.sql contains no table DDL
 npm run db:reset             # Reset database + tự động seed (prisma migrate reset)
 
 # Development

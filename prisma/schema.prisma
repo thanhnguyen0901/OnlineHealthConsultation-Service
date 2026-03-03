@@ -41,6 +41,7 @@ enum RatingStatus {
 }
 
 model User {
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
   id           String    @id @db.Char(36)
   email        String    @unique
   passwordHash String
@@ -56,13 +57,14 @@ model User {
   doctorProfile  DoctorProfile?
   sessions       UserSession[]
 
-  @@index([email])
+  // @@index([email]) removed — redundant with @unique on email (RISK-04)
   @@index([role])
   @@index([deletedAt])
   @@map("users")
 }
 
 model PatientProfile {
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
   id             String    @id @db.Char(36)
   userId         String    @unique @db.Char(36)
   dateOfBirth    DateTime?
@@ -78,11 +80,12 @@ model PatientProfile {
   appointments Appointment[]
   ratings      Rating[]
 
-  @@index([userId])
+  // @@index([userId]) removed — redundant with @unique on userId (RISK-04)
   @@map("patient_profiles")
 }
 
 model DoctorProfile {
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
   id                String   @id @db.Char(36)
   userId            String   @unique @db.Char(36)
   specialtyId       String   @db.Char(36)
@@ -90,7 +93,11 @@ model DoctorProfile {
   yearsOfExperience Int      @default(0)
   ratingAverage     Float    @default(0)
   ratingCount       Int      @default(0)
-  schedule          String?   @db.Text // JSON array of ScheduleSlot — validated by src/utils/schedule.ts
+  isActive          Boolean  @default(true) // mirrors User.isActive; set via admin deactivation
+  /// Native JSON column — replaces the old TEXT blob (RISK-05).
+  /// Prisma maps this to JsonValue on read and InputJsonValue on write.
+  /// Structure is validated by scheduleArraySchema (src/utils/schedule.ts) before every write.
+  schedule          Json?    // ScheduleSlot[] – see src/utils/schedule.ts
   scheduleUpdatedAt DateTime? // set on every schedule write
   createdAt         DateTime  @default(now())
   updatedAt         DateTime @updatedAt
@@ -102,15 +109,16 @@ model DoctorProfile {
   appointments Appointment[]
   ratings      Rating[]
 
-  @@index([userId])
+  // @@index([userId]) removed — redundant with @unique on userId (RISK-04)
   @@index([specialtyId])
+  @@index([isActive])
   @@map("doctor_profiles")
 }
 
 model Specialty {
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
   id          String    @id @db.Char(36)
-  name        String    @unique // Kept for backward compatibility
-  nameEn      String
+  nameEn      String    @unique
   nameVi      String
   description String?   @db.Text
   isActive    Boolean   @default(true)
@@ -119,30 +127,42 @@ model Specialty {
 
   doctors DoctorProfile[]
 
+  @@index([isActive]) // RISK-11: filter active specialties in public listings
   @@map("specialties")
 }
 
 model Question {
-  id        String         @id @db.Char(36)
-  patientId String         @db.Char(36)
-  doctorId  String?        @db.Char(36)
-  title     String
-  content   String         @db.Text
-  status    QuestionStatus @default(PENDING)
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
+  id               String         @id @db.Char(36)
+  patientId        String         @db.Char(36)
+  doctorId         String?        @db.Char(36)
+  /// Immutable audit field — written once at creation when a doctor is assigned.
+  /// Never updated after that, even if doctorId is later SET NULL by a hard-delete.
+  /// This preserves the assignment history regardless of future doctor lifecycle events.
+  originalDoctorId String?        @db.Char(36)
+  title            String
+  content          String         @db.Text
+  status           QuestionStatus @default(PENDING)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  /// onDelete: SetNull (Prisma default for nullable FKs in MySQL) is intentional.
+  /// SET NULL is safe because the app only soft-deletes doctors (isActive/deletedAt).
+  /// Hard-deletes via cascade (User → DoctorProfile) would nullify doctorId but
+  /// originalDoctorId permanently records who the question was assigned to.
   doctor  DoctorProfile? @relation(fields: [doctorId], references: [id])
   answers Answer[]
 
   @@index([patientId])
   @@index([doctorId])
+  @@index([originalDoctorId])
   @@index([status])
   @@map("questions")
 }
 
 model Answer {
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
   id         String   @id @db.Char(36)
   questionId String   @db.Char(36)
   doctorId   String   @db.Char(36)
@@ -160,11 +180,15 @@ model Answer {
 }
 
 model Appointment {
-  id          String            @id @db.Char(36)
-  patientId   String            @db.Char(36)
-  doctorId    String            @db.Char(36)
-  scheduledAt DateTime
-  status      AppointmentStatus @default(PENDING)
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
+  id              String            @id @db.Char(36)
+  patientId       String            @db.Char(36)
+  doctorId        String            @db.Char(36)
+  scheduledAt     DateTime
+  /// Slot length in minutes (default 60). Stored per-appointment so the overlap
+  /// detection in createAppointment() remains accurate when durations vary.
+  durationMinutes Int               @default(60)
+  status          AppointmentStatus @default(PENDING)
   reason      String            @db.Text
   notes       String?           @db.Text
   createdAt   DateTime          @default(now())
@@ -172,7 +196,8 @@ model Appointment {
 
   patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctor  DoctorProfile  @relation(fields: [doctorId], references: [id])
-  ratings Rating[]
+  /// 0..1 — one appointment has at most one rating (enforced by @unique on Rating.appointmentId).
+  rating  Rating?
 
   @@index([patientId])
   @@index([doctorId])
@@ -186,10 +211,12 @@ model Appointment {
 }
 
 model Rating {
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
   id            String       @id @db.Char(36)
   patientId     String       @db.Char(36)
   doctorId      String       @db.Char(36)
-  appointmentId String       @db.Char(36)
+  /// @unique enforces the 0..1 relation with Appointment: at most one Rating per appointment.
+  appointmentId String       @unique @db.Char(36)
   score         Int // 1-5
   comment       String?      @db.Text
   status        RatingStatus @default(VISIBLE)
@@ -200,7 +227,8 @@ model Rating {
   doctor      DoctorProfile  @relation(fields: [doctorId], references: [id])
   appointment Appointment    @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
 
-  @@unique([appointmentId, patientId])
+  // @@unique([appointmentId, patientId]) removed — @unique on appointmentId alone
+  // is stricter (one rating per appointment) and fully subsumes the composite.
   @@index([patientId])
   @@index([doctorId])
   @@index([status])
@@ -208,6 +236,7 @@ model Rating {
 }
 
 model UserSession {
+  /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
   id               String    @id @db.Char(36)
   userId           String    @db.Char(36)
   refreshTokenHash String    @unique // SHA-256 hash of refresh token
@@ -220,8 +249,12 @@ model UserSession {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
-  @@index([refreshTokenHash])
-  @@index([expiresAt])
+  // @@index([refreshTokenHash]) removed — redundant with @unique (RISK-04)
+  // @@index([userId]) replaced by composite below (RISK-07)
+  /// Composite index for active-session lookup:
+  /// WHERE userId = ? AND revokedAt IS NULL AND expiresAt > NOW()
+  /// Leading userId also satisfies plain userId-only lookups.
+  @@index([userId, revokedAt, expiresAt], map: "user_sessions_active_session_idx")
+  @@index([expiresAt]) // retained for the session-cleanup job (range scan on expiry)
   @@map("user_sessions")
 }

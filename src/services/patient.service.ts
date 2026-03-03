@@ -1,10 +1,9 @@
 import prisma from '../config/db';
-import { AppointmentStatus } from '@prisma/client';
+import { AppointmentStatus, Prisma } from '@prisma/client';
 import { AppError } from '../middlewares/error.middleware';
 import { ERROR_CODES } from '../constants/errorCodes';
 import { newId } from '../utils/id';
 import { recalcDoctorRating } from '../utils/rating';
-import { env } from '../config/env';
 
 export interface UpdatePatientProfileInput {
   dateOfBirth?: Date;
@@ -24,6 +23,8 @@ export interface CreateAppointmentInput {
   doctorId: string;
   scheduledAt: Date;
   reason: string;
+  /** Duration of the appointment slot in minutes. Defaults to 60. */
+  durationMinutes?: number;
 }
 
 export interface CreateRatingInput {
@@ -148,10 +149,15 @@ export class PatientService {
       throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
-    // If doctorId is provided, verify doctor exists
+    // If doctorId is provided, verify doctor exists and is active (RISK-02 fix)
     if (input.doctorId) {
-      const doctor = await prisma.doctorProfile.findUnique({
-        where: { id: input.doctorId },
+      const doctor = await prisma.doctorProfile.findFirst({
+        where: {
+          id: input.doctorId,
+          isActive: true,
+          user: { isActive: true, deletedAt: null },
+        },
+        select: { id: true },
       });
       if (!doctor) {
         throw new AppError('Doctor not found', 404, ERROR_CODES.DOCTOR_NOT_FOUND);
@@ -163,6 +169,10 @@ export class PatientService {
         id: newId(),
         patientId: user.patientProfile.id,
         doctorId: input.doctorId,
+        // RISK-03 fix: originalDoctorId is write-once audit provenance.
+        // It captures the assigned doctor at creation time and is never
+        // modified — it survives even if doctorId is SET NULL by a hard-delete.
+        originalDoctorId: input.doctorId ?? null,
         title: input.title,
         content: input.content,
       },
@@ -225,6 +235,16 @@ export class PatientService {
    * Create a new appointment
    */
   async createAppointment(userId: string, input: CreateAppointmentInput) {
+    // AUDIT-05 defensive guard: reason is TEXT NOT NULL in the DB.
+    // Zod already enforces this at the controller layer; this guard catches
+    // any future direct service calls that bypass the HTTP validation path.
+    if (!input.reason || !input.reason.trim()) {
+      throw new AppError(
+        'Reason for appointment is required',
+        400,
+        ERROR_CODES.INVALID_INPUT
+      );
+    }
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: { patientProfile: true },
@@ -234,18 +254,29 @@ export class PatientService {
       throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
-    // Verify doctor exists.
+    // Verify doctor exists and is active (RISK-02 fix).
     // The FE doctor-list sends User.id (from getDoctors controller which sets id=doc.user.id),
     // but appointments store DoctorProfile.id. Try DoctorProfile.id first; if not found,
     // resolve via User.id so both ID forms are accepted.
-    let doctor = await prisma.doctorProfile.findUnique({
-      where: { id: input.doctorId },
+    // Both lookup paths guard isActive + user.deletedAt so deactivated doctors
+    // cannot receive new bookings regardless of which ID form the caller sends.
+    let doctor = await prisma.doctorProfile.findFirst({
+      where: {
+        id: input.doctorId,
+        isActive: true,
+        user: { isActive: true, deletedAt: null },
+      },
     });
 
     if (!doctor) {
       // Fallback: input.doctorId might be a User.id
-      const userWithProfile = await prisma.user.findUnique({
-        where: { id: input.doctorId },
+      const userWithProfile = await prisma.user.findFirst({
+        where: {
+          id: input.doctorId,
+          isActive: true,
+          deletedAt: null,
+          doctorProfile: { isActive: true },
+        },
         include: { doctorProfile: true },
       });
       if (userWithProfile?.doctorProfile) {
@@ -268,28 +299,37 @@ export class PatientService {
       );
     }
 
-    // Check for appointment conflicts using overlap detection.
+    // Check for appointment conflicts using per-slot overlap detection (RISK-10).
     //
-    // Each appointment occupies a fixed slot of APPOINTMENT_DURATION_MINUTES.
-    // New slot:      [T,   T+D)    where T = scheduledAt, D = duration
-    // Existing slot: [E,   E+D)
-    // Overlap condition: E < T+D  AND  E+D > T  => E ∈ (T-D, T+D)
+    // Each appointment carries its own durationMinutes so slots with different
+    // lengths are handled correctly.
     //
-    // We query for existing (PENDING|CONFIRMED) appointments whose scheduledAt
-    // falls inside the open interval (windowStart, windowEnd).
-    const durationMs = env.APPOINTMENT_DURATION_MINUTES * 60 * 1000;
-    const windowStart = new Date(input.scheduledAt.getTime() - durationMs);
-    const windowEnd   = new Date(input.scheduledAt.getTime() + durationMs);
-    const overlapWhere = {
+    // Two slots [A, A+dA) and [B, B+dB) overlap when:
+    //   A < B+dB  AND  A+dA > B
+    //
+    // SQL query: fetch candidates where A starts before the new slot ends (A < newEnd)
+    //            and A is within a 480-min lookback (generous bound for existing durations).
+    // JS check:  exact second condition — A+dA > newStart.
+    const newDurationMs = (input.durationMinutes ?? 60) * 60_000;
+    const newSlotEnd    = new Date(input.scheduledAt.getTime() + newDurationMs);
+    const candidateWhere = {
       status: { in: ['PENDING', 'CONFIRMED'] as AppointmentStatus[] },
-      scheduledAt: { gt: windowStart, lt: windowEnd },
+      scheduledAt: {
+        gt: new Date(input.scheduledAt.getTime() - 480 * 60_000),
+        lt: newSlotEnd,
+      },
     };
 
+    /** True when an existing appointment slot overlaps the new slot. */
+    const isOverlap = (existingStart: Date, existingDurationMinutes: number): boolean =>
+      existingStart.getTime() + existingDurationMinutes * 60_000 > input.scheduledAt.getTime();
+
     // Doctor conflict – a doctor cannot be in two overlapping slots
-    const doctorConflict = await prisma.appointment.findFirst({
-      where: { doctorId: input.doctorId, ...overlapWhere },
-      select: { id: true, scheduledAt: true },
+    const doctorCandidates = await prisma.appointment.findMany({
+      where: { doctorId: input.doctorId, ...candidateWhere },
+      select: { id: true, scheduledAt: true, durationMinutes: true },
     });
+    const doctorConflict = doctorCandidates.find(e => isOverlap(e.scheduledAt, e.durationMinutes));
 
     if (doctorConflict) {
       throw new AppError(
@@ -301,10 +341,11 @@ export class PatientService {
 
     // Patient conflict – prevent double-booking from the patient side
     const patientProfileId = user.patientProfile.id;
-    const patientConflict = await prisma.appointment.findFirst({
-      where: { patientId: patientProfileId, ...overlapWhere },
-      select: { id: true, scheduledAt: true },
+    const patientCandidates = await prisma.appointment.findMany({
+      where: { patientId: patientProfileId, ...candidateWhere },
+      select: { id: true, scheduledAt: true, durationMinutes: true },
     });
+    const patientConflict = patientCandidates.find(e => isOverlap(e.scheduledAt, e.durationMinutes));
 
     if (patientConflict) {
       throw new AppError(
@@ -320,6 +361,7 @@ export class PatientService {
         patientId: user.patientProfile.id,
         doctorId: input.doctorId,
         scheduledAt: input.scheduledAt,
+        durationMinutes: input.durationMinutes ?? 60,
         reason: input.reason,
       },
       include: {
@@ -410,11 +452,8 @@ export class PatientService {
               specialty: true,
             },
           },
-          ratings: {
-            where: {
-              patientId: user.patientProfile.id,
-            },
-          },
+          // 0..1 relation — a single optional rating per completed appointment
+          rating: true,
         },
         orderBy: {
           scheduledAt: 'desc',
@@ -462,19 +501,7 @@ export class PatientService {
       );
     }
 
-    // Check if rating already exists
-    const existingRating = await prisma.rating.findFirst({
-      where: {
-        appointmentId: input.appointmentId,
-        patientId: user.patientProfile.id,
-      },
-    });
-
-    if (existingRating) {
-      throw new AppError('Rating already exists for this appointment', 409, ERROR_CODES.RATING_EXISTS);
-    }
-
-    // Validate score
+    // Validate score (fast pre-flight — no DB round-trip needed)
     if (input.score < 1 || input.score > 5) {
       throw new AppError('Score must be between 1 and 5', 400, ERROR_CODES.INVALID_SCORE);
     }
@@ -482,23 +509,61 @@ export class PatientService {
     // Capture profile ID before transaction to preserve TypeScript narrowing
     const patientProfileId = user.patientProfile.id;
 
-    // Create rating and recalculate doctor stats atomically
-    const rating = await prisma.$transaction(async (tx) => {
-      const newRating = await tx.rating.create({
-        data: {
-          id: newId(),
-          patientId: patientProfileId,
-          doctorId: input.doctorId,
-          appointmentId: input.appointmentId,
-          score: input.score,
-          comment: input.comment,
-        },
+    // Create rating and recalculate doctor stats atomically.
+    //
+    // RISK-01 fix — TOCTOU guard:
+    //   The duplicate-rating check is re-executed INSIDE the transaction so
+    //   that two concurrent requests cannot both pass the pre-flight check and
+    //   then race to insert.  The DB @@unique([appointmentId, patientId])
+    //   constraint remains as a final backstop and is caught below as P2002.
+    let rating;
+    try {
+      rating = await prisma.$transaction(async (tx) => {
+        // Re-check for duplicate inside the transaction (TOCTOU fix)
+        const existingRating = await tx.rating.findFirst({
+          where: {
+            appointmentId: input.appointmentId,
+            patientId: patientProfileId,
+          },
+          select: { id: true },
+        });
+
+        if (existingRating) {
+          throw new AppError(
+            'Rating already exists for this appointment',
+            409,
+            ERROR_CODES.RATING_EXISTS
+          );
+        }
+
+        const newRating = await tx.rating.create({
+          data: {
+            id: newId(),
+            patientId: patientProfileId,
+            doctorId: input.doctorId,
+            appointmentId: input.appointmentId,
+            score: input.score,
+            comment: input.comment,
+          },
+        });
+
+        await recalcDoctorRating(input.doctorId, tx);
+
+        return newRating;
       });
-
-      await recalcDoctorRating(input.doctorId, tx);
-
-      return newRating;
-    });
+    } catch (err) {
+      // Prisma unique-constraint violation (P2002): two concurrent requests
+      // both passed the in-TX findFirst check in the same instant and the DB
+      // rejected the second insert.  Surface this as a clean 409.
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new AppError(
+          'Rating already exists for this appointment',
+          409,
+          ERROR_CODES.RATING_EXISTS
+        );
+      }
+      throw err;
+    }
 
     return rating;
   }
@@ -544,6 +609,164 @@ export class PatientService {
     });
 
     return ratings;
+  }
+
+  /**
+   * Get a single question that belongs to this patient, including
+   * only approved answers and the assigned doctor's public info.
+   */
+  async getQuestionById(userId: string, questionId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { patientProfile: true },
+    });
+
+    if (!user || !user.patientProfile) {
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
+    }
+
+    const question = await prisma.question.findFirst({
+      where: {
+        id: questionId,
+        patientId: user.patientProfile.id, // ownership check
+      },
+      include: {
+        doctor: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+              },
+            },
+            specialty: {
+              select: { id: true, nameEn: true, nameVi: true },
+            },
+          },
+        },
+        answers: {
+          where: { isApproved: true }, // patients see only moderation-approved answers
+          include: {
+            doctor: {
+              include: {
+                user: {
+                  select: { firstName: true, lastName: true },
+                },
+              },
+            },
+          },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!question) {
+      // Return the same 404 regardless of whether the question exists but
+      // belongs to another patient — avoids leaking ownership information.
+      throw new AppError('Question not found', 404, ERROR_CODES.QUESTION_NOT_FOUND);
+    }
+
+    return question;
+  }
+
+  /**
+   * Get a single appointment that belongs to this patient, including
+   * doctor info and specialty.
+   */
+  async getAppointmentById(userId: string, appointmentId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { patientProfile: true },
+    });
+
+    if (!user || !user.patientProfile) {
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
+    }
+
+    const appointment = await prisma.appointment.findFirst({
+      where: {
+        id: appointmentId,
+        patientId: user.patientProfile.id, // ownership check
+      },
+      include: {
+        doctor: {
+          include: {
+            user: {
+              select: { firstName: true, lastName: true, email: true },
+            },
+            specialty: {
+              select: { id: true, nameEn: true, nameVi: true },
+            },
+          },
+        },
+        // 0..1 relation — at most one rating per appointment
+        rating: {
+          select: { id: true, score: true, comment: true },
+        },
+      },
+    });
+
+    if (!appointment) {
+      throw new AppError('Appointment not found', 404, ERROR_CODES.APPOINTMENT_NOT_FOUND);
+    }
+
+    return appointment;
+  }
+
+  /**
+   * Cancel an appointment that belongs to this patient.
+   * Only PENDING or CONFIRMED appointments may be cancelled.
+   */
+  async cancelAppointment(userId: string, appointmentId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { patientProfile: true },
+    });
+
+    if (!user || !user.patientProfile) {
+      throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
+    }
+
+    // Load the appointment and verify ownership in a single query
+    const appointment = await prisma.appointment.findFirst({
+      where: {
+        id: appointmentId,
+        patientId: user.patientProfile.id, // 403-equivalent: not found if not owner
+      },
+    });
+
+    if (!appointment) {
+      throw new AppError('Appointment not found', 404, ERROR_CODES.APPOINTMENT_NOT_FOUND);
+    }
+
+    // Only PENDING and CONFIRMED appointments may be cancelled
+    const cancellableStatuses: AppointmentStatus[] = ['PENDING', 'CONFIRMED'];
+    if (!cancellableStatuses.includes(appointment.status)) {
+      throw new AppError(
+        `Cannot cancel an appointment that is already ${appointment.status.toLowerCase()}`,
+        409,
+        ERROR_CODES.INVALID_STATUS_TRANSITION
+      );
+    }
+
+    const updated = await prisma.appointment.update({
+      where: { id: appointmentId },
+      data: { status: 'CANCELLED' },
+      include: {
+        doctor: {
+          include: {
+            user: {
+              select: { firstName: true, lastName: true },
+            },
+            specialty: {
+              select: { id: true, nameEn: true, nameVi: true },
+            },
+          },
+        },
+      },
+    });
+
+    return updated;
   }
 }
 

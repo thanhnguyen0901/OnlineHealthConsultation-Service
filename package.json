@@ -21,7 +21,8 @@
     "test": "jest --passWithNoTests",
     "test:watch": "jest --watch",
     "verify:score": "ts-node scripts/verify-score-constraint.ts",
-    "verify:conflict": "ts-node scripts/verify-appointment-conflict.ts"
+    "verify:conflict": "ts-node scripts/verify-appointment-conflict.ts",
+    "verify:crud": "ts-node scripts/verify-crud.ts"
   },
   "keywords": [
     "healthcare",

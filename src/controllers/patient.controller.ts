@@ -183,9 +183,11 @@ export class PatientController {
     
     const transformedAppointments = result.appointments.map((a: any) => ({
       id: a.id,
+      doctorId: a.doctorId || '',
       doctorName: `${a.doctor?.user?.firstName ?? ''} ${a.doctor?.user?.lastName ?? ''}`.trim(),
       date: a.scheduledAt,
       status: a.status?.toLowerCase() || '',
+      reason: a.reason || '',
       notes: a.notes || '',
       hasRating: a.rating != null,
     }));

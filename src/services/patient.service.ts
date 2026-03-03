@@ -419,7 +419,7 @@ export class PatientService {
       prisma.question.findMany({
         where: {
           patientId: user.patientProfile.id,
-          status: 'ANSWERED',
+          // Return ALL statuses so the patient can see pending/moderated questions too.
         },
         include: {
           doctor: {
@@ -458,7 +458,7 @@ export class PatientService {
       prisma.appointment.findMany({
         where: {
           patientId: user.patientProfile.id,
-          status: 'COMPLETED',
+          // Return ALL statuses: pending/confirmed need cancel button; completed need rating.
         },
         include: {
           doctor: {

@@ -33,6 +33,8 @@ export const createQuestionSchema = z.object({
     title: z.string().optional(),
     content: z.string().optional(),
     doctorId: z.string().optional(),
+    /** Specialty the patient selected when submitting the question (FE only). */
+    specialtyId: z.string().optional(),
   }).refine(data => data.question || (data.title && data.content), {
     message: 'Either question or both title and content are required',
   }),

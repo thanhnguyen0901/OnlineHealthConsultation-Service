@@ -36,6 +36,8 @@ export function normalizeQuestionPayload(body: any) {
       title: questionText.substring(0, 80) || 'Question',
       content: questionText,
       doctorId: body.doctorId,
+      /** Passed through for informational purposes; not persisted on Question (no DB column). */
+      specialtyId: body.specialtyId,
     };
   }
   return body;

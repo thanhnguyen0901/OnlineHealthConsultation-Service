@@ -18,6 +18,13 @@ const envSchema = z.object({
   COOKIE_SECURE: z.string().default('false').transform((val) => val === 'true'),
   COOKIE_SAMESITE: z.enum(['none', 'lax', 'strict']).default('lax'),
   COOKIE_DOMAIN: z.string().optional(),
+  // Days after expiry/revocation before a dead session row is deleted (default 7)
+  SESSION_CLEANUP_RETENTION_DAYS: z.string().default('7').transform(Number),
+  // Duration of a single appointment slot in minutes.
+  // Used by the conflict-detection window: any existing appointment whose
+  // scheduledAt falls inside (newStart - duration, newStart + duration) is
+  // considered overlapping.  Must match the slot size used by the booking UI.
+  APPOINTMENT_DURATION_MINUTES: z.string().default('30').transform(Number),
 });
 
 // Validate and parse environment variables

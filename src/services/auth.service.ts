@@ -4,6 +4,8 @@ import { signAccessToken, signRefreshToken, verifyRefreshToken } from '../utils/
 import { AppError } from '../middlewares/error.middleware';
 import { newId } from '../utils/id';
 import crypto from 'crypto';
+import { cleanupUserSessions } from '../utils/sessionCleanup';
+import { ERROR_CODES } from '../constants/errorCodes';
 
 export interface RegisterInput {
   email: string;
@@ -187,7 +189,7 @@ export class AuthService {
 
     // Check if user is active
     if (!user.isActive) {
-      throw new AppError('Account is deactivated', 403, 'ACCOUNT_DEACTIVATED');
+      throw new AppError('Account is deactivated', 403, ERROR_CODES.ACCOUNT_DEACTIVATED);
     }
 
     // Verify password
@@ -211,6 +213,9 @@ export class AuthService {
 
     // Store refresh token hash
     await this.createSession(user.id, refreshToken, userAgent, ipAddress);
+
+    // (Strategy B) Fire-and-forget: clean up dead sessions for this user
+    cleanupUserSessions(user.id).catch(() => { /* non-critical */ });
 
     return {
       accessToken,
@@ -301,6 +306,9 @@ export class AuthService {
         },
       }),
     ]);
+
+    // (Strategy B) Fire-and-forget: clean up dead sessions for this user
+    cleanupUserSessions(session.userId).catch(() => { /* non-critical */ });
 
     return {
       accessToken: newAccessToken,

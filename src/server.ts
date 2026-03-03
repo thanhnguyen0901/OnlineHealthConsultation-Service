@@ -1,6 +1,7 @@
 import app from './app';
 import { env } from './config/env';
 import prisma from './config/db';
+import { startSessionCleanupJob } from './jobs/sessionCleanup.job';
 
 const PORT = env.PORT;
 
@@ -20,6 +21,9 @@ async function startServer() {
   try {
     // Connect to database
     await connectDatabase();
+
+    // Start background jobs
+    startSessionCleanupJob();
 
     // Start Express server
     app.listen(PORT, () => {

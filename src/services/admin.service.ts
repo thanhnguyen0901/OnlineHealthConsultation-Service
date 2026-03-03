@@ -197,7 +197,13 @@ export class AdminService {
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: input,
+      data: {
+        ...input,
+        // Sync deletedAt with isActive changes:
+        // deactivating → stamp deletedAt; reactivating → clear it
+        ...(input.isActive === false && { deletedAt: new Date() }),
+        ...(input.isActive === true  && { deletedAt: null }),
+      },
       include: {
         patientProfile: true,
         doctorProfile: {
@@ -226,7 +232,7 @@ export class AdminService {
     // Soft delete by deactivating
     await prisma.user.update({
       where: { id: userId },
-      data: { isActive: false },
+      data: { isActive: false, deletedAt: new Date() },
     });
 
     return { message: 'User deactivated successfully' };
@@ -312,6 +318,10 @@ export class AdminService {
     if (firstName !== undefined) userFields.firstName = firstName;
     if (lastName !== undefined) userFields.lastName = lastName;
 
+    // Sync deletedAt with isActive changes
+    if (userFields.isActive === false) userFields.deletedAt = new Date();
+    if (userFields.isActive === true)  userFields.deletedAt = null;
+
     // Update user if there are user fields
     if (Object.keys(userFields).length > 0) {
       await prisma.user.update({
@@ -363,7 +373,7 @@ export class AdminService {
 
     await prisma.user.update({
       where: { id: doctorId },
-      data: { isActive: false },
+      data: { isActive: false, deletedAt: new Date() },
     });
 
     return { message: 'Doctor deactivated successfully' };

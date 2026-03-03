@@ -48,6 +48,7 @@ model User {
   lastName     String
   role         Role
   isActive     Boolean   @default(true)
+  deletedAt    DateTime? // set when deactivated; cleared when reactivated
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -57,6 +58,7 @@ model User {
 
   @@index([email])
   @@index([role])
+  @@index([deletedAt])
   @@map("users")
 }
 
@@ -176,6 +178,10 @@ model Appointment {
   @@index([doctorId])
   @@index([status])
   @@index([scheduledAt])
+  // Composite index for the overlap conflict query (doctorId + status + scheduledAt)
+  @@index([doctorId, status, scheduledAt])
+  // Composite index for patient-side conflict check
+  @@index([patientId, status, scheduledAt])
   @@map("appointments")
 }
 

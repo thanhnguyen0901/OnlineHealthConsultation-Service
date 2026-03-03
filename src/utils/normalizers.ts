@@ -43,27 +43,38 @@ export function normalizeQuestionPayload(body: any) {
 
 /**
  * Normalize appointment creation payload
- * Accepts: {date, time} OR {scheduledAt}
- * Returns: {doctorId, scheduledAt, reason, notes?}
+ * Accepts: {scheduledAt} (preferred, UTC ISO string)
+ *       OR {date, time} (legacy — treated as LOCAL time by omitting 'Z',
+ *          relies on the server running in UTC; kept for backward compatibility).
+ * Returns: {doctorId, scheduledAt: Date, reason, notes?}
  *
  * NOTE: `reason` is required at the Zod validation layer (createAppointmentSchema)
  * so it is always present by the time this normalizer runs.
  * No silent fallback is applied — callers MUST supply a non-empty reason.
  */
 export function normalizeAppointmentPayload(body: any) {
-  if (body.date && body.time) {
-    const scheduledAt = new Date(`${body.date}T${body.time}:00.000Z`);
+  if (body.scheduledAt) {
+    // Preferred path: FE sends a full UTC ISO string (e.g. "2026-03-15T01:00:00.000Z").
+    // new Date() parses ISO-8601 strings correctly regardless of server timezone.
     return {
       doctorId: body.doctorId,
-      scheduledAt,
+      scheduledAt: new Date(body.scheduledAt),
       reason: body.reason as string,
       notes: body.notes,
+      durationMinutes: body.durationMinutes,
     };
   }
+  // Legacy path: separate date + time strings (no timezone info).
+  // Omit 'Z' so Node.js interprets the string in the **server** local timezone.
+  // On a UTC server this is equivalent to UTC; in any other timezone the result
+  // is still deterministic as long as the server TZ is documented.
+  const scheduledAt = new Date(`${body.date}T${body.time}:00`);
   return {
-    ...body,
-    scheduledAt: new Date(body.scheduledAt),
+    doctorId: body.doctorId,
+    scheduledAt,
     reason: body.reason as string,
+    notes: body.notes,
+    durationMinutes: body.durationMinutes,
   };
 }
 

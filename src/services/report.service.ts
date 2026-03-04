@@ -67,7 +67,6 @@ export class ReportService {
       },
     });
 
-    // Group by date
     const groupedByDate: {
       [key: string]: { total: number; answered: number; pending: number };
     } = {};
@@ -82,7 +81,6 @@ export class ReportService {
       if (q.status === "PENDING") groupedByDate[date].pending++;
     });
 
-    // Convert to array format
     const data = Object.entries(groupedByDate)
       .map(([date, stats]) => ({
         date,
@@ -105,7 +103,6 @@ export class ReportService {
       if (to) where.createdAt.lte = to;
     }
 
-    // Count users who created questions or appointments
     const [usersWithQuestions, usersWithAppointments] = await Promise.all([
       prisma.question.groupBy({
         by: ["patientId"],
@@ -124,7 +121,6 @@ export class ReportService {
       ...usersWithAppointments.map((a) => a.patientId),
     ]);
 
-    // Get doctor activity
     const [doctorsWithAnswers, doctorsWithAppointments] = await Promise.all([
       prisma.answer.groupBy({
         by: ["doctorId"],
@@ -204,7 +200,6 @@ export class ReportService {
       },
     });
 
-    // Group by date and status
     const groupedByDate: { [key: string]: any } = {};
 
     appointments.forEach((a) => {
@@ -223,7 +218,6 @@ export class ReportService {
       groupedByDate[date][a.status.toLowerCase()]++;
     });
 
-    // Convert to array format suitable for charts
     const data = Object.values(groupedByDate).sort((a: any, b: any) =>
       a.date.localeCompare(b.date),
     );
@@ -251,7 +245,6 @@ export class ReportService {
       },
     });
 
-    // Group by date and status
     const groupedByDate: { [key: string]: any } = {};
 
     questions.forEach((q) => {
@@ -269,7 +262,6 @@ export class ReportService {
       groupedByDate[date][q.status.toLowerCase()]++;
     });
 
-    // Convert to array format suitable for charts
     const data = Object.values(groupedByDate).sort((a: any, b: any) =>
       a.date.localeCompare(b.date),
     );

@@ -14,7 +14,6 @@ export interface RegisterInput {
   firstName: string;
   lastName: string;
   role: 'PATIENT' | 'DOCTOR';
-  // Optional profile data
   specialty?: string;
   bio?: string;
   dateOfBirth?: Date;
@@ -29,10 +28,6 @@ export interface LoginInput {
 }
 
 export class AuthService {
-  /**
-   * Parse a TTL string (e.g. "7d", "24h", "30m", "60s") to milliseconds.
-   * Falls back to 7 days for unrecognised formats.
-   */
   private parseTtlMs(ttl: string): number {
     const match = /^(\d+)([smhd])$/.exec(ttl);
     if (!match) return 7 * 24 * 60 * 60 * 1000;
@@ -46,25 +41,15 @@ export class AuthService {
     }
   }
 
-  /**
-   * Compute session expiry date driven by JWT_REFRESH_EXPIRE env variable.
-   * This keeps the DB session TTL in sync with the JWT TTL.
-   */
   private computeExpiresAt(): Date {
     return new Date(Date.now() + this.parseTtlMs(env.JWT_REFRESH_EXPIRE));
   }
 
-  /**
-   * Hash refresh token using SHA-256
-   */
   private hashToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
   }
 
-  /**
-   * DEV-ONLY: emit a short, non-sensitive log line for the auth token
-   * trace.  Never enabled in production.
-   */
+  // Development-only diagnostic logger; no-op in production.
   private debugTokenTrace(
     label: string,
     token: string,
@@ -80,22 +65,7 @@ export class AuthService {
     );
   }
 
-  /**
-   * Revoke all active sessions that match the given device signature
-   * (userId + userAgent + ipAddress) before issuing a new one.
-   *
-   * Policy: at most ONE active session per user per device.
-   *
-   * Matching strategy (in priority order):
-   *   1. userId + userAgent + ipAddress  — full device match
-   *   2. userId + userAgent only         — IP changed (mobile / VPN)
-   *   3. userId only                     — fallback when userAgent is absent
-   *
-   * "Active" is defined as: revokedAt IS NULL AND expiresAt > now()
-   *
-   * This is intentionally a best-effort revocation; if the UPDATE fails we
-   * log the error and continue so that login itself is not blocked.
-   */
+  // Policy: at most one active session per device; revocation failure is non-fatal and does not block login.
   private async revokeActiveSessionsForDevice(
     userId: string,
     userAgent?: string,
@@ -103,20 +73,14 @@ export class AuthService {
   ): Promise<void> {
     const now = new Date();
 
-    // Build the device-match filter.  We always scope by userId; additional
-    // fields narrow the match when they are present.
+    // Without device fields, all active sessions for the user are revoked.
     const deviceFilter: Record<string, unknown> = {};
     if (userAgent) {
       deviceFilter.userAgent = userAgent;
       if (ipAddress) {
-        deviceFilter.ipAddress = ipAddress; // full match
+        deviceFilter.ipAddress = ipAddress;
       }
-      // If ipAddress is absent we still match by userAgent alone — covers
-      // the case where the client IP changed (DHCP renewal, mobile network).
     }
-    // If neither userAgent nor ipAddress is available we fall back to revoking
-    // ALL active sessions for this user.  This is the most conservative option
-    // and is clearly logged so developers are aware.
 
     const fallback = !userAgent && !ipAddress;
     if (env.NODE_ENV !== 'production') {
@@ -160,11 +124,6 @@ export class AuthService {
     }
   }
 
-  /**
-   * Create user session with hashed refresh token.
-   * Returns { id, expiresAt } of the created row so callers can log
-   * the sessionId without a second DB round-trip.
-   */
   private async createSession(
     userId: string,
     refreshToken: string,
@@ -176,8 +135,6 @@ export class AuthService {
     const expiresAt = this.computeExpiresAt();
     const sessionId = newId();
 
-    // DEV trace: log the hash prefix being written so it can be compared with
-    // the cookie-side trace logged in login() / refresh() to detect any mismatch.
     if (env.NODE_ENV !== 'production') {
       console.debug(
         `[auth:token-trace] createSession` +
@@ -210,13 +167,9 @@ export class AuthService {
     return { id: sessionId, expiresAt };
   }
 
-  /**
-   * Register a new user
-   */
   async register(input: RegisterInput, userAgent?: string, ipAddress?: string) {
     const { email, password, firstName, lastName, role, ...profileData } = input;
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -225,10 +178,8 @@ export class AuthService {
       throw new AppError('User with this email already exists', 409, 'USER_EXISTS');
     }
 
-    // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Create user with profile
     const user = await prisma.user.create({
       data: {
         id: newId(),
@@ -279,11 +230,9 @@ export class AuthService {
       role: user.role,
     });
 
-    // Revoke any existing active session for this device before creating a new
-    // one — enforces the single-active-session-per-device policy on register.
+    // Enforce single-active-session-per-device before creating a new session.
     await this.revokeActiveSessionsForDevice(user.id, userAgent, ipAddress);
 
-    // Store refresh token hash in database
     await this.createSession(user.id, refreshToken, userAgent, ipAddress);
 
     return {
@@ -301,13 +250,9 @@ export class AuthService {
     };
   }
 
-  /**
-   * Login user
-   */
   async login(input: LoginInput, userAgent?: string, ipAddress?: string) {
     const { email, password } = input;
 
-    // Find user
     const user = await prisma.user.findUnique({
       where: { email },
       include: {
@@ -324,12 +269,10 @@ export class AuthService {
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
     }
 
-    // Check if user is active
     if (!user.isActive) {
       throw new AppError('Account is deactivated', 403, ERROR_CODES.ACCOUNT_DEACTIVATED);
     }
 
-    // Verify password
     const isPasswordValid = await comparePassword(password, user.passwordHash);
     if (!isPasswordValid) {
       throw new AppError('Invalid credentials', 401, 'INVALID_CREDENTIALS');
@@ -346,21 +289,14 @@ export class AuthService {
       role: user.role,
     });
 
-    // DEV trace: log token/hash prefix BEFORE writing to DB so we can confirm
-    // the value stored in the session matches what the controller will put in the
-    // cookie.  The trace in createSession() will echo the same hash_prefix.
     this.debugTokenTrace('login:before-createSession', refreshToken, { userId: user.id });
 
-    // Revoke any existing active session for this device before creating a new
-    // one — enforces the single-active-session-per-device policy.
+    // Enforce single-active-session-per-device before creating a new session.
     await this.revokeActiveSessionsForDevice(user.id, userAgent, ipAddress);
 
-    // Store refresh token hash; capture sessionId so we can include it in logs.
     const { id: sessionId, expiresAt: sessionExpiresAt } =
       await this.createSession(user.id, refreshToken, userAgent, ipAddress);
 
-    // DEV trace: log token prefix AFTER session is written — this is the exact
-    // value that will be returned to the controller for cookie serialisation.
     this.debugTokenTrace('login:after-createSession(returned-token)', refreshToken, { userId: user.id });
 
     if (env.NODE_ENV !== 'production') {
@@ -373,8 +309,7 @@ export class AuthService {
       );
     }
 
-    // (Strategy B) Fire-and-forget: clean up dead sessions for this user.
-    // cleanupUserSessions returns a count; the dev log inside it prints when > 0.
+    // Fire-and-forget per-user session cleanup.
     cleanupUserSessions(user.id).catch(() => { /* non-critical */ });
 
     return {
@@ -392,11 +327,7 @@ export class AuthService {
     };
   }
 
-  /**
-   * Refresh access token with token rotation
-   */
   async refresh(refreshToken: string, userAgent?: string, ipAddress?: string) {
-    // Verify refresh token JWT
     let payload;
     try {
       payload = verifyRefreshToken(refreshToken);
@@ -404,14 +335,8 @@ export class AuthService {
       throw new AppError('Invalid refresh token', 401, ERROR_CODES.INVALID_REFRESH_TOKEN);
     }
 
-    // Hash the token and lookup in database
     const refreshTokenHash = this.hashToken(refreshToken);
 
-    // DEV trace: log the cookie token and the hash we are about to query.
-    // Compare token_prefix and hash_prefix here against the login trace:
-    //   login:before-createSession  → should be IDENTICAL to what is shown here.
-    // If they differ, the cookie was set with a different token than the one
-    // stored in the DB — that is the root cause of INVALID_REFRESH_TOKEN.
     this.debugTokenTrace('refresh:cookie-received→hash-computed', refreshToken);
     if (env.NODE_ENV !== 'production') {
       console.debug(
@@ -428,8 +353,7 @@ export class AuthService {
       if (env.NODE_ENV !== 'production') {
         console.debug(
           `[auth:token-trace] refresh:session-NOT-FOUND` +
-          ` | hash_prefix=${refreshTokenHash.slice(0, 16)}` +
-          ` — token mismatch: cookie token hash has no matching user_sessions row`
+          ` | hash_prefix=${refreshTokenHash.slice(0, 16)}`
         );
       }
       throw new AppError('Refresh token not found', 401, ERROR_CODES.INVALID_REFRESH_TOKEN);
@@ -446,32 +370,19 @@ export class AuthService {
       );
     }
 
-    // Check if token is expired
     if (session.expiresAt < new Date()) {
       throw new AppError('Refresh token expired', 401, ERROR_CODES.REFRESH_TOKEN_EXPIRED);
     }
 
-    // Security: Check for token reuse (already revoked but not expired).
+    // Token reuse: revoked but not yet expired.
     if (session.revokedAt) {
-      // Distinguish between a legitimate rotation race and a real replay attack
-      // by inspecting the rotatedAt timestamp set during normal token rotation.
-      //
-      // Grace window rationale:
-      //   Multi-tab reload or a network retry can deliver the old cookie to the
-      //   server AFTER it was already rotated by a concurrent request.  In that
-      //   narrow window the reuse is not an attack; revoking all sessions would
-      //   force an unnecessary logout.
-      //
-      //   rotatedAt is only populated by the rotation path (not logout/admin
-      //   wipe), so a null value already indicates a non-rotation revocation and
-      //   falls through to the security branch.
+      // Grace window: concurrent rotation may resend the old cookie; TOKEN_ROTATED tells the client to retry with the new cookie.
+      // null rotatedAt indicates a non-rotation revocation and falls through to the replay-attack branch.
       const rotationAgeMs = session.rotatedAt
         ? Date.now() - session.rotatedAt.getTime()
         : Infinity;
 
       if (rotationAgeMs <= env.REFRESH_GRACE_WINDOW_MS) {
-        // Recent rotation race — do NOT revoke all sessions; let the client
-        // retry with the new cookie that was already set by the winning request.
         throw new AppError(
           'Refresh token was recently rotated; please retry with the new session cookie',
           409,
@@ -479,12 +390,7 @@ export class AuthService {
         );
       }
 
-      // Token is stale and reused outside the grace window — treat it as a
-      // potential replay attack.  Revoke ONLY this specific session so the
-      // legitimate owner's other devices/tabs remain unaffected.  The
-      // controller will clear the httpOnly cookie for this session as part
-      // of error handling, preventing the browser from re-sending the
-      // dead token on future requests.
+      // Stale reuse outside grace window: treat as replay attack; revoke this session only.
       await prisma.userSession.update({
         where: { id: session.id },
         data: { revokedAt: new Date() },
@@ -510,12 +416,10 @@ export class AuthService {
     // Rotate refresh token: revoke old, create new
     const newRefreshTokenHash = this.hashToken(newRefreshToken);
     const now = new Date();
-    // Derive expiry from JWT_REFRESH_EXPIRE so JWT TTL and DB TTL stay aligned
+    // JWT_REFRESH_EXPIRE drives DB TTL to keep them in sync.
     const newExpiresAt = this.computeExpiresAt();
 
-    // Fetch user data now — before the transaction — so we can return it
-    // alongside the new tokens. This eliminates the need for a second
-    // GET /auth/me call from the client, closing the double-refresh race window.
+    // Fetch user before the transaction to avoid a second GET /auth/me round-trip from the client.
     const user = await prisma.user.findUnique({
       where: { id: session.userId },
       include: {
@@ -545,13 +449,11 @@ export class AuthService {
     }
 
     await prisma.$transaction([
-      // Revoke old session and record the rotation timestamp so the grace-window
-      // check can distinguish rotation races from genuine replay attacks.
+      // Record rotatedAt to distinguish rotation races from replay attacks in the grace-window check.
       prisma.userSession.update({
         where: { id: session.id },
         data: { revokedAt: now, rotatedAt: now },
       }),
-      // Create new session — set lastUsedAt to now to track the rotation event
       prisma.userSession.create({
         data: {
           id: newSessionId,
@@ -574,8 +476,7 @@ export class AuthService {
       );
     }
 
-    // (Strategy B) Fire-and-forget: clean up dead sessions for this user.
-    // cleanupUserSessions returns a count; the dev log inside it prints when > 0.
+    // Fire-and-forget per-user session cleanup.
     cleanupUserSessions(session.userId).catch(() => { /* non-critical */ });
 
     return {
@@ -593,9 +494,6 @@ export class AuthService {
     };
   }
 
-  /**
-   * Logout user (revoke refresh token session)
-   */
   async logout(refreshToken: string) {
     const refreshTokenHash = this.hashToken(refreshToken);
 
@@ -612,9 +510,6 @@ export class AuthService {
     return { message: 'Logged out successfully' };
   }
 
-  /**
-   * Get current user profile
-   */
   async getMe(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },

@@ -1,10 +1,8 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-// Load environment variables
 dotenv.config();
 
-// Define the schema for environment variables
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('4000').transform(Number),
@@ -14,34 +12,19 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRE: z.string().default('15m'),
   JWT_REFRESH_EXPIRE: z.string().default('7d'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
-  // Raise from 10→12: each additional round doubles hashing time.
-  // 12 rounds ≈ 250–400 ms on modern hardware — acceptable for auth endpoints
-  // while making offline brute-force attacks ~4× more expensive than 10.
+  // 12 rounds balances brute-force resistance against ~300 ms hash latency on modern hardware.
   BCRYPT_ROUNDS: z.string().default('12').transform(Number),
   COOKIE_SECURE: z.string().default('true').transform((val) => val === 'true'),
   COOKIE_SAMESITE: z.enum(['none', 'lax', 'strict']).default('lax'),
   COOKIE_DOMAIN: z.string().optional(),
-  // Days after expiry/revocation before a dead session row is deleted (default 30).
-  // Grace window allows short-term audit/debugging before rows are permanently removed.
   SESSION_CLEANUP_RETENTION_DAYS: z.string().default('30').transform(Number),
-  // Maximum number of rows deleted per cron-job batch iteration (default 500).
-  // Limits the DELETE statement size to avoid long table locks on large tables.
+  // Caps DELETE batch size per cron iteration to prevent long table locks on large tables.
   SESSION_CLEANUP_BATCH_SIZE: z.string().default('500').transform(Number),
-  // Default appointment slot duration in minutes (RISK-10 context).
-  // The booking service now stores durationMinutes per-appointment (default 60)
-  // rather than using this shared env var for conflict detection.
-  // Retained here for the verify-appointment-conflict.ts script and any tooling
-  // that needs a configurable default when creating appointments programmatically.
   APPOINTMENT_DURATION_MINUTES: z.string().default('60').transform(Number),
-  // Grace window (ms) for refresh token reuse after rotation.
-  // If a previously-rotated refresh token is presented again within this window
-  // we assume it is a race condition (concurrent tab reload, retry storm) rather
-  // than a replay attack, and return 409 TOKEN_ROTATED instead of revoking all
-  // sessions. Set to 0 to disable the grace window (strict mode).
+  // Reuse within window → 409 TOKEN_ROTATED (race, not replay); outside window → 401 all sessions revoked. Set 0 for strict mode.
   REFRESH_GRACE_WINDOW_MS: z.string().default('10000').transform(Number),
 });
 
-// Validate and parse environment variables
 const parseEnv = () => {
   try {
     return envSchema.parse(process.env);

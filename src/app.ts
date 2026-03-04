@@ -9,9 +9,7 @@ import { errorHandler } from './middlewares/error.middleware';
 import { sendError } from './utils/apiResponse';
 import { apiRateLimiter } from './middlewares/rateLimiter.middleware';
 
-// Production safety assertion: insecure cookies in production expose session
-// tokens over plain HTTP and must never be allowed. Crash early with a clear
-// message rather than silently shipping a security hole.
+// Crash early: insecure cookies in production expose session tokens over plain HTTP.
 if (env.NODE_ENV === 'production' && !env.COOKIE_SECURE) {
   console.error(
     '[FATAL] COOKIE_SECURE must be true in production. ' +
@@ -22,16 +20,10 @@ if (env.NODE_ENV === 'production' && !env.COOKIE_SECURE) {
 
 const app: Application = express();
 
-// Trust the first hop from a reverse proxy (nginx, load balancer) so that
-// req.ip reflects the real client IP from X-Forwarded-For rather than the
-// proxy address. Must be set before any IP-sensitive middleware (rate limiters).
+// trust proxy 1: req.ip reflects the real client IP from X-Forwarded-For; must precede rate-limiter middleware.
 app.set('trust proxy', 1);
 
-// Security headers
-// Production: CSP is fully enforced.
-// Development: CSP runs in report-only mode — violations are logged to the
-// browser console / any report-uri without blocking requests, so dev workflow
-// is unaffected while policy violations are caught early.
+// CSP fully enforced in production; report-only in development (violations logged, no request blocking).
 app.use(helmet({
   contentSecurityPolicy: env.NODE_ENV === 'production'
     ? true               // enforced with helmet defaults
@@ -39,14 +31,11 @@ app.use(helmet({
   crossOriginEmbedderPolicy: env.NODE_ENV === 'production',
 }));
 
-// CORS configuration
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow multiple origins (comma-separated in env)
       const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
 
-      // Allow requests with no origin (mobile apps, Postman, curl)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -55,24 +44,20 @@ app.use(
         callback(new Error(`Origin ${origin} not allowed by CORS`));
       }
     },
-    credentials: true, // CRITICAL: Allow cookies to be sent with requests
+    credentials: true, // Required for cross-origin httpOnly cookie auth.
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Authorization', 'Content-Type'],
   })
 );
 
-// Cookie parser for refresh token support
 app.use(cookieParser());
 
-// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging
 if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
-  // Log request body in development so 400 validation failures are easy to debug.
-  // Auth routes are excluded to avoid logging passwords.
+  // Auth routes excluded from body logging to avoid logging passwords.
   app.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {
     if (
       req.method !== 'GET' &&
@@ -89,10 +74,8 @@ if (env.NODE_ENV === 'development') {
   app.use(morgan('combined'));
 }
 
-// Global rate limiting
 app.use('/api', apiRateLimiter);
 
-// Root endpoint
 app.get('/', (_req: Request, res: Response) => {
   res.json({
     message: 'Online Health Consultation API',
@@ -101,10 +84,8 @@ app.get('/', (_req: Request, res: Response) => {
   });
 });
 
-// API routes
 app.use('/api', routes);
 
-// 404 handler
 app.use((_req: Request, res: Response) => {
   sendError(res, 'Route not found', 404, 'NOT_FOUND');
 });

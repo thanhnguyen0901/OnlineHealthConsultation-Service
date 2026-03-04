@@ -12,15 +12,12 @@ export interface CreateAnswerInput {
 }
 
 export interface UpdateAppointmentInput {
-  /** Status transition; omit when only rescheduling. */
   status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
   notes?: string;
-  /** ISO 8601 datetime string for reschedule. */
   scheduledAt?: string;
 }
 
 export interface UpdateScheduleInput {
-  /** Validated array of day-slots; Zod schema in src/utils/schedule.ts */
   schedule: ScheduleArray;
 }
 
@@ -31,9 +28,6 @@ export interface UpdateProfileInput {
 }
 
 export class DoctorService {
-  /**
-   * Get doctor profile with stats
-   */
   async getMe(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -50,7 +44,6 @@ export class DoctorService {
       throw new AppError('Doctor profile not found', 404, 'PROFILE_NOT_FOUND');
     }
 
-    // Get stats
     const [questionCount, appointmentCount] = await Promise.all([
       prisma.question.count({
         where: { doctorId: user.doctorProfile.id },
@@ -74,9 +67,6 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Get questions for doctor with optional status filter
-   */
   async getQuestions(userId: string, status?: string, page: number = 1, limit: number = 20) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -141,9 +131,6 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Create or update answer for a question
-   */
   async answerQuestion(userId: string, questionId: string, input: CreateAnswerInput) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -154,7 +141,6 @@ export class DoctorService {
       throw new AppError('Doctor profile not found', 404, 'PROFILE_NOT_FOUND');
     }
 
-    // Verify question exists and is assigned to this doctor
     const question = await prisma.question.findFirst({
       where: {
         id: questionId,
@@ -166,7 +152,6 @@ export class DoctorService {
       throw new AppError('Question not found or not assigned to you', 404, 'QUESTION_NOT_FOUND');
     }
 
-    // Check if answer already exists
     const existingAnswer = await prisma.answer.findFirst({
       where: {
         questionId,
@@ -177,18 +162,16 @@ export class DoctorService {
     let answer;
 
     if (existingAnswer) {
-      // Update existing answer
       answer = await prisma.answer.update({
         where: { id: existingAnswer.id },
         data: {
           content: input.content,
-          // P1-1 Fix: auto-approve so patient sees answer immediately (no admin gate)
+          // Answers are auto-approved; they bypass the moderation queue.
           isApproved: true,
         },
       });
     } else {
-      // Create new answer
-      // P1-1 Fix: auto-approve so patient sees answer immediately (no admin gate)
+      // Answers are auto-approved; they bypass the moderation queue.
       answer = await prisma.answer.create({
         data: {
           id: newId(),
@@ -200,7 +183,6 @@ export class DoctorService {
       });
     }
 
-    // Update question status to ANSWERED
     await prisma.question.update({
       where: { id: questionId },
       data: { status: 'ANSWERED' },
@@ -209,9 +191,6 @@ export class DoctorService {
     return answer;
   }
 
-  /**
-   * Get appointments for doctor with optional status filter and pagination.
-   */
   async getAppointments(
     userId: string,
     status?: string,
@@ -269,9 +248,6 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Get a single appointment by id; only the owning doctor may view it.
-   */
   async getAppointmentById(userId: string, appointmentId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -309,9 +285,6 @@ export class DoctorService {
     return appointment;
   }
 
-  /**
-   * Get ratings received by this doctor (VISIBLE only) with pagination.
-   */
   async getRatings(userId: string, page: number = 1, limit: number = 20) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -368,10 +341,6 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Update own doctor profile fields (bio, yearsOfExperience, specialtyId).
-   * specialtyId is validated against the specialties table.
-   */
   async updateProfile(userId: string, input: UpdateProfileInput) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -419,12 +388,6 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Update appointment status and/or reschedule (change scheduledAt).
-   * When scheduledAt is provided the appointment must be PENDING or CONFIRMED;
-   * conflict detection rejects times that overlap another confirmed/pending
-   * appointment for the same doctor.
-   */
   async updateAppointment(
     userId: string,
     appointmentId: string,
@@ -439,7 +402,6 @@ export class DoctorService {
       throw new AppError('Doctor profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
-    // Verify appointment belongs to this doctor
     const appointment = await prisma.appointment.findFirst({
       where: {
         id: appointmentId,
@@ -451,7 +413,6 @@ export class DoctorService {
       throw new AppError('Appointment not found', 404, ERROR_CODES.APPOINTMENT_NOT_FOUND);
     }
 
-    // Validate status transition (state machine)
     if (input.status && input.status !== appointment.status) {
       if (!isValidAppointmentTransition(appointment.status, input.status)) {
         throw new AppError(
@@ -462,9 +423,8 @@ export class DoctorService {
       }
     }
 
-    // Reschedule validation
     if (input.scheduledAt !== undefined) {
-      // Only pending/confirmed appointments can be rescheduled
+      // Only PENDING/CONFIRMED appointments can be rescheduled.
       const reschedulableStatuses = ['PENDING', 'CONFIRMED'];
       if (!reschedulableStatuses.includes(appointment.status)) {
         throw new AppError(
@@ -476,7 +436,6 @@ export class DoctorService {
 
       const newScheduledAt = new Date(input.scheduledAt);
 
-      // Must be in the future
       if (newScheduledAt <= new Date()) {
         throw new AppError(
           'Rescheduled time must be in the future',
@@ -485,9 +444,8 @@ export class DoctorService {
         );
       }
 
-      // Conflict detection: check for another PENDING/CONFIRMED appointment
-      // within a 1-hour window centred on the new time (±30 min).
-      const windowMs = 30 * 60 * 1000; // 30 minutes
+      // Conflict detection: ±30-min window around the new scheduled time.
+      const windowMs = 30 * 60 * 1000;
       const windowStart = new Date(newScheduledAt.getTime() - windowMs);
       const windowEnd = new Date(newScheduledAt.getTime() + windowMs);
 
@@ -538,9 +496,6 @@ export class DoctorService {
     return updatedAppointment;
   }
 
-  /**
-   * Get doctor's schedule
-   */
   async getSchedule(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -556,9 +511,6 @@ export class DoctorService {
     return { schedule };
   }
 
-  /**
-   * Update doctor's schedule
-   */
   async updateSchedule(userId: string, input: UpdateScheduleInput) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -572,8 +524,7 @@ export class DoctorService {
     const updatedProfile = await prisma.doctorProfile.update({
       where: { id: user.doctorProfile.id },
       data: {
-        // ScheduleArray is a plain JSON-serialisable array; cast to
-        // Prisma.InputJsonValue to satisfy the generated Json field type.
+        // Cast to Prisma.InputJsonValue to satisfy the generated Json field type.
         schedule: input.schedule as Prisma.InputJsonValue,
         scheduleUpdatedAt: new Date(),
       },
@@ -585,15 +536,11 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Get a public-safe doctor profile by doctor-profile id.
-   * Returns 404 for inactive or soft-deleted doctors.
-   */
   async getPublicDoctorById(doctorId: string) {
     const profile = await prisma.doctorProfile.findFirst({
       where: {
         id: doctorId,
-        isActive: true,                    // RISK-02: gate on profile flag too
+        isActive: true,
         user: { isActive: true, deletedAt: null },
       },
       select: {
@@ -642,15 +589,11 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Return the parsed schedule for a public doctor profile.
-   * Returns 404 for inactive or soft-deleted doctors.
-   */
   async getPublicDoctorSchedule(doctorId: string) {
     const profile = await prisma.doctorProfile.findFirst({
       where: {
         id: doctorId,
-        isActive: true,                    // RISK-02: gate on profile flag too
+        isActive: true,
         user: { isActive: true, deletedAt: null },
       },
       select: {
@@ -671,30 +614,16 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Public doctor listing used by patients for browsing / booking.
-   *
-   * Safety guarantees:
-   *   - Only doctors whose user account is active (isActive=true) and not
-   *     soft-deleted (deletedAt=null) are returned.
-   *   - The response shape contains NO admin-only fields (no isActive, no
-   *     deletedAt, no email).
-   *
-   * @param specialtyId  Optional filter by specialty UUID.
-   * @param page         1-based page index (default 1).
-   * @param limit        Items per page (default 20, max 100).
-   */
   async getPublicDoctors(
     specialtyId?: string,
     page: number = 1,
     limit: number = 20
   ) {
-    // Clamp limit to avoid massive accidental payloads
+    // Clamp limit to avoid massive accidental payloads.
     const safLimit = Math.min(limit, 100);
     const skip = (page - 1) * safLimit;
 
     const where: any = {
-      // RISK-02: filter on BOTH the profile flag and the user account flags
       isActive: true,
       user: {
         isActive: true,
@@ -724,7 +653,7 @@ export class DoctorService {
           ratingAverage: true,
           ratingCount: true,
           schedule: true,
-          // Public user fields only — no email, no isActive, no deletedAt
+          // Public fields only — no email, no isActive, no deletedAt.
           user: {
             select: {
               firstName: true,
@@ -743,7 +672,6 @@ export class DoctorService {
       prisma.doctorProfile.count({ where }),
     ]);
 
-    // Flatten the nested structure for a clean public response shape
     const doctors = profiles.map((p) => ({
       id: p.id,
       userId: p.userId,
@@ -756,7 +684,6 @@ export class DoctorService {
       yearsOfExperience: p.yearsOfExperience,
       ratingAverage: p.ratingAverage,
       ratingCount: p.ratingCount,
-      // schedule is already a native JsonValue (no JSON.parse needed with Json? column)
       schedule: asScheduleArray(p.schedule),
     }));
 
@@ -771,10 +698,6 @@ export class DoctorService {
     };
   }
 
-  /**
-   * Get featured doctors (public)
-   * P2-3 Fix: Returns top 6 doctors for homepage
-   */
   async getFeaturedDoctors() {
     const doctors = await prisma.doctorProfile.findMany({
       take: 6,
@@ -798,7 +721,6 @@ export class DoctorService {
         },
       },
       where: {
-        // RISK-02: guard on profile flag + full user account guard
         isActive: true,
         user: {
           isActive: true,
@@ -807,7 +729,6 @@ export class DoctorService {
       },
     });
 
-    // Transform to match FE expectations
     return doctors.map(doctor => ({
       id: doctor.id,
       firstName: doctor.user.firstName,

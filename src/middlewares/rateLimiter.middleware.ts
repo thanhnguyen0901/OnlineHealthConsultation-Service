@@ -2,33 +2,26 @@ import rateLimit from 'express-rate-limit';
 import { env } from '../config/env';
 import { ERROR_CODES } from '../constants/errorCodes';
 
-/**
- * Rate limiter for authentication endpoints
- * Prevents brute force attacks on login/register
- */
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: env.NODE_ENV === 'development' ? 100 : 10, // Higher limit for development
+  windowMs: 15 * 60 * 1000,
+  max: env.NODE_ENV === 'development' ? 100 : 10,
   message: {
     error: {
       message: 'Too many requests from this IP, please try again later',
       code: ERROR_CODES.TOO_MANY_REQUESTS,
     },
   },
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  standardHeaders: true,
+  legacyHeaders: false,
   skip: (_req) => {
-    // Skip rate limiting in development if needed
     return env.NODE_ENV === 'development' && process.env.DISABLE_RATE_LIMIT === 'true';
   },
 });
 
-/**
- * Stricter rate limiter for refresh token endpoint
- */
 export const refreshRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: env.NODE_ENV === 'development' ? 100 : 5, // Higher limit in development (StrictMode fires effects twice)
+  windowMs: 15 * 60 * 1000,
+  // React StrictMode fires effects twice in development, doubling refresh calls.
+  max: env.NODE_ENV === 'development' ? 100 : 5,
   message: {
     error: {
       message: 'Too many refresh token requests, please try again later',
@@ -42,13 +35,9 @@ export const refreshRateLimiter = rateLimit({
   },
 });
 
-/**
- * Rate limiter for the logout endpoint.
- * Protects against DoS / session-destruction amplification attacks.
- * Uses the same window and max as authRateLimiter (10 rps / 15 min in prod).
- */
+// Limits logout rate to prevent DoS via repeated session-destruction requests.
 export const logoutRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: env.NODE_ENV === 'development' ? 100 : 10,
   message: {
     error: {
@@ -63,12 +52,9 @@ export const logoutRateLimiter = rateLimit({
   },
 });
 
-/**
- * General API rate limiter
- */
 export const apiRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: env.NODE_ENV === 'development' ? 1000 : 100, // Higher limit in development
+  windowMs: 15 * 60 * 1000,
+  max: env.NODE_ENV === 'development' ? 1000 : 100,
   message: {
     error: {
       message: 'Too many API requests, please try again later',

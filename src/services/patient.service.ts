@@ -19,7 +19,7 @@ export interface CreateQuestionInput {
   title: string;
   content: string;
   doctorId?: string;
-  /** Specialty selected by the patient; used to auto-assign a doctor when doctorId is absent. */
+  // specialtyId is used for doctor auto-assignment when doctorId is absent; not persisted on Question.
   specialtyId?: string;
 }
 
@@ -27,7 +27,7 @@ export interface CreateAppointmentInput {
   doctorId: string;
   scheduledAt: Date;
   reason: string;
-  /** Duration of the appointment slot in minutes. Defaults to 60. */
+  // Duration defaults to 60 min; used in overlap detection.
   durationMinutes?: number;
 }
 
@@ -39,11 +39,6 @@ export interface CreateRatingInput {
 }
 
 export class PatientService {
-  /**
-   * Get all specialties that have at least one active doctor.
-   * Used by the patient-facing specialty picker so patients can
-   * never select a specialty where no doctor is available.
-   */
   async getAvailableSpecialties() {
     return prisma.specialty.findMany({
       where: {
@@ -59,9 +54,6 @@ export class PatientService {
     });
   }
 
-  /**
-   * Get patient profile
-   */
   async getProfile(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -82,9 +74,6 @@ export class PatientService {
     };
   }
 
-  /**
-   * Update patient profile
-   */
   async updateProfile(userId: string, input: UpdatePatientProfileInput) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -98,7 +87,6 @@ export class PatientService {
     const { firstName, lastName, ...profileFields } = input;
 
     const [updatedUser, updatedProfile] = await prisma.$transaction([
-      // Update User name fields if provided
       prisma.user.update({
         where: { id: userId },
         data: {
@@ -106,7 +94,6 @@ export class PatientService {
           ...(lastName !== undefined && { lastName }),
         },
       }),
-      // Update PatientProfile fields
       prisma.patientProfile.update({
         where: { id: user.patientProfile.id },
         data: profileFields,
@@ -121,9 +108,6 @@ export class PatientService {
     };
   }
 
-  /**
-   * Get all questions created by patient
-   */
   async getQuestions(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -151,7 +135,7 @@ export class PatientService {
         },
         answers: {
           where: {
-            isApproved: true, // Only show approved answers to patients (moderation visibility)
+            isApproved: true, // Only approved answers are visible to patients.
           },
           include: {
             doctor: {
@@ -178,9 +162,6 @@ export class PatientService {
     return questions;
   }
 
-  /**
-   * Create a new question
-   */
   async createQuestion(userId: string, input: CreateQuestionInput) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -191,7 +172,6 @@ export class PatientService {
       throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
-    // If doctorId is provided, verify doctor exists and is active (RISK-02 fix)
     if (input.doctorId) {
       const doctor = await prisma.doctorProfile.findFirst({
         where: {
@@ -206,8 +186,6 @@ export class PatientService {
       }
     } else if (input.specialtyId) {
       // Auto-assign: pick the first active doctor of the requested specialty.
-      // This guarantees questions always reach a doctor's inbox and are never
-      // left with doctorId = null (P0-3 fix).
       const assignedDoctor = await prisma.doctorProfile.findFirst({
         where: {
           specialtyId: input.specialtyId,
@@ -232,9 +210,7 @@ export class PatientService {
         id: newId(),
         patientId: user.patientProfile.id,
         doctorId: input.doctorId,
-        // RISK-03 fix: originalDoctorId is write-once audit provenance.
-        // It captures the assigned doctor at creation time and is never
-        // modified — it survives even if doctorId is SET NULL by a hard-delete.
+          // originalDoctorId is write-once: captures assigned doctor at creation; never updated if doctorId is later SET NULL.
         originalDoctorId: input.doctorId ?? null,
         title: input.title,
         content: input.content,
@@ -257,9 +233,6 @@ export class PatientService {
     return question;
   }
 
-  /**
-   * Get all appointments for patient
-   */
   async getAppointments(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -294,13 +267,8 @@ export class PatientService {
     return appointments;
   }
 
-  /**
-   * Create a new appointment
-   */
   async createAppointment(userId: string, input: CreateAppointmentInput) {
-    // AUDIT-05 defensive guard: reason is TEXT NOT NULL in the DB.
-    // Zod already enforces this at the controller layer; this guard catches
-    // any future direct service calls that bypass the HTTP validation path.
+    // reason is TEXT NOT NULL in DB; Zod enforces at HTTP layer, this catches programmatic callers.
     if (!input.reason || !input.reason.trim()) {
       throw new AppError(
         'Reason for appointment is required',
@@ -317,12 +285,8 @@ export class PatientService {
       throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
-    // Verify doctor exists and is active (RISK-02 fix).
-    // The FE doctor-list sends User.id (from getDoctors controller which sets id=doc.user.id),
-    // but appointments store DoctorProfile.id. Try DoctorProfile.id first; if not found,
-    // resolve via User.id so both ID forms are accepted.
-    // Both lookup paths guard isActive + user.deletedAt so deactivated doctors
-    // cannot receive new bookings regardless of which ID form the caller sends.
+    // FE sends either DoctorProfile.id or User.id; try profile ID first, then resolve via User.id.
+    // Both paths guard isActive + user.deletedAt so deactivated doctors cannot receive new bookings.
     let doctor = await prisma.doctorProfile.findFirst({
       where: {
         id: input.doctorId,
@@ -344,7 +308,7 @@ export class PatientService {
       });
       if (userWithProfile?.doctorProfile) {
         doctor = userWithProfile.doctorProfile;
-        // Normalise so downstream code uses the DoctorProfile.id
+        // Normalise: downstream code always uses DoctorProfile.id.
         input = { ...input, doctorId: doctor.id };
       }
     }
@@ -353,7 +317,6 @@ export class PatientService {
       throw new AppError('Doctor not found', 404, ERROR_CODES.DOCTOR_NOT_FOUND);
     }
 
-    // P1-2 Fix: Validate appointment date must be in the future
     if (input.scheduledAt <= new Date()) {
       throw new AppError(
         'Appointment must be scheduled for a future date',
@@ -362,17 +325,8 @@ export class PatientService {
       );
     }
 
-    // Check for appointment conflicts using per-slot overlap detection (RISK-10).
-    //
-    // Each appointment carries its own durationMinutes so slots with different
-    // lengths are handled correctly.
-    //
-    // Two slots [A, A+dA) and [B, B+dB) overlap when:
-    //   A < B+dB  AND  A+dA > B
-    //
-    // SQL query: fetch candidates where A starts before the new slot ends (A < newEnd)
-    //            and A is within a 480-min lookback (generous bound for existing durations).
-    // JS check:  exact second condition — A+dA > newStart.
+    // Overlap formula: slots [A, A+dA) and [B, B+dB) overlap when A < B+dB AND A+dA > B.
+    // SQL fetches candidates where A < newEnd; JS confirms A+dA > newStart.
     const newDurationMs = (input.durationMinutes ?? 60) * 60_000;
     const newSlotEnd    = new Date(input.scheduledAt.getTime() + newDurationMs);
     const candidateWhere = {
@@ -383,7 +337,6 @@ export class PatientService {
       },
     };
 
-    /** True when an existing appointment slot overlaps the new slot. */
     const isOverlap = (existingStart: Date, existingDurationMinutes: number): boolean =>
       existingStart.getTime() + existingDurationMinutes * 60_000 > input.scheduledAt.getTime();
 
@@ -445,9 +398,6 @@ export class PatientService {
     return appointment;
   }
 
-  /**
-   * Get patient consultation history (questions + completed appointments)
-   */
   async getHistory(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -462,7 +412,7 @@ export class PatientService {
       prisma.question.findMany({
         where: {
           patientId: user.patientProfile.id,
-          // Return ALL statuses so the patient can see pending/moderated questions too.
+          // ALL statuses returned: patients need to see pending/moderated questions too.
         },
         include: {
           doctor: {
@@ -478,7 +428,7 @@ export class PatientService {
           },
           answers: {
             where: {
-              isApproved: true, // Only show approved answers (moderation visibility)
+              isApproved: true, // Only approved answers visible to patients.
             },
             include: {
               doctor: {
@@ -501,7 +451,7 @@ export class PatientService {
       prisma.appointment.findMany({
         where: {
           patientId: user.patientProfile.id,
-          // Return ALL statuses: pending/confirmed need cancel button; completed need rating.
+          // ALL statuses returned: pending/confirmed need cancel; completed need rating.
         },
         include: {
           doctor: {
@@ -515,7 +465,7 @@ export class PatientService {
               specialty: true,
             },
           },
-          // 0..1 relation — a single optional rating per completed appointment
+          // 0..1 relation: at most one rating per appointment.
           rating: true,
         },
         orderBy: {
@@ -530,9 +480,6 @@ export class PatientService {
     };
   }
 
-  /**
-   * Create a rating for a doctor after appointment
-   */
   async createRating(userId: string, input: CreateRatingInput) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -569,20 +516,13 @@ export class PatientService {
       throw new AppError('Score must be between 1 and 5', 400, ERROR_CODES.INVALID_SCORE);
     }
 
-    // Capture profile ID before transaction to preserve TypeScript narrowing
+    // Preserve TypeScript narrowing before entering the transaction.
     const patientProfileId = user.patientProfile.id;
 
-    // Create rating and recalculate doctor stats atomically.
-    //
-    // RISK-01 fix — TOCTOU guard:
-    //   The duplicate-rating check is re-executed INSIDE the transaction so
-    //   that two concurrent requests cannot both pass the pre-flight check and
-    //   then race to insert.  The DB @@unique([appointmentId, patientId])
-    //   constraint remains as a final backstop and is caught below as P2002.
+    // TOCTOU: duplicate-rating check re-executed inside the transaction; DB @@unique([appointmentId, patientId]) is the final backstop.
     let rating;
     try {
       rating = await prisma.$transaction(async (tx) => {
-        // Re-check for duplicate inside the transaction (TOCTOU fix)
         const existingRating = await tx.rating.findFirst({
           where: {
             appointmentId: input.appointmentId,
@@ -615,9 +555,7 @@ export class PatientService {
         return newRating;
       });
     } catch (err) {
-      // Prisma unique-constraint violation (P2002): two concurrent requests
-      // both passed the in-TX findFirst check in the same instant and the DB
-      // rejected the second insert.  Surface this as a clean 409.
+      // P2002: two concurrent requests both passed the in-TX check; surface as 409.
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
         throw new AppError(
           'Rating already exists for this appointment',
@@ -631,9 +569,6 @@ export class PatientService {
     return rating;
   }
 
-  /**
-   * Get all ratings by patient
-   */
   async getRatings(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -674,10 +609,6 @@ export class PatientService {
     return ratings;
   }
 
-  /**
-   * Get a single question that belongs to this patient, including
-   * only approved answers and the assigned doctor's public info.
-   */
   async getQuestionById(userId: string, questionId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -724,18 +655,13 @@ export class PatientService {
     });
 
     if (!question) {
-      // Return the same 404 regardless of whether the question exists but
-      // belongs to another patient — avoids leaking ownership information.
+      // Same 404 regardless of ownership to avoid leaking question existence to non-owners.
       throw new AppError('Question not found', 404, ERROR_CODES.QUESTION_NOT_FOUND);
     }
 
     return question;
   }
 
-  /**
-   * Get a single appointment that belongs to this patient, including
-   * doctor info and specialty.
-   */
   async getAppointmentById(userId: string, appointmentId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -762,7 +688,7 @@ export class PatientService {
             },
           },
         },
-        // 0..1 relation — at most one rating per appointment
+        // 0..1 relation: at most one rating per appointment.
         rating: {
           select: { id: true, score: true, comment: true },
         },
@@ -776,10 +702,6 @@ export class PatientService {
     return appointment;
   }
 
-  /**
-   * Cancel an appointment that belongs to this patient.
-   * Only PENDING or CONFIRMED appointments may be cancelled.
-   */
   async cancelAppointment(userId: string, appointmentId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -790,11 +712,10 @@ export class PatientService {
       throw new AppError('Patient profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
     }
 
-    // Load the appointment and verify ownership in a single query
     const appointment = await prisma.appointment.findFirst({
       where: {
         id: appointmentId,
-        patientId: user.patientProfile.id, // 403-equivalent: not found if not owner
+        patientId: user.patientProfile.id, // 403-equivalent: returns 404 if caller is not the owner
       },
     });
 

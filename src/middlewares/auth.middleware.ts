@@ -4,7 +4,6 @@ import { sendError } from '../utils/apiResponse';
 import { ERROR_CODES } from '../constants/errorCodes';
 import prisma from '../config/db';
 
-// Extend Express Request type to include user
 declare global {
   namespace Express {
     interface Request {
@@ -13,16 +12,12 @@ declare global {
   }
 }
 
-/**
- * Middleware to verify JWT token and attach user to request
- */
 export const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
-    // Get token from Authorization header
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -30,9 +25,8 @@ export const authenticate = async (
       return;
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    const token = authHeader.substring(7);
 
-    // Verify token
     try {
       const payload = verifyAccessToken(token);
 

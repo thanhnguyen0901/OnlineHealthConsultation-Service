@@ -263,5 +263,9 @@ model UserSession {
   @@index([expiresAt])
   /// Supports the cleanup job and tooling that queries recently-rotated sessions.
   @@index([rotatedAt])
+  /// Supports the global cleanup job which range-scans on revokedAt alone:
+  /// WHERE revokedAt < cutoff  (without a userId filter)
+  /// The composite (userId, revokedAt, expiresAt) does NOT help here.
+  @@index([revokedAt])
   @@map("user_sessions")
 }

@@ -92,6 +92,7 @@ CREATE TABLE `user_sessions` (
     INDEX `user_sessions_active_session_idx`(`userId`, `revokedAt`, `expiresAt`),
     INDEX `user_sessions_expiresAt_idx`(`expiresAt`),
     INDEX `user_sessions_rotatedAt_idx`(`rotatedAt`),
+    INDEX `user_sessions_revoked_at_idx`(`revokedAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 

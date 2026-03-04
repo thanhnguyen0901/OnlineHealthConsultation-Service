@@ -22,6 +22,98 @@ const parseTtlMs = (ttl: string): number => {
 };
 const REFRESH_COOKIE_MAX_AGE = parseTtlMs(env.JWT_REFRESH_EXPIRE);
 
+// ---------------------------------------------------------------------------
+// Canonical refresh-token cookie helpers
+// ---------------------------------------------------------------------------
+//
+// IMPORTANT — PATH MUST STAY '/api/auth'
+//
+// A previous code version accidentally set the refresh cookie with path
+// '/api/auth/refresh' (e.g. via req.originalUrl).  Browsers retain cookies
+// indefinitely, so any browser that visited the site during that period still
+// carries a stale cookie at the more-specific path.  RFC 6265 path-matching
+// rules mean that a request to /api/auth/refresh matches BOTH paths but the
+// browser sends only the most-specific one, causing the backend to receive the
+// stale token and fail the DB hash lookup with INVALID_REFRESH_TOKEN.
+//
+// The canonical path is '/api/auth'.  All set/clear helpers below are the
+// ONLY place this string may appear in this file — centralised so a future
+// typo cannot silently create a second divergent path again.
+
+/** The one canonical path for the refresh-token cookie. */
+const REFRESH_COOKIE_PATH = '/api/auth' as const;
+
+/**
+ * Legacy paths that a stale browser might still hold.
+ * We actively evict them on every set/clear operation.
+ */
+const LEGACY_REFRESH_COOKIE_PATHS = ['/api/auth/refresh'] as const;
+
+// DEV assertion — catches any accidental future drift at startup.
+// Will throw immediately if someone changes REFRESH_COOKIE_PATH to something
+// that matches a legacy path, which would cause the same double-cookie bug.
+if (env.NODE_ENV !== 'production') {
+  for (const legacyPath of LEGACY_REFRESH_COOKIE_PATHS) {
+    if ((REFRESH_COOKIE_PATH as string) === legacyPath) {
+      throw new Error(
+        `[auth-controller] REFRESH_COOKIE_PATH ('${REFRESH_COOKIE_PATH}') ` +
+        `must not equal a legacy path ('${legacyPath}'). ` +
+        `This would re-introduce the double-cookie path bug.`
+      );
+    }
+  }
+}
+
+/** Shared base options (no maxAge — used for both set and clear). */
+const refreshCookieBase = () => ({
+  httpOnly: true,
+  secure: env.COOKIE_SECURE,
+  sameSite: env.COOKIE_SAMESITE,
+  ...(env.COOKIE_DOMAIN ? { domain: env.COOKIE_DOMAIN } : {}),
+});
+
+/**
+ * Set the refreshToken cookie at the canonical path.
+ * Also evicts any stale cookies at legacy paths so the browser is left with
+ * exactly one refreshToken cookie after any login / refresh rotation.
+ */
+function setRefreshCookie(res: Response, token: string): void {
+  // Evict legacy paths first so the browser discards stale cookies
+  // before the new canonical one arrives.
+  for (const legacyPath of LEGACY_REFRESH_COOKIE_PATHS) {
+    res.clearCookie('refreshToken', { ...refreshCookieBase(), path: legacyPath });
+  }
+  if (env.NODE_ENV !== 'production') {
+    console.debug(
+      `[auth:cookie] setRefreshCookie path=${REFRESH_COOKIE_PATH}` +
+      ` token_prefix=${token.slice(0, 12)}`
+    );
+  }
+  res.cookie('refreshToken', token, {
+    ...refreshCookieBase(),
+    maxAge: REFRESH_COOKIE_MAX_AGE,
+    path: REFRESH_COOKIE_PATH,
+  });
+}
+
+/**
+ * Clear the refreshToken cookie at ALL known paths (canonical + legacy).
+ * Must be called on logout and on terminal refresh errors so the browser
+ * cannot re-send a dead token on any subsequent request.
+ */
+function clearRefreshCookie(res: Response): void {
+  res.clearCookie('refreshToken', { ...refreshCookieBase(), path: REFRESH_COOKIE_PATH });
+  for (const legacyPath of LEGACY_REFRESH_COOKIE_PATHS) {
+    res.clearCookie('refreshToken', { ...refreshCookieBase(), path: legacyPath });
+  }
+  if (env.NODE_ENV !== 'production') {
+    console.debug(
+      `[auth:cookie] clearRefreshCookie paths=[${REFRESH_COOKIE_PATH}, ` +
+      `${LEGACY_REFRESH_COOKIE_PATHS.join(', ')}]`
+    );
+  }
+}
+
 // Validation schemas
 export const registerSchema = z.object({  body: z.object({
     email: z.string().email('Invalid email format'),
@@ -84,14 +176,7 @@ export class AuthController {
     
     // Set refresh token in httpOnly cookie
     if (result.refreshToken) {
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: env.COOKIE_SECURE,
-        sameSite: env.COOKIE_SAMESITE,
-        maxAge: REFRESH_COOKIE_MAX_AGE,
-        path: '/api/auth',
-        ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
-      });
+      setRefreshCookie(res, result.refreshToken);
     }
     
     // Remove refreshToken from response body (security: only in httpOnly cookie)
@@ -111,16 +196,21 @@ export class AuthController {
     
     const result = await authService.login(req.body, userAgent, ipAddress);
     
-    // Set refresh token in httpOnly cookie
+    // Set refresh token in httpOnly cookie (also evicts legacy /api/auth/refresh cookie)
     if (result.refreshToken) {
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: env.COOKIE_SECURE,
-        sameSite: env.COOKIE_SAMESITE,
-        maxAge: REFRESH_COOKIE_MAX_AGE,
-        path: '/api/auth',
-        ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
-      });
+      // DEV trace: log the token prefix the controller is about to write into
+      // the httpOnly cookie.  Must match 'login:after-createSession(returned-token)'
+      // trace in auth.service.ts.  If they differ, the cookie and DB hash diverge.
+      if (env.NODE_ENV !== 'production') {
+        const crypto = await import('crypto');
+        const h = crypto.createHash('sha256').update(result.refreshToken).digest('hex');
+        console.debug(
+          `[auth:token-trace] login-controller:setting-cookie` +
+          ` | token_prefix=${result.refreshToken.slice(0, 12)}` +
+          ` | hash_prefix=${h.slice(0, 16)}`
+        );
+      }
+      setRefreshCookie(res, result.refreshToken);
     }
     
     // Remove refreshToken from response body (security: only in httpOnly cookie)
@@ -157,40 +247,53 @@ export class AuthController {
     if (!refreshToken) {
       throw new AppError('Refresh token is required', 401, ERROR_CODES.REFRESH_TOKEN_MISSING);
     }
+
+    // DEV trace: confirm the cookie is being read by the controller before
+    // it is forwarded to the service.  Presence = cookie arrived at the server.
+    if (env.NODE_ENV !== 'production') {
+      console.debug(
+        `[auth:token-trace] refresh-controller:cookie-read` +
+        ` | cookie_present=true` +
+        ` | token_prefix=${refreshToken.slice(0, 12)}`
+      );
+    }
     
     // Extract metadata
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip || req.socket.remoteAddress;
     
-    // Wrap the service call so that on TOKEN_REUSE_DETECTED we can clear the
-    // presented (now-revoked) cookie before propagating the error.  This prevents
-    // the browser from re-sending a dead token on every subsequent request.
+    // Wrap the service call so we can clear the stale cookie before propagating
+    // certain terminal errors.  This prevents the browser from re-sending a dead
+    // token on every subsequent request after the session is permanently gone.
+    //
+    // Errors that warrant cookie removal:
+    //   TOKEN_REUSE_DETECTED  — token was replayed; session already revoked.
+    //   INVALID_REFRESH_TOKEN — session not found in DB (e.g. after DB reset) or
+    //                           the JWT itself failed signature verification.
+    //   REFRESH_TOKEN_EXPIRED — session exists but expiresAt < now; useless cookie.
+    const CLEAR_COOKIE_CODES = new Set<string>([
+      ERROR_CODES.TOKEN_REUSE_DETECTED,
+      ERROR_CODES.INVALID_REFRESH_TOKEN,
+      ERROR_CODES.REFRESH_TOKEN_EXPIRED,
+    ]);
+
     let result;
     try {
       result = await authService.refresh(refreshToken, userAgent, ipAddress);
     } catch (err) {
-      if (err instanceof AppError && err.code === ERROR_CODES.TOKEN_REUSE_DETECTED) {
-        res.clearCookie('refreshToken', {
-          httpOnly: true,
-          secure: env.COOKIE_SECURE,
-          sameSite: env.COOKIE_SAMESITE,
-          path: '/api/auth',
-          ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
-        });
+      if (err instanceof AppError && CLEAR_COOKIE_CODES.has(err.code as string)) {
+        // Clears canonical path AND all legacy paths (e.g. /api/auth/refresh)
+        // so the browser cannot re-send a dead token on future requests.
+        clearRefreshCookie(res);
       }
       throw err;
     }
 
-    // Set NEW refresh token cookie (rotation)
+    // Set NEW refresh token cookie (rotation).
+    // setRefreshCookie() also evicts the legacy /api/auth/refresh cookie so
+    // the browser is left with exactly ONE refreshToken cookie after rotation.
     if (result.refreshToken) {
-      res.cookie('refreshToken', result.refreshToken, {
-        httpOnly: true,
-        secure: env.COOKIE_SECURE,
-        sameSite: env.COOKIE_SAMESITE,
-        maxAge: REFRESH_COOKIE_MAX_AGE,
-        path: '/api/auth',
-        ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
-      });
+      setRefreshCookie(res, result.refreshToken);
     }
     
     // Remove refreshToken from response body (security: only in httpOnly cookie)
@@ -218,14 +321,9 @@ export class AuthController {
     
     const result = await authService.logout(refreshToken);
     
-    // Clear refresh token cookie
-    res.clearCookie('refreshToken', {
-      httpOnly: true,
-      secure: env.COOKIE_SECURE,
-      sameSite: env.COOKIE_SAMESITE,
-      path: '/api/auth',
-      ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
-    });
+    // Clear refreshToken at canonical path AND all legacy paths so the browser
+    // cannot re-send a dead token regardless of which cookie it currently holds.
+    clearRefreshCookie(res);
     
     sendSuccess(res, result);
   });

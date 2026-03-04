@@ -4,8 +4,9 @@
  * (Strategy A) Nightly cron that deletes globally dead sessions.
  *
  * Schedule: 02:00 every day (server local time).
- * Configurable via SESSION_CLEANUP_RETENTION_DAYS in .env
- *   (default 7 — rows are kept for 7 days after expiry/revocation).
+ * Configurable via:
+ *   SESSION_CLEANUP_RETENTION_DAYS (default 30) — grace window after expiry/revocation
+ *   SESSION_CLEANUP_BATCH_SIZE     (default 500) — max rows deleted per batch iteration
  *
  * Initialise by calling startSessionCleanupJob() once from server.ts
  * after the database is connected.
@@ -23,7 +24,7 @@ export function startSessionCleanupJob(): void {
       const deleted = await cleanupAllExpiredSessions();
       console.log(
         `[SessionCleanup] ${startedAt} – deleted ${deleted} dead session(s) ` +
-        `(retention: ${env.SESSION_CLEANUP_RETENTION_DAYS}d)`
+        `(retention: ${env.SESSION_CLEANUP_RETENTION_DAYS}d, batch: ${env.SESSION_CLEANUP_BATCH_SIZE})`
       );
     } catch (err) {
       console.error(`[SessionCleanup] ${startedAt} – error during cleanup:`, err);
@@ -32,6 +33,6 @@ export function startSessionCleanupJob(): void {
 
   console.log(
     `[SessionCleanup] Cron started – runs daily at 02:00 ` +
-    `(retention: ${env.SESSION_CLEANUP_RETENTION_DAYS}d)`
+    `(retention: ${env.SESSION_CLEANUP_RETENTION_DAYS}d, batch: ${env.SESSION_CLEANUP_BATCH_SIZE})`
   );
 }

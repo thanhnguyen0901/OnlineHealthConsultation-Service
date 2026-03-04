@@ -21,8 +21,12 @@ const envSchema = z.object({
   COOKIE_SECURE: z.string().default('true').transform((val) => val === 'true'),
   COOKIE_SAMESITE: z.enum(['none', 'lax', 'strict']).default('lax'),
   COOKIE_DOMAIN: z.string().optional(),
-  // Days after expiry/revocation before a dead session row is deleted (default 7)
-  SESSION_CLEANUP_RETENTION_DAYS: z.string().default('7').transform(Number),
+  // Days after expiry/revocation before a dead session row is deleted (default 30).
+  // Grace window allows short-term audit/debugging before rows are permanently removed.
+  SESSION_CLEANUP_RETENTION_DAYS: z.string().default('30').transform(Number),
+  // Maximum number of rows deleted per cron-job batch iteration (default 500).
+  // Limits the DELETE statement size to avoid long table locks on large tables.
+  SESSION_CLEANUP_BATCH_SIZE: z.string().default('500').transform(Number),
   // Default appointment slot duration in minutes (RISK-10 context).
   // The booking service now stores durationMinutes per-appointment (default 60)
   // rather than using this shared env var for conflict detection.

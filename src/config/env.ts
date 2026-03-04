@@ -29,6 +29,12 @@ const envSchema = z.object({
   // Retained here for the verify-appointment-conflict.ts script and any tooling
   // that needs a configurable default when creating appointments programmatically.
   APPOINTMENT_DURATION_MINUTES: z.string().default('60').transform(Number),
+  // Grace window (ms) for refresh token reuse after rotation.
+  // If a previously-rotated refresh token is presented again within this window
+  // we assume it is a race condition (concurrent tab reload, retry storm) rather
+  // than a replay attack, and return 409 TOKEN_ROTATED instead of revoking all
+  // sessions. Set to 0 to disable the grace window (strict mode).
+  REFRESH_GRACE_WINDOW_MS: z.string().default('10000').transform(Number),
 });
 
 // Validate and parse environment variables

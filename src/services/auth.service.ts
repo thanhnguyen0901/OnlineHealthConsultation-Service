@@ -87,21 +87,6 @@ export class AuthService {
   }
 
   /**
-   * Revoke all user sessions (security measure on token reuse detection)
-   */
-  private async revokeAllUserSessions(userId: string) {
-    await prisma.userSession.updateMany({
-      where: {
-        userId,
-        revokedAt: null,
-      },
-      data: {
-        revokedAt: new Date(),
-      },
-    });
-  }
-
-  /**
    * Register a new user
    */
   async register(input: RegisterInput, userAgent?: string, ipAddress?: string) {
@@ -281,14 +266,48 @@ export class AuthService {
       throw new AppError('Refresh token expired', 401, 'REFRESH_TOKEN_EXPIRED');
     }
 
-    // Security: Check for token reuse (already revoked but not expired)
+    // Security: Check for token reuse (already revoked but not expired).
     if (session.revokedAt) {
-      // Token reuse detected! Revoke all user sessions
-      await this.revokeAllUserSessions(session.userId);
+      // Distinguish between a legitimate rotation race and a real replay attack
+      // by inspecting the rotatedAt timestamp set during normal token rotation.
+      //
+      // Grace window rationale:
+      //   Multi-tab reload or a network retry can deliver the old cookie to the
+      //   server AFTER it was already rotated by a concurrent request.  In that
+      //   narrow window the reuse is not an attack; revoking all sessions would
+      //   force an unnecessary logout.
+      //
+      //   rotatedAt is only populated by the rotation path (not logout/admin
+      //   wipe), so a null value already indicates a non-rotation revocation and
+      //   falls through to the security branch.
+      const rotationAgeMs = session.rotatedAt
+        ? Date.now() - session.rotatedAt.getTime()
+        : Infinity;
+
+      if (rotationAgeMs <= env.REFRESH_GRACE_WINDOW_MS) {
+        // Recent rotation race — do NOT revoke all sessions; let the client
+        // retry with the new cookie that was already set by the winning request.
+        throw new AppError(
+          'Refresh token was recently rotated; please retry with the new session cookie',
+          409,
+          ERROR_CODES.TOKEN_ROTATED
+        );
+      }
+
+      // Token is stale and reused outside the grace window — treat it as a
+      // potential replay attack.  Revoke ONLY this specific session so the
+      // legitimate owner's other devices/tabs remain unaffected.  The
+      // controller will clear the httpOnly cookie for this session as part
+      // of error handling, preventing the browser from re-sending the
+      // dead token on future requests.
+      await prisma.userSession.update({
+        where: { id: session.id },
+        data: { revokedAt: new Date() },
+      });
       throw new AppError(
-        'Token reuse detected - all sessions revoked for security',
+        'Refresh token reuse detected — this session has been revoked',
         401,
-        'TOKEN_REUSE_DETECTED'
+        ERROR_CODES.TOKEN_REUSE_DETECTED
       );
     }
 
@@ -327,10 +346,11 @@ export class AuthService {
     }
 
     await prisma.$transaction([
-      // Revoke old session
+      // Revoke old session and record the rotation timestamp so the grace-window
+      // check can distinguish rotation races from genuine replay attacks.
       prisma.userSession.update({
         where: { id: session.id },
-        data: { revokedAt: now },
+        data: { revokedAt: now, rotatedAt: now },
       }),
       // Create new session — set lastUsedAt to now to track the rotation event
       prisma.userSession.create({

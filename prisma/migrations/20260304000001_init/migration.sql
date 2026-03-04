@@ -1,3 +1,9 @@
+-- Squashed baseline migration.
+-- Replaces:
+--   20260303075138_init
+--   20260304000000_add_session_rotated_at
+-- Represents the full schema as defined in prisma/schema.prisma (local-only reset).
+
 -- CreateTable
 CREATE TABLE `users` (
     `id` CHAR(36) NOT NULL,
@@ -14,6 +20,21 @@ CREATE TABLE `users` (
     UNIQUE INDEX `users_email_key`(`email`),
     INDEX `users_role_idx`(`role`),
     INDEX `users_deletedAt_idx`(`deletedAt`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `specialties` (
+    `id` CHAR(36) NOT NULL,
+    `nameEn` VARCHAR(191) NOT NULL,
+    `nameVi` VARCHAR(191) NOT NULL,
+    `description` TEXT NULL,
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `specialties_nameEn_key`(`nameEn`),
+    INDEX `specialties_isActive_idx`(`isActive`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -55,17 +76,22 @@ CREATE TABLE `doctor_profiles` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `specialties` (
+CREATE TABLE `user_sessions` (
     `id` CHAR(36) NOT NULL,
-    `nameEn` VARCHAR(191) NOT NULL,
-    `nameVi` VARCHAR(191) NOT NULL,
-    `description` TEXT NULL,
-    `isActive` BOOLEAN NOT NULL DEFAULT true,
+    `userId` CHAR(36) NOT NULL,
+    `refreshTokenHash` VARCHAR(191) NOT NULL,
+    `expiresAt` DATETIME(3) NOT NULL,
+    `revokedAt` DATETIME(3) NULL,
+    `rotatedAt` DATETIME(3) NULL COMMENT 'Populated only on rotation-revocation; NULL for logout/security wipes.',
+    `lastUsedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
+    `userAgent` TEXT NULL,
+    `ipAddress` VARCHAR(191) NULL,
 
-    UNIQUE INDEX `specialties_nameEn_key`(`nameEn`),
-    INDEX `specialties_isActive_idx`(`isActive`),
+    UNIQUE INDEX `user_sessions_refreshTokenHash_key`(`refreshTokenHash`),
+    INDEX `user_sessions_active_session_idx`(`userId`, `revokedAt`, `expiresAt`),
+    INDEX `user_sessions_expiresAt_idx`(`expiresAt`),
+    INDEX `user_sessions_rotatedAt_idx`(`rotatedAt`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -144,24 +170,6 @@ CREATE TABLE `ratings` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `user_sessions` (
-    `id` CHAR(36) NOT NULL,
-    `userId` CHAR(36) NOT NULL,
-    `refreshTokenHash` VARCHAR(191) NOT NULL,
-    `expiresAt` DATETIME(3) NOT NULL,
-    `revokedAt` DATETIME(3) NULL,
-    `lastUsedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `userAgent` TEXT NULL,
-    `ipAddress` VARCHAR(191) NULL,
-
-    UNIQUE INDEX `user_sessions_refreshTokenHash_key`(`refreshTokenHash`),
-    INDEX `user_sessions_active_session_idx`(`userId`, `revokedAt`, `expiresAt`),
-    INDEX `user_sessions_expiresAt_idx`(`expiresAt`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
 -- AddForeignKey
 ALTER TABLE `patient_profiles` ADD CONSTRAINT `patient_profiles_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -170,6 +178,9 @@ ALTER TABLE `doctor_profiles` ADD CONSTRAINT `doctor_profiles_userId_fkey` FOREI
 
 -- AddForeignKey
 ALTER TABLE `doctor_profiles` ADD CONSTRAINT `doctor_profiles_specialtyId_fkey` FOREIGN KEY (`specialtyId`) REFERENCES `specialties`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `user_sessions` ADD CONSTRAINT `user_sessions_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `questions` ADD CONSTRAINT `questions_patientId_fkey` FOREIGN KEY (`patientId`) REFERENCES `patient_profiles`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -197,10 +208,3 @@ ALTER TABLE `ratings` ADD CONSTRAINT `ratings_doctorId_fkey` FOREIGN KEY (`docto
 
 -- AddForeignKey
 ALTER TABLE `ratings` ADD CONSTRAINT `ratings_appointmentId_fkey` FOREIGN KEY (`appointmentId`) REFERENCES `appointments`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `user_sessions` ADD CONSTRAINT `user_sessions_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- CHECK constraint for ratings.score (not expressible in Prisma schema language)
-ALTER TABLE `ratings`
-  ADD CONSTRAINT `chk_ratings_score` CHECK (`score` BETWEEN 1 AND 5);

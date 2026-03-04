@@ -162,8 +162,25 @@ export class AuthController {
     const userAgent = req.headers['user-agent'];
     const ipAddress = req.ip || req.socket.remoteAddress;
     
-    const result = await authService.refresh(refreshToken, userAgent, ipAddress);
-    
+    // Wrap the service call so that on TOKEN_REUSE_DETECTED we can clear the
+    // presented (now-revoked) cookie before propagating the error.  This prevents
+    // the browser from re-sending a dead token on every subsequent request.
+    let result;
+    try {
+      result = await authService.refresh(refreshToken, userAgent, ipAddress);
+    } catch (err) {
+      if (err instanceof AppError && err.code === ERROR_CODES.TOKEN_REUSE_DETECTED) {
+        res.clearCookie('refreshToken', {
+          httpOnly: true,
+          secure: env.COOKIE_SECURE,
+          sameSite: env.COOKIE_SAMESITE,
+          path: '/api/auth',
+          ...(env.COOKIE_DOMAIN && { domain: env.COOKIE_DOMAIN }),
+        });
+      }
+      throw err;
+    }
+
     // Set NEW refresh token cookie (rotation)
     if (result.refreshToken) {
       res.cookie('refreshToken', result.refreshToken, {

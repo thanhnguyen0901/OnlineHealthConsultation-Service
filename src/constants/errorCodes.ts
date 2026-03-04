@@ -14,6 +14,13 @@ export const ERROR_CODES = {
   // Sent when a client submits a body field that must NOT be in the body
   // (e.g. refreshToken must only travel via httpOnly cookie, never in the body)
   BODY_NOT_ALLOWED: 'BODY_NOT_ALLOWED',
+  // Refresh token was already rotated and the reuse arrived within the grace window.
+  // Indicates a concurrent (race) request — not a replay attack.
+  // HTTP 409: client should retry; the new cookie was already set by the winning request.
+  TOKEN_ROTATED: 'TOKEN_ROTATED',
+  // Refresh token reuse detected outside the grace window — potential theft / replay attack.
+  // HTTP 401: all sessions revoked; user must log in again.
+  TOKEN_REUSE_DETECTED: 'TOKEN_REUSE_DETECTED',
   
   // Validation
   VALIDATION_ERROR: 'VALIDATION_ERROR',

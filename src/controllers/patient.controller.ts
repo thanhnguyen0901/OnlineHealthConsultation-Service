@@ -84,6 +84,16 @@ export const idParamSchema = z.object({
 
 export class PatientController {
   /**
+   * Get specialties that have at least one available active doctor.
+   * Public endpoint — no auth required.
+   * GET /patients/specialties
+   */
+  getAvailableSpecialties = asyncHandler(async (_req: Request, res: Response) => {
+    const result = await patientService.getAvailableSpecialties();
+    sendSuccess(res, result);
+  });
+
+  /**
    * Get patient profile
    * GET /patients/profile
    */

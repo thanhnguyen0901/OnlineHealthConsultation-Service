@@ -68,7 +68,7 @@ export const logoutRateLimiter = rateLimit({
  */
 export const apiRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: env.NODE_ENV === 'development' ? 1000 : 100, // Higher limit in development
   message: {
     error: {
       message: 'Too many API requests, please try again later',

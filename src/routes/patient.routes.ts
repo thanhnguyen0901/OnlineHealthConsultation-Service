@@ -6,7 +6,6 @@ import patientController, {
   createRatingSchema,
   idParamSchema,
 } from '../controllers/patient.controller';
-import adminController from '../controllers/admin.controller';
 import doctorController, {
   getPublicDoctorsQuerySchema,
 } from '../controllers/doctor.controller';
@@ -17,7 +16,9 @@ import { validate } from '../middlewares/validation.middleware';
 const router = Router();
 
 // Public endpoints (no auth required) for booking
-router.get('/specialties', adminController.getSpecialties);
+// Returns only specialties that have ≥1 active doctor so patients never
+// select a specialty where the question cannot be auto-assigned.
+router.get('/specialties', patientController.getAvailableSpecialties);
 
 // AUDIT-02: use dedicated public handler — filters inactive/deleted doctors,
 // returns only public-safe fields, supports ?specialtyId, ?page, ?limit

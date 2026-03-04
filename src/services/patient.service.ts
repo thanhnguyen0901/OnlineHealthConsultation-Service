@@ -40,6 +40,26 @@ export interface CreateRatingInput {
 
 export class PatientService {
   /**
+   * Get all specialties that have at least one active doctor.
+   * Used by the patient-facing specialty picker so patients can
+   * never select a specialty where no doctor is available.
+   */
+  async getAvailableSpecialties() {
+    return prisma.specialty.findMany({
+      where: {
+        isActive: true,
+        doctors: {
+          some: {
+            isActive: true,
+            user: { isActive: true, deletedAt: null },
+          },
+        },
+      },
+      orderBy: { nameEn: 'asc' },
+    });
+  }
+
+  /**
    * Get patient profile
    */
   async getProfile(userId: string) {

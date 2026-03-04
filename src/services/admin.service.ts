@@ -177,6 +177,17 @@ export class AdminService {
   async createUser(input: CreateUserInput) {
     const { email, password, firstName, lastName, role, ...profileData } = input;
 
+    // Defensive guard: DOCTOR role requires a specialtyId so that DoctorProfile
+    // can be created atomically.  The Zod schema in the controller enforces this
+    // at the HTTP layer; this check is a safety net for programmatic callers.
+    if (role === 'DOCTOR' && !profileData.specialtyId) {
+      throw new AppError(
+        'specialtyId is required when role is DOCTOR',
+        400,
+        'SPECIALTY_REQUIRED'
+      );
+    }
+
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -318,6 +329,7 @@ export class AdminService {
 
     const [doctors, total] = await Promise.all([
       prisma.doctorProfile.findMany({
+        where: { isActive: true },
         skip,
         take: limit,
         include: {
@@ -336,7 +348,7 @@ export class AdminService {
           createdAt: 'desc',
         },
       }),
-      prisma.doctorProfile.count(),
+      prisma.doctorProfile.count({ where: { isActive: true } }),
     ]);
 
     return {
@@ -385,7 +397,7 @@ export class AdminService {
     // Separate user fields from doctor profile fields
     const { specialtyId, bio, yearsOfExperience, firstName, lastName, ...restUserFields } = input;
 
-    // Update user fields directly (no name remapping needed)
+    // Build user update payload
     const userFields: any = { ...restUserFields };
     if (firstName !== undefined) userFields.firstName = firstName;
     if (lastName !== undefined) userFields.lastName = lastName;
@@ -394,40 +406,44 @@ export class AdminService {
     if (userFields.isActive === false) userFields.deletedAt = new Date();
     if (userFields.isActive === true)  userFields.deletedAt = null;
 
-    // Update user if there are user fields
-    if (Object.keys(userFields).length > 0) {
-      await prisma.user.update({
-        where: { id: doctorId },
-        data: userFields,
-      });
-    }
-
-    // Update doctor profile if there are doctor fields
+    // Build doctor profile update payload
     const doctorFields: any = {};
     if (specialtyId) doctorFields.specialtyId = specialtyId;
     if (bio !== undefined) doctorFields.bio = bio;
     if (yearsOfExperience !== undefined) doctorFields.yearsOfExperience = yearsOfExperience;
 
-    if (Object.keys(doctorFields).length > 0) {
-      await prisma.doctorProfile.update({
-        where: { id: user.doctorProfile.id },
-        data: doctorFields,
-      });
-    }
+    const profileId = user.doctorProfile.id;
 
-    // Return updated user with doctor profile
-    const updatedUser = await prisma.user.findUnique({
-      where: { id: doctorId },
-      include: {
-        doctorProfile: {
-          include: {
-            specialty: true,
+    // Perform both writes atomically — if either fails (e.g. FK violation on
+    // specialtyId) the entire transaction is rolled back and no partial state
+    // is persisted.
+    return prisma.$transaction(async (tx) => {
+      if (Object.keys(userFields).length > 0) {
+        await tx.user.update({
+          where: { id: doctorId },
+          data: userFields,
+        });
+      }
+
+      if (Object.keys(doctorFields).length > 0) {
+        await tx.doctorProfile.update({
+          where: { id: profileId },
+          data: doctorFields,
+        });
+      }
+
+      // Return consistent snapshot of post-update state (still inside tx)
+      return tx.user.findUnique({
+        where: { id: doctorId },
+        include: {
+          doctorProfile: {
+            include: {
+              specialty: true,
+            },
           },
         },
-      },
+      });
     });
-
-    return updatedUser;
   }
 
   /**
@@ -443,10 +459,19 @@ export class AdminService {
       throw new AppError('Doctor not found', 404, 'DOCTOR_NOT_FOUND');
     }
 
-    await prisma.user.update({
-      where: { id: doctorId },
-      data: { isActive: false, deletedAt: new Date() },
-    });
+    // Atomic soft-delete: mirror isActive=false onto DoctorProfile so stat
+    // queries (prisma.doctorProfile.count) and isActive filters stay correct.
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: doctorId },
+        data: { isActive: false, deletedAt: new Date() },
+      }),
+      // updateMany is a no-op if the profile row is somehow missing
+      prisma.doctorProfile.updateMany({
+        where: { userId: doctorId },
+        data: { isActive: false },
+      }),
+    ]);
 
     return { message: 'Doctor deactivated successfully' };
   }
@@ -462,28 +487,28 @@ export class AdminService {
   ) {
     const skip = (page - 1) * limit;
 
-    const where: any = {};
+    // Build a stable AND array so filters never clobber each other.
+    // isActive always constrains the joined User row.
+    // search matches any of firstName / lastName / email (on User) or phone
+    // (on PatientProfile) — both arms carry the isActive constraint via AND.
+    const andClauses: any[] = [];
 
     if (typeof isActive === 'boolean') {
-      where.user = { ...where.user, isActive };
+      andClauses.push({ user: { isActive } });
     }
 
     if (search) {
-      where.user = {
-        ...where.user,
+      andClauses.push({
         OR: [
-          { firstName: { contains: search } },
-          { lastName: { contains: search } },
-          { email: { contains: search } },
+          { user: { firstName: { contains: search } } },
+          { user: { lastName:  { contains: search } } },
+          { user: { email:     { contains: search } } },
+          { phone: { contains: search } },
         ],
-      };
-      // Also match phone on the patient profile itself
-      where.OR = [
-        { user: where.user },
-        { phone: { contains: search } },
-      ];
-      delete where.user;
+      });
     }
+
+    const where: any = andClauses.length > 0 ? { AND: andClauses } : {};
 
     const [patients, total] = await Promise.all([
       prisma.patientProfile.findMany({
@@ -515,6 +540,87 @@ export class AdminService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+  /**
+   * Update a patient's user info (name, email, isActive).
+   * :userId is the User.id (the FE flattens patientProfile → user.id in the
+   * transform, so the FE always sends User.id, not PatientProfile.id).
+   */
+  async updatePatient(userId: string, input: { firstName?: string; lastName?: string; email?: string; isActive?: boolean }) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || user.role !== 'PATIENT') {
+      throw new AppError('Patient not found', 404, 'PATIENT_NOT_FOUND');
+    }
+
+    // Atomic update: user fields + optional isActive mirror on PatientProfile
+    // (PatientProfile has no dedicated isActive column, but we synchronise
+    // deletedAt / isActive on the User row consistently with other service methods)
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          ...(input.firstName !== undefined && { firstName: input.firstName }),
+          ...(input.lastName  !== undefined && { lastName:  input.lastName  }),
+          ...(input.email     !== undefined && { email:     input.email     }),
+          ...(input.isActive === false && { isActive: false, deletedAt: new Date() }),
+          ...(input.isActive === true  && { isActive: true,  deletedAt: null }),
+        },
+      });
+
+      return tx.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          isActive: true,
+          role: true,
+          patientProfile: {
+            select: { id: true, phone: true, gender: true, dateOfBirth: true, address: true },
+          },
+        },
+      });
+    });
+
+    // Return same flat shape as getPatients transform
+    return {
+      id: updatedUser.id,
+      profileId: (updatedUser.patientProfile as any)?.id ?? null,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      isActive: updatedUser.isActive,
+      phone:       (updatedUser.patientProfile as any)?.phone       ?? null,
+      gender:      (updatedUser.patientProfile as any)?.gender      ?? null,
+      dateOfBirth: (updatedUser.patientProfile as any)?.dateOfBirth ?? null,
+      address:     (updatedUser.patientProfile as any)?.address     ?? null,
+      role: 'PATIENT',
+    };
+  }
+
+  /**
+   * Deactivate (soft-delete) a patient.
+   * Mirrors the pattern in deleteUser / deleteDoctor.
+   */
+  async deletePatient(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || user.role !== 'PATIENT') {
+      throw new AppError('Patient not found', 404, 'PATIENT_NOT_FOUND');
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isActive: false, deletedAt: new Date() },
+    });
+
+    return { message: 'Patient deactivated successfully' };
   }
 
   /**
@@ -742,6 +848,9 @@ export class AdminService {
                 lastName: true,
               },
             },
+            specialty: {
+              select: { nameEn: true },
+            },
           },
         },
       },
@@ -944,81 +1053,74 @@ export class AdminService {
   }
 
   /**
-   * Get unified moderation items (questions, answers, ratings)
+   * Get unified moderation items (pending questions + unapproved answers).
+   *
+   * Ratings are intentionally excluded from this queue — they have a dedicated
+   * PATCH /admin/ratings/:id/moderate endpoint and no "pending" status in the
+   * DB schema.  Including VISIBLE ratings here polluted the list with items
+   * that were already approved and had no actionable approve/reject path.
+   *
+   * Pagination totals are derived from accurate DB counts so the paginator
+   * is always correct regardless of how many items exist.
    * Returns items with composite ID format: type_entityId
    */
   async getModerationItems(page: number = 1, limit: number = 20) {
-    // Get pending questions
-    const questions = await prisma.question.findMany({
-      where: { status: 'PENDING' },
-      include: {
-        patient: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-      },
-      take: 100, // Get enough to merge
-    });
+    // Accurate DB counts — no hard take cap
+    const [questionCount, answerCount] = await Promise.all([
+      prisma.question.count({ where: { status: 'PENDING' } }),
+      prisma.answer.count({ where: { isApproved: false } }),
+    ]);
 
-    // Get pending answers
-    const answers = await prisma.answer.findMany({
-      where: { isApproved: false },
-      include: {
-        doctor: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
-        question: {
-          select: {
-            title: true,
-          },
-        },
-      },
-      take: 100,
-    });
+    const total = questionCount + answerCount;
 
-    // Get ratings for moderation
-    const ratings = await prisma.rating.findMany({
-      where: { status: 'VISIBLE' },
-      include: {
-        patient: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
+    // Fetch all pending items so cross-type sort is correct before slicing.
+    // In practice the moderation queue should stay small; if it grows large
+    // a cursor-based approach per type would be more efficient.
+    const [questions, answers] = await Promise.all([
+      questionCount > 0
+        ? prisma.question.findMany({
+            where: { status: 'PENDING' },
+            include: {
+              patient: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
               },
             },
-          },
-        },
-        doctor: {
-          include: {
-            user: {
-              select: {
-                firstName: true,
-                lastName: true,
+            orderBy: { createdAt: 'desc' },
+          })
+        : Promise.resolve([]),
+      answerCount > 0
+        ? prisma.answer.findMany({
+            where: { isApproved: false },
+            include: {
+              doctor: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
+              question: {
+                select: {
+                  title: true,
+                },
               },
             },
-          },
-        },
-      },
-      take: 100,
-    });
+            orderBy: { createdAt: 'desc' },
+          })
+        : Promise.resolve([]),
+    ]);
 
     // Normalize to unified format
     const items = [
@@ -1044,23 +1146,12 @@ export class AdminService {
         status: a.isApproved ? 'APPROVED' : 'PENDING',
         entityId: a.id,
       })),
-      ...ratings.map(r => ({
-        id: `RATING_${r.id}`,
-        type: 'RATING' as const,
-        contentPreview: `Rating: ${r.score}/5 for Dr. ${r.doctor.user.firstName} ${r.doctor.user.lastName}`,
-        content: r.comment || '',
-        createdAt: r.createdAt,
-        author: `${r.patient.user.firstName} ${r.patient.user.lastName}`,
-        authorId: r.patient.user.id,
-        status: r.status,
-        entityId: r.id,
-      })),
     ];
 
-    // Sort by createdAt desc
+    // Sort by createdAt desc (cross-type)
     items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    // Paginate
+    // In-memory slice for the requested page
     const skip = (page - 1) * limit;
     const paginatedItems = items.slice(skip, skip + limit);
 
@@ -1069,14 +1160,16 @@ export class AdminService {
       pagination: {
         page,
         limit,
-        total: items.length,
-        totalPages: Math.ceil(items.length / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     };
   }
 
   /**
-   * Approve a moderation item
+   * Approve a moderation item (QUESTION or ANSWER only).
+   * Ratings are moderated via the dedicated PATCH /admin/ratings/:id/moderate
+   * endpoint and do not appear in the unified queue.
    */
   async approveModerationItem(compositeId: string) {
     const [type, entityId] = compositeId.split('_');
@@ -1088,20 +1181,38 @@ export class AdminService {
     switch (type) {
       case 'QUESTION':
         return this.moderateQuestion(entityId, 'ANSWERED');
-      
-      case 'ANSWER':
-        return this.moderateAnswer(entityId, true);
-      
-      case 'RATING':
-        return this.moderateRating(entityId, 'VISIBLE');
-      
+
+      case 'ANSWER': {
+        // Atomically: approve the answer AND promote the parent question to
+        // ANSWERED so patients immediately see the resolved status.
+        const answer = await prisma.answer.findUnique({
+          where: { id: entityId },
+        });
+        if (!answer) {
+          throw new AppError('Answer not found', 404, 'ANSWER_NOT_FOUND');
+        }
+        return prisma.$transaction(async (tx) => {
+          const updatedAnswer = await tx.answer.update({
+            where: { id: entityId },
+            data: { isApproved: true },
+          });
+          await tx.question.update({
+            where: { id: answer.questionId },
+            data: { status: 'ANSWERED' },
+          });
+          return updatedAnswer;
+        });
+      }
+
       default:
         throw new AppError('Invalid moderation item type', 400, 'INVALID_TYPE');
     }
   }
 
   /**
-   * Reject a moderation item
+   * Reject a moderation item (QUESTION or ANSWER only).
+   * Ratings are moderated via the dedicated PATCH /admin/ratings/:id/moderate
+   * endpoint and do not appear in the unified queue.
    */
   async rejectModerationItem(compositeId: string) {
     const [type, entityId] = compositeId.split('_');
@@ -1113,13 +1224,13 @@ export class AdminService {
     switch (type) {
       case 'QUESTION':
         return this.moderateQuestion(entityId, 'MODERATED');
-      
+
       case 'ANSWER':
+        // Reject = mark answer as not approved. The parent question intentionally
+        // stays PENDING: the question is still unanswered, the admin has only
+        // rejected this particular answer. The doctor may submit a revised answer.
         return this.moderateAnswer(entityId, false);
-      
-      case 'RATING':
-        return this.moderateRating(entityId, 'HIDDEN');
-      
+
       default:
         throw new AppError('Invalid moderation item type', 400, 'INVALID_TYPE');
     }

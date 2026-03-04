@@ -28,6 +28,14 @@ export const createUserSchema = z.object({
   }).refine((data) => data.firstName || data.fullName || data.name, {
     message: 'firstName or a combined fullName/name field is required',
     path: ['firstName'],
+  }).superRefine((data, ctx) => {
+    if (data.role === 'DOCTOR' && !data.specialtyId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'specialtyId is required when role is DOCTOR',
+        path: ['specialtyId'],
+      });
+    }
   }),
 });
 
@@ -119,6 +127,19 @@ export const queryPatientsSchema = z.object({
     .string()
     .optional()
     .transform((val) => (val !== undefined ? val === 'true' : undefined)),
+});
+
+/**
+ * Body schema for PUT /admin/patients/:id
+ * Allows updating the patient's user info (name, email) and isActive status.
+ */
+export const updatePatientSchema = z.object({
+  body: z.object({
+    firstName: z.string().optional(),
+    lastName: z.string().optional(),
+    email: z.string().email().optional(),
+    isActive: z.boolean().optional(),
+  }),
 });
 
 // ── Moderation body schemas (AUDIT-06) ───────────────────────────────────────
@@ -304,7 +325,45 @@ export class AdminController {
       isActive?: boolean;
     };
     const result = await adminService.getPatients(page, limit, search, isActive);
-    sendSuccess(res, result.patients, result.pagination);
+
+    // Transform nested structure to flat structure for frontend
+    const transformedPatients = result.patients.map((p: any) => ({
+      id: p.user.id,
+      profileId: p.id,
+      email: p.user.email,
+      firstName: p.user.firstName,
+      lastName: p.user.lastName,
+      isActive: p.user.isActive,
+      phone: p.phone ?? null,
+      gender: p.gender ?? null,
+      dateOfBirth: p.dateOfBirth ?? null,
+      address: p.address ?? null,
+      role: 'PATIENT',
+    }));
+
+    sendSuccess(res, transformedPatients, result.pagination);
+  });
+
+  /**
+   * Update a patient's user info (name, email, isActive)
+   * PUT /admin/patients/:id
+   * :id is the User id (same as what FE stores in patient.id after transform)
+   */
+  updatePatient = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await adminService.updatePatient(id, req.body);
+    sendSuccess(res, result);
+  });
+
+  /**
+   * Deactivate (soft-delete) a patient
+   * DELETE /admin/patients/:id
+   * :id is the User id
+   */
+  deletePatient = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await adminService.deletePatient(id);
+    sendSuccess(res, result);
   });
 
   /**

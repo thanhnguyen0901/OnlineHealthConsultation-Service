@@ -3,6 +3,7 @@ import adminController, {
   createUserSchema,
   updateUserSchema,
   updateDoctorSchema,
+  updatePatientSchema,
   createSpecialtySchema,
   updateSpecialtySchema,
   queryPaginationSchema,
@@ -43,6 +44,8 @@ router.delete('/doctors/:id', validate({ params: idParamSchema }), adminControll
 
 // Patient management
 router.get('/patients', validate({ query: queryPatientsSchema }), adminController.getPatients);
+router.put('/patients/:id', validate({ params: idParamSchema, body: updatePatientSchema.shape.body }), adminController.updatePatient);
+router.delete('/patients/:id', validate({ params: idParamSchema }), adminController.deletePatient);
 
 // Specialty management
 router.get('/specialties', adminController.getSpecialties);

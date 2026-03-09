@@ -26,17 +26,8 @@ export const requireRole = (allowedRoles: string[]) => {
   };
 };
 
-/**
- * Shorthand middleware for patient-only routes
- */
 export const requirePatient = requireRole(['PATIENT']);
 
-/**
- * Shorthand middleware for doctor-only routes
- */
 export const requireDoctor = requireRole(['DOCTOR']);
 
-/**
- * Shorthand middleware for admin-only routes
- */
 export const requireAdmin = requireRole(['ADMIN']);

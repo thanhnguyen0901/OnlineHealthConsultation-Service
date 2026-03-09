@@ -1,10 +1,10 @@
 import app from './app';
 import { env } from './config/env';
 import prisma from './config/db';
+import { startSessionCleanupJob } from './jobs/sessionCleanup.job';
 
 const PORT = env.PORT;
 
-// Test database connection
 async function connectDatabase() {
   try {
     await prisma.$connect();
@@ -15,13 +15,12 @@ async function connectDatabase() {
   }
 }
 
-// Start server
 async function startServer() {
   try {
-    // Connect to database
     await connectDatabase();
 
-    // Start Express server
+    startSessionCleanupJob();
+
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
       console.log(`Environment: ${env.NODE_ENV}`);
@@ -34,7 +33,6 @@ async function startServer() {
   }
 }
 
-// Handle graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\nShutting down gracefully...');
   await prisma.$disconnect();
@@ -47,5 +45,4 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
-// Start the server
 startServer();

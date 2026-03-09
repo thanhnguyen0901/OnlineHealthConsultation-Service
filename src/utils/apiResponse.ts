@@ -19,9 +19,6 @@ export interface ApiErrorResponse {
   };
 }
 
-/**
- * Send a success response
- */
 export const sendSuccess = <T = any>(
   res: Response,
   data: T,
@@ -35,9 +32,6 @@ export const sendSuccess = <T = any>(
   return res.status(statusCode).json(response);
 };
 
-/**
- * Send an error response
- */
 export const sendError = (
   res: Response,
   message: string,
@@ -55,9 +49,6 @@ export const sendError = (
   return res.status(statusCode).json(response);
 };
 
-/**
- * Send a paginated response
- */
 export const sendPaginated = <T = any>(
   res: Response,
   data: T[],

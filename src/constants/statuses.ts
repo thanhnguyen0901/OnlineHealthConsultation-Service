@@ -1,7 +1,3 @@
-/**
- * Centralized status constants for the application
- */
-
 export const APPOINTMENT_STATUS = {
   PENDING: 'PENDING',
   CONFIRMED: 'CONFIRMED',
@@ -32,10 +28,6 @@ export const GENDER = {
   OTHER: 'OTHER',
 } as const;
 
-/**
- * Valid appointment status transitions
- * From status -> allowed target statuses
- */
 export const APPOINTMENT_TRANSITIONS: Record<string, string[]> = {
   [APPOINTMENT_STATUS.PENDING]: [
     APPOINTMENT_STATUS.CONFIRMED,
@@ -49,9 +41,6 @@ export const APPOINTMENT_TRANSITIONS: Record<string, string[]> = {
   [APPOINTMENT_STATUS.COMPLETED]: [], // Terminal state
 };
 
-/**
- * Check if an appointment status transition is valid
- */
 export function isValidAppointmentTransition(
   from: string,
   to: string

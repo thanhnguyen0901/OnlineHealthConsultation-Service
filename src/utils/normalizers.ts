@@ -1,25 +1,16 @@
-/**
- * Payload normalizers for frontend compatibility
- * Centralized logic to transform FE payload variants to BE format
- */
-
-/**
- * Normalize registration payload
- * Accepts: {name} OR {fullName}
- * Returns: {fullName}
- */
 export function normalizeRegisterPayload(body: any) {
-  return {
-    ...body,
-    fullName: body.fullName || body.name,
-  };
+  if (body.firstName || body.lastName) {
+    const { fullName, name, ...rest } = body;
+    return rest;
+  }
+  const raw = ((body.fullName || body.name) as string | undefined)?.trim() ?? '';
+  const spaceIdx = raw.indexOf(' ');
+  const firstName = spaceIdx >= 0 ? raw.slice(0, spaceIdx) : raw;
+  const lastName = spaceIdx >= 0 ? raw.slice(spaceIdx + 1).trim() : '';
+  const { fullName, name, ...rest } = body;
+  return { ...rest, firstName, lastName };
 }
 
-/**
- * Normalize question creation payload
- * Accepts: {question} OR {title, content}
- * Returns: {title, content, doctorId?}
- */
 export function normalizeQuestionPayload(body: any) {
   if (body.question) {
     const questionText = body.question;
@@ -27,38 +18,34 @@ export function normalizeQuestionPayload(body: any) {
       title: questionText.substring(0, 80) || 'Question',
       content: questionText,
       doctorId: body.doctorId,
+      // specialtyId is not persisted on Question; used only for doctor auto-assignment routing.
+      specialtyId: body.specialtyId,
     };
   }
   return body;
 }
 
-/**
- * Normalize appointment creation payload
- * Accepts: {date, time} OR {scheduledAt}
- * Returns: {doctorId, scheduledAt, reason, notes?}
- */
 export function normalizeAppointmentPayload(body: any) {
-  if (body.date && body.time) {
-    const scheduledAt = new Date(`${body.date}T${body.time}:00.000Z`);
+  if (body.scheduledAt) {
     return {
       doctorId: body.doctorId,
-      scheduledAt,
-      reason: body.reason || body.notes || 'Consultation',
+      scheduledAt: new Date(body.scheduledAt),
+      reason: body.reason as string,
       notes: body.notes,
+      durationMinutes: body.durationMinutes,
     };
   }
+  // Omit 'Z': Node.js parses as server local-time; on a UTC server this is equivalent to UTC.
+  const scheduledAt = new Date(`${body.date}T${body.time}:00`);
   return {
-    ...body,
-    scheduledAt: new Date(body.scheduledAt),
-    reason: body.reason || 'Consultation',
+    doctorId: body.doctorId,
+    scheduledAt,
+    reason: body.reason as string,
+    notes: body.notes,
+    durationMinutes: body.durationMinutes,
   };
 }
 
-/**
- * Normalize rating creation payload
- * Accepts: {consultationId, rating} OR {appointmentId, score}
- * Returns: {appointmentId, doctorId, score, comment?}
- */
 export function normalizeRatingPayload(body: any) {
   return {
     appointmentId: body.appointmentId || body.consultationId,
@@ -68,20 +55,12 @@ export function normalizeRatingPayload(body: any) {
   };
 }
 
-/**
- * Normalize answer creation payload
- * Accepts: {answer} OR {content}
- * Returns: {content}
- */
 export function normalizeAnswerPayload(body: any) {
   return {
     content: body.content || body.answer,
   };
 }
 
-/**
- * Sanitize text input (trim and enforce max length)
- */
 export function sanitizeText(text: string | undefined | null, maxLength?: number): string | undefined {
   if (!text) return undefined;
   
@@ -94,9 +73,6 @@ export function sanitizeText(text: string | undefined | null, maxLength?: number
   return sanitized;
 }
 
-/**
- * Sanitize object with text fields
- */
 export function sanitizeTextFields<T extends Record<string, any>>(
   obj: T,
   fields: (keyof T)[],

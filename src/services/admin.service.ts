@@ -1,11 +1,14 @@
 import prisma from '../config/db';
 import { AppError } from '../middlewares/error.middleware';
 import { hashPassword } from '../utils/password';
+import { newId } from '../utils/id';
+import { recalcDoctorRating } from '../utils/rating';
 
 export interface CreateUserInput {
   email: string;
   password: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   role: 'PATIENT' | 'DOCTOR' | 'ADMIN';
   specialtyId?: string;
   bio?: string;
@@ -17,20 +20,19 @@ export interface CreateUserInput {
 
 export interface UpdateUserInput {
   email?: string;
-  fullName?: string;
+  firstName?: string;
+  lastName?: string;
   role?: 'PATIENT' | 'DOCTOR' | 'ADMIN';
   isActive?: boolean;
 }
 
 export interface CreateSpecialtyInput {
-  name: string;
   nameEn: string;
   nameVi: string;
   description?: string;
 }
 
 export interface UpdateSpecialtyInput {
-  name?: string;
   nameEn?: string;
   nameVi?: string;
   description?: string;
@@ -38,9 +40,54 @@ export interface UpdateSpecialtyInput {
 }
 
 export class AdminService {
-  /**
-   * Get all users with optional filters
-   */
+  async getUserById(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+        patientProfile: {
+          select: {
+            id: true,
+            dateOfBirth: true,
+            gender: true,
+            phone: true,
+            address: true,
+            medicalHistory: true,
+            createdAt: true,
+          },
+        },
+        doctorProfile: {
+          select: {
+            id: true,
+            specialtyId: true,
+            bio: true,
+            yearsOfExperience: true,
+            ratingAverage: true,
+            ratingCount: true,
+            createdAt: true,
+            specialty: {
+              select: { id: true, nameEn: true, nameVi: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!user) {
+      throw new AppError('User not found', 404, 'USER_NOT_FOUND');
+    }
+
+    return user;
+  }
+
   async getUsers(filters?: { role?: string; isActive?: boolean; search?: string; page?: number; limit?: number }) {
     const { role, isActive, search, page = 1, limit = 20 } = filters || {};
     
@@ -50,7 +97,6 @@ export class AdminService {
       where.role = role;
     }
     
-    // Only add isActive filter if explicitly set to true or false
     if (typeof isActive === 'boolean') {
       where.isActive = isActive;
     }
@@ -58,7 +104,8 @@ export class AdminService {
     if (search) {
       where.OR = [
         { email: { contains: search } },
-        { fullName: { contains: search } },
+        { firstName: { contains: search } },
+        { lastName: { contains: search } },
       ];
     }
 
@@ -72,7 +119,8 @@ export class AdminService {
         select: {
           id: true,
           email: true,
-          fullName: true,
+          firstName: true,
+          lastName: true,
           role: true,
           isActive: true,
           createdAt: true,
@@ -92,7 +140,7 @@ export class AdminService {
               ratingCount: true,
               specialty: {
                 select: {
-                  name: true,
+                  nameEn: true,
                 },
               },
             },
@@ -116,13 +164,18 @@ export class AdminService {
     };
   }
 
-  /**
-   * Create a new user (any role)
-   */
   async createUser(input: CreateUserInput) {
-    const { email, password, fullName, role, ...profileData } = input;
+    const { email, password, firstName, lastName, role, ...profileData } = input;
 
-    // Check if user already exists
+    // DOCTOR role requires specialtyId; Zod enforces at the HTTP layer, this catches programmatic callers.
+    if (role === 'DOCTOR' && !profileData.specialtyId) {
+      throw new AppError(
+        'specialtyId is required when role is DOCTOR',
+        400,
+        'SPECIALTY_REQUIRED'
+      );
+    }
+
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -131,19 +184,20 @@ export class AdminService {
       throw new AppError('User with this email already exists', 409, 'USER_EXISTS');
     }
 
-    // Hash password
     const passwordHash = await hashPassword(password);
 
-    // Create user with profile if needed
     const user = await prisma.user.create({
       data: {
+        id: newId(),
         email,
         passwordHash,
-        fullName,
+        firstName,
+        lastName,
         role,
         ...(role === 'PATIENT' && {
           patientProfile: {
             create: {
+              id: newId(),
               dateOfBirth: profileData.dateOfBirth,
               gender: profileData.gender,
               phone: profileData.phone,
@@ -154,6 +208,7 @@ export class AdminService {
         ...(role === 'DOCTOR' && profileData.specialtyId && {
           doctorProfile: {
             create: {
+              id: newId(),
               specialtyId: profileData.specialtyId,
               bio: profileData.bio,
             },
@@ -173,9 +228,6 @@ export class AdminService {
     return user;
   }
 
-  /**
-   * Update a user
-   */
   async updateUser(userId: string, input: UpdateUserInput) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -185,25 +237,39 @@ export class AdminService {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: input,
-      include: {
-        patientProfile: true,
-        doctorProfile: {
-          include: {
-            specialty: true,
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          ...input,
+          // deactivating stamps deletedAt; reactivating clears it.
+          ...(input.isActive === false && { deletedAt: new Date() }),
+          ...(input.isActive === true  && { deletedAt: null }),
+        },
+      });
+
+      // updateMany is a no-op when the user has no doctor profile.
+      if (typeof input.isActive === 'boolean') {
+        await tx.doctorProfile.updateMany({
+          where: { userId },
+          data: { isActive: input.isActive },
+        });
+      }
+
+      return tx.user.findUniqueOrThrow({
+        where: { id: userId },
+        include: {
+          patientProfile: true,
+          doctorProfile: {
+            include: { specialty: true },
           },
         },
-      },
+      });
     });
 
     return updatedUser;
   }
 
-  /**
-   * Delete (deactivate) a user
-   */
   async deleteUser(userId: string) {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -213,23 +279,28 @@ export class AdminService {
       throw new AppError('User not found', 404, 'USER_NOT_FOUND');
     }
 
-    // Soft delete by deactivating
-    await prisma.user.update({
-      where: { id: userId },
-      data: { isActive: false },
-    });
+    // Soft-delete: mirror isActive=false onto DoctorProfile.
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: { isActive: false, deletedAt: new Date() },
+      }),
+      // updateMany is a no-op when the user has no doctor profile.
+      prisma.doctorProfile.updateMany({
+        where: { userId },
+        data: { isActive: false },
+      }),
+    ]);
 
     return { message: 'User deactivated successfully' };
   }
 
-  /**
-   * Get all doctors
-   */
   async getDoctors(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
     const [doctors, total] = await Promise.all([
       prisma.doctorProfile.findMany({
+        where: { isActive: true },
         skip,
         take: limit,
         include: {
@@ -237,7 +308,8 @@ export class AdminService {
             select: {
               id: true,
               email: true,
-              fullName: true,
+              firstName: true,
+              lastName: true,
               isActive: true,
             },
           },
@@ -247,7 +319,7 @@ export class AdminService {
           createdAt: 'desc',
         },
       }),
-      prisma.doctorProfile.count(),
+      prisma.doctorProfile.count({ where: { isActive: true } }),
     ]);
 
     return {
@@ -261,11 +333,7 @@ export class AdminService {
     };
   }
 
-  /**
-   * Create a doctor (wrapper around createUser for FE compatibility)
-   */
   async createDoctor(input: CreateUserInput) {
-    // Force role to be DOCTOR
     const doctorInput = {
       ...input,
       role: 'DOCTOR' as const,
@@ -279,11 +347,8 @@ export class AdminService {
     return user;
   }
 
-  /**
-   * Update a doctor
-   */
   async updateDoctor(doctorId: string, input: any) {
-    // doctorId here is the user ID (FE sends user.id)
+    // doctorId is User.id; FE sends user.id rather than DoctorProfile.id.
     const user = await prisma.user.findUnique({
       where: { id: doctorId },
       include: { doctorProfile: true },
@@ -293,48 +358,52 @@ export class AdminService {
       throw new AppError('Doctor not found', 404, 'DOCTOR_NOT_FOUND');
     }
 
-    // Separate user fields from doctor profile fields
-    const { specialtyId, bio, yearsOfExperience, ...userFields } = input;
+    const { specialtyId, bio, yearsOfExperience, firstName, lastName, ...restUserFields } = input;
 
-    // Update user if there are user fields
-    if (Object.keys(userFields).length > 0) {
-      await prisma.user.update({
-        where: { id: doctorId },
-        data: userFields,
-      });
-    }
+    const userFields: any = { ...restUserFields };
+    if (firstName !== undefined) userFields.firstName = firstName;
+    if (lastName !== undefined) userFields.lastName = lastName;
 
-    // Update doctor profile if there are doctor fields
+    // Sync deletedAt with isActive changes
+    if (userFields.isActive === false) userFields.deletedAt = new Date();
+    if (userFields.isActive === true)  userFields.deletedAt = null;
+
     const doctorFields: any = {};
     if (specialtyId) doctorFields.specialtyId = specialtyId;
     if (bio !== undefined) doctorFields.bio = bio;
     if (yearsOfExperience !== undefined) doctorFields.yearsOfExperience = yearsOfExperience;
 
-    if (Object.keys(doctorFields).length > 0) {
-      await prisma.doctorProfile.update({
-        where: { id: user.doctorProfile.id },
-        data: doctorFields,
-      });
-    }
+    const profileId = user.doctorProfile.id;
 
-    // Return updated user with doctor profile
-    const updatedUser = await prisma.user.findUnique({
-      where: { id: doctorId },
-      include: {
-        doctorProfile: {
-          include: {
-            specialty: true,
+    // Atomic: if specialtyId FK fails, both writes roll back.
+    return prisma.$transaction(async (tx) => {
+      if (Object.keys(userFields).length > 0) {
+        await tx.user.update({
+          where: { id: doctorId },
+          data: userFields,
+        });
+      }
+
+      if (Object.keys(doctorFields).length > 0) {
+        await tx.doctorProfile.update({
+          where: { id: profileId },
+          data: doctorFields,
+        });
+      }
+
+      return tx.user.findUnique({
+        where: { id: doctorId },
+        include: {
+          doctorProfile: {
+            include: {
+              specialty: true,
+            },
           },
         },
-      },
+      });
     });
-
-    return updatedUser;
   }
 
-  /**
-   * Delete a doctor (deactivate)
-   */
   async deleteDoctor(doctorId: string) {
     const user = await prisma.user.findUnique({
       where: { id: doctorId },
@@ -345,39 +414,69 @@ export class AdminService {
       throw new AppError('Doctor not found', 404, 'DOCTOR_NOT_FOUND');
     }
 
-    await prisma.user.update({
-      where: { id: doctorId },
-      data: { isActive: false },
-    });
+    // Soft-delete: mirror isActive=false onto DoctorProfile.
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: doctorId },
+        data: { isActive: false, deletedAt: new Date() },
+      }),
+      // updateMany is a no-op if the profile row is somehow missing
+      prisma.doctorProfile.updateMany({
+        where: { userId: doctorId },
+        data: { isActive: false },
+      }),
+    ]);
 
     return { message: 'Doctor deactivated successfully' };
   }
 
-  /**
-   * Get all patients
-   */
-  async getPatients(page: number = 1, limit: number = 20) {
+  async getPatients(
+    page: number = 1,
+    limit: number = 20,
+    search?: string,
+    isActive?: boolean
+  ) {
     const skip = (page - 1) * limit;
+
+    // AND array prevents filters from clobbering each other; isActive always constrains the joined User row.
+    const andClauses: any[] = [];
+
+    if (typeof isActive === 'boolean') {
+      andClauses.push({ user: { isActive } });
+    }
+
+    if (search) {
+      andClauses.push({
+        OR: [
+          { user: { firstName: { contains: search } } },
+          { user: { lastName:  { contains: search } } },
+          { user: { email:     { contains: search } } },
+          { phone: { contains: search } },
+        ],
+      });
+    }
+
+    const where: any = andClauses.length > 0 ? { AND: andClauses } : {};
 
     const [patients, total] = await Promise.all([
       prisma.patientProfile.findMany({
         skip,
         take: limit,
+        where,
         include: {
           user: {
             select: {
               id: true,
               email: true,
-              fullName: true,
+              firstName: true,
+              lastName: true,
               isActive: true,
             },
           },
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
       }),
-      prisma.patientProfile.count(),
+      prisma.patientProfile.count({ where }),
     ]);
 
     return {
@@ -390,34 +489,94 @@ export class AdminService {
       },
     };
   }
+  // userId is User.id; FE transform flattens patientProfile to user.id rather than PatientProfile.id.
+  async updatePatient(userId: string, input: { firstName?: string; lastName?: string; email?: string; isActive?: boolean }) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
-  /**
-   * Get all specialties
-   */
+    if (!user || user.role !== 'PATIENT') {
+      throw new AppError('Patient not found', 404, 'PATIENT_NOT_FOUND');
+    }
+
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          ...(input.firstName !== undefined && { firstName: input.firstName }),
+          ...(input.lastName  !== undefined && { lastName:  input.lastName  }),
+          ...(input.email     !== undefined && { email:     input.email     }),
+          ...(input.isActive === false && { isActive: false, deletedAt: new Date() }),
+          ...(input.isActive === true  && { isActive: true,  deletedAt: null }),
+        },
+      });
+
+      return tx.user.findUniqueOrThrow({
+        where: { id: userId },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          isActive: true,
+          role: true,
+          patientProfile: {
+            select: { id: true, phone: true, gender: true, dateOfBirth: true, address: true },
+          },
+        },
+      });
+    });
+
+    return {
+      id: updatedUser.id,
+      profileId: (updatedUser.patientProfile as any)?.id ?? null,
+      email: updatedUser.email,
+      firstName: updatedUser.firstName,
+      lastName: updatedUser.lastName,
+      isActive: updatedUser.isActive,
+      phone:       (updatedUser.patientProfile as any)?.phone       ?? null,
+      gender:      (updatedUser.patientProfile as any)?.gender      ?? null,
+      dateOfBirth: (updatedUser.patientProfile as any)?.dateOfBirth ?? null,
+      address:     (updatedUser.patientProfile as any)?.address     ?? null,
+      role: 'PATIENT',
+    };
+  }
+
+  async deletePatient(userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || user.role !== 'PATIENT') {
+      throw new AppError('Patient not found', 404, 'PATIENT_NOT_FOUND');
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { isActive: false, deletedAt: new Date() },
+    });
+
+    return { message: 'Patient deactivated successfully' };
+  }
+
   async getSpecialties() {
     const specialties = await prisma.specialty.findMany({
       orderBy: {
-        name: 'asc',
+        nameEn: 'asc',
       },
     });
 
     return specialties;
   }
 
-  /**
-   * Create a specialty
-   */
   async createSpecialty(input: CreateSpecialtyInput) {
     const specialty = await prisma.specialty.create({
-      data: input,
+      data: { id: newId(), ...input },
     });
 
     return specialty;
   }
 
-  /**
-   * Update a specialty
-   */
   async updateSpecialty(specialtyId: string, input: UpdateSpecialtyInput) {
     const specialty = await prisma.specialty.findUnique({
       where: { id: specialtyId },
@@ -427,17 +586,16 @@ export class AdminService {
       throw new AppError('Specialty not found', 404, 'SPECIALTY_NOT_FOUND');
     }
 
+    const updateData = { ...input };
+
     const updatedSpecialty = await prisma.specialty.update({
       where: { id: specialtyId },
-      data: input,
+      data: updateData,
     });
 
     return updatedSpecialty;
   }
 
-  /**
-   * Delete a specialty
-   */
   async deleteSpecialty(specialtyId: string) {
     const specialty = await prisma.specialty.findUnique({
       where: { id: specialtyId },
@@ -447,7 +605,6 @@ export class AdminService {
       throw new AppError('Specialty not found', 404, 'SPECIALTY_NOT_FOUND');
     }
 
-    // Check if any doctors are using this specialty
     const doctorCount = await prisma.doctorProfile.count({
       where: { specialtyId },
     });
@@ -467,22 +624,76 @@ export class AdminService {
     return { message: 'Specialty deleted successfully' };
   }
 
-  /**
-   * Get all appointments
-   */
-  async getAppointments(page: number = 1, limit: number = 20) {
+  async getAppointmentById(appointmentId: string) {
+    const appointment = await prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        doctor: {
+          include: {
+            user: {
+              select: {
+                firstName: true,
+                lastName: true,
+                email: true,
+              },
+            },
+            specialty: {
+              select: { id: true, nameEn: true, nameVi: true },
+            },
+          },
+        },
+        // 0..1 relation — at most one rating per appointment
+        rating: true,
+      },
+    });
+
+    if (!appointment) {
+      throw new AppError('Appointment not found', 404, 'APPOINTMENT_NOT_FOUND');
+    }
+
+    return appointment;
+  }
+
+  async getAppointments(page: number = 1, limit: number = 20, status?: string, startDate?: string, endDate?: string) {
     const skip = (page - 1) * limit;
+
+    const where: any = {};
+    if (status) {
+      where.status = status.toUpperCase();
+    }
+    if (startDate || endDate) {
+      where.scheduledAt = {};
+      if (startDate) where.scheduledAt.gte = new Date(startDate);
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        where.scheduledAt.lte = end;
+      }
+    }
 
     const [appointments, total] = await Promise.all([
       prisma.appointment.findMany({
         skip,
         take: limit,
+        where,
         include: {
           patient: {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                   email: true,
                 },
               },
@@ -492,7 +703,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                   email: true,
                 },
               },
@@ -504,7 +716,7 @@ export class AdminService {
           scheduledAt: 'desc',
         },
       }),
-      prisma.appointment.count(),
+      prisma.appointment.count({ where }),
     ]);
 
     return {
@@ -518,9 +730,6 @@ export class AdminService {
     };
   }
 
-  /**
-   * Update appointment
-   */
   async updateAppointment(appointmentId: string, status: string) {
     const appointment = await prisma.appointment.findUnique({
       where: { id: appointmentId },
@@ -538,7 +747,8 @@ export class AdminService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
             },
           },
@@ -547,8 +757,12 @@ export class AdminService {
           include: {
             user: {
               select: {
-                fullName: true,
+                firstName: true,
+                lastName: true,
               },
+            },
+            specialty: {
+              select: { nameEn: true },
             },
           },
         },
@@ -558,9 +772,24 @@ export class AdminService {
     return updatedAppointment;
   }
 
-  /**
-   * Get questions for moderation
-   */
+  // MODERATED is the soft-delete equivalent for Question; the model has no dedicated deletedAt column.
+  async archiveQuestion(questionId: string) {
+    const question = await prisma.question.findUnique({
+      where: { id: questionId },
+    });
+
+    if (!question) {
+      throw new AppError('Question not found', 404, 'QUESTION_NOT_FOUND');
+    }
+
+    const archived = await prisma.question.update({
+      where: { id: questionId },
+      data: { status: 'MODERATED' },
+    });
+
+    return { message: 'Question archived successfully', id: archived.id, status: archived.status };
+  }
+
   async getQuestionsForModeration(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
@@ -573,7 +802,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -582,7 +812,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -607,10 +838,7 @@ export class AdminService {
     };
   }
 
-  /**
-   * Moderate a question
-   */
-  async moderateQuestion(questionId: string, status: string) {
+  async moderateQuestion(questionId: string, status: 'PENDING' | 'ANSWERED' | 'MODERATED') {
     const question = await prisma.question.findUnique({
       where: { id: questionId },
     });
@@ -627,9 +855,6 @@ export class AdminService {
     return updatedQuestion;
   }
 
-  /**
-   * Moderate an answer
-   */
   async moderateAnswer(answerId: string, isApproved: boolean) {
     const answer = await prisma.answer.findUnique({
       where: { id: answerId },
@@ -647,9 +872,6 @@ export class AdminService {
     return updatedAnswer;
   }
 
-  /**
-   * Get ratings for moderation
-   */
   async getRatingsForModeration(page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
@@ -662,7 +884,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -671,7 +894,8 @@ export class AdminService {
             include: {
               user: {
                 select: {
-                  fullName: true,
+                  firstName: true,
+                  lastName: true,
                 },
               },
             },
@@ -696,9 +920,6 @@ export class AdminService {
     };
   }
 
-  /**
-   * Moderate a rating
-   */
   async moderateRating(ratingId: string, status: 'VISIBLE' | 'HIDDEN') {
     const rating = await prisma.rating.findUnique({
       where: { id: ratingId },
@@ -708,118 +929,76 @@ export class AdminService {
       throw new AppError('Rating not found', 404, 'RATING_NOT_FOUND');
     }
 
-    const updatedRating = await prisma.rating.update({
-      where: { id: ratingId },
-      data: { status },
-    });
-
-    // Recalculate doctor's rating average
-    const doctorRatings = await prisma.rating.findMany({
-      where: {
-        doctorId: rating.doctorId,
-        status: 'VISIBLE',
-      },
-      select: {
-        score: true,
-      },
-    });
-
-    if (doctorRatings.length > 0) {
-      const totalScore = doctorRatings.reduce((sum, r) => sum + r.score, 0);
-      const averageRating = totalScore / doctorRatings.length;
-
-      await prisma.doctorProfile.update({
-        where: { id: rating.doctorId },
-        data: {
-          ratingAverage: averageRating,
-          ratingCount: doctorRatings.length,
-        },
+    // Update status and recalculate doctor stats atomically.
+    const updatedRating = await prisma.$transaction(async (tx) => {
+      const updated = await tx.rating.update({
+        where: { id: ratingId },
+        data: { status },
       });
-    } else {
-      await prisma.doctorProfile.update({
-        where: { id: rating.doctorId },
-        data: {
-          ratingAverage: 0,
-          ratingCount: 0,
-        },
-      });
-    }
+
+      await recalcDoctorRating(rating.doctorId, tx);
+
+      return updated;
+    });
 
     return updatedRating;
   }
 
-  /**
-   * Get unified moderation items (questions, answers, ratings)
-   * Returns items with composite ID format: type_entityId
-   */
+  // Ratings are excluded from this queue; they have a dedicated moderate endpoint and no pending status in the DB schema.
   async getModerationItems(page: number = 1, limit: number = 20) {
-    // Get pending questions
-    const questions = await prisma.question.findMany({
-      where: { status: 'PENDING' },
-      include: {
-        patient: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
-              },
-            },
-          },
-        },
-      },
-      take: 100, // Get enough to merge
-    });
+    const [questionCount, answerCount] = await Promise.all([
+      prisma.question.count({ where: { status: 'PENDING' } }),
+      prisma.answer.count({ where: { isApproved: false } }),
+    ]);
 
-    // Get pending answers
-    const answers = await prisma.answer.findMany({
-      where: { isApproved: false },
-      include: {
-        doctor: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
-              },
-            },
-          },
-        },
-        question: {
-          select: {
-            title: true,
-          },
-        },
-      },
-      take: 100,
-    });
+    const total = questionCount + answerCount;
 
-    // Get ratings for moderation
-    const ratings = await prisma.rating.findMany({
-      where: { status: 'VISIBLE' },
-      include: {
-        patient: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                fullName: true,
+    // In-memory pagination: moderation queue should remain small; large queues would need cursor-based per-type queries.
+    const [questions, answers] = await Promise.all([
+      questionCount > 0
+        ? prisma.question.findMany({
+            where: { status: 'PENDING' },
+            include: {
+              patient: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
               },
             },
-          },
-        },
-        doctor: {
-          include: {
-            user: {
-              select: {
-                fullName: true,
+            orderBy: { createdAt: 'desc' },
+          })
+        : Promise.resolve([]),
+      answerCount > 0
+        ? prisma.answer.findMany({
+            where: { isApproved: false },
+            include: {
+              doctor: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
+              question: {
+                select: {
+                  title: true,
+                },
               },
             },
-          },
-        },
-      },
-      take: 100,
-    });
+            orderBy: { createdAt: 'desc' },
+          })
+        : Promise.resolve([]),
+    ]);
 
     // Normalize to unified format
     const items = [
@@ -829,7 +1008,7 @@ export class AdminService {
         contentPreview: q.title,
         content: q.content,
         createdAt: q.createdAt,
-        author: q.patient.user.fullName,
+        author: `${q.patient.user.firstName} ${q.patient.user.lastName}`,
         authorId: q.patient.user.id,
         status: q.status,
         entityId: q.id,
@@ -840,28 +1019,16 @@ export class AdminService {
         contentPreview: a.content.substring(0, 100),
         content: a.content,
         createdAt: a.createdAt,
-        author: a.doctor.user.fullName,
+        author: `${a.doctor.user.firstName} ${a.doctor.user.lastName}`,
         authorId: a.doctor.user.id,
         status: a.isApproved ? 'APPROVED' : 'PENDING',
         entityId: a.id,
       })),
-      ...ratings.map(r => ({
-        id: `RATING_${r.id}`,
-        type: 'RATING' as const,
-        contentPreview: `Rating: ${r.score}/5 for Dr. ${r.doctor.user.fullName}`,
-        content: r.comment || '',
-        createdAt: r.createdAt,
-        author: r.patient.user.fullName,
-        authorId: r.patient.user.id,
-        status: r.status,
-        entityId: r.id,
-      })),
     ];
 
-    // Sort by createdAt desc
     items.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    // Paginate
+    // In-memory slice for the requested page
     const skip = (page - 1) * limit;
     const paginatedItems = items.slice(skip, skip + limit);
 
@@ -870,15 +1037,12 @@ export class AdminService {
       pagination: {
         page,
         limit,
-        total: items.length,
-        totalPages: Math.ceil(items.length / limit),
+        total,
+        totalPages: Math.ceil(total / limit),
       },
     };
   }
 
-  /**
-   * Approve a moderation item
-   */
   async approveModerationItem(compositeId: string) {
     const [type, entityId] = compositeId.split('_');
 
@@ -889,21 +1053,35 @@ export class AdminService {
     switch (type) {
       case 'QUESTION':
         return this.moderateQuestion(entityId, 'ANSWERED');
-      
-      case 'ANSWER':
-        return this.moderateAnswer(entityId, true);
-      
-      case 'RATING':
-        return this.moderateRating(entityId, 'VISIBLE');
-      
+
+      case 'ANSWER': {
+        // Atomically: approve the answer AND promote the parent question to
+        // ANSWERED so patients immediately see the resolved status.
+        const answer = await prisma.answer.findUnique({
+          where: { id: entityId },
+        });
+        if (!answer) {
+          throw new AppError('Answer not found', 404, 'ANSWER_NOT_FOUND');
+        }
+        return prisma.$transaction(async (tx) => {
+          const updatedAnswer = await tx.answer.update({
+            where: { id: entityId },
+            data: { isApproved: true },
+          });
+          // Approve answer and promote parent question to ANSWERED atomically.
+          await tx.question.update({
+            where: { id: answer.questionId },
+            data: { status: 'ANSWERED' },
+          });
+          return updatedAnswer;
+        });
+      }
+
       default:
         throw new AppError('Invalid moderation item type', 400, 'INVALID_TYPE');
     }
   }
 
-  /**
-   * Reject a moderation item
-   */
   async rejectModerationItem(compositeId: string) {
     const [type, entityId] = compositeId.split('_');
 
@@ -914,13 +1092,11 @@ export class AdminService {
     switch (type) {
       case 'QUESTION':
         return this.moderateQuestion(entityId, 'MODERATED');
-      
+
       case 'ANSWER':
+        // Reject leaves parent question PENDING; doctor may submit a revised answer.
         return this.moderateAnswer(entityId, false);
-      
-      case 'RATING':
-        return this.moderateRating(entityId, 'HIDDEN');
-      
+
       default:
         throw new AppError('Invalid moderation item type', 400, 'INVALID_TYPE');
     }

@@ -9,22 +9,33 @@ import { errorHandler } from './middlewares/error.middleware';
 import { sendError } from './utils/apiResponse';
 import { apiRateLimiter } from './middlewares/rateLimiter.middleware';
 
+// Crash early: insecure cookies in production expose session tokens over plain HTTP.
+if (env.NODE_ENV === 'production' && !env.COOKIE_SECURE) {
+  console.error(
+    '[FATAL] COOKIE_SECURE must be true in production. ' +
+    'Set COOKIE_SECURE=true in your environment and ensure the app is served over HTTPS.'
+  );
+  process.exit(1);
+}
+
 const app: Application = express();
 
-// Security headers
+// trust proxy 1: req.ip reflects the real client IP from X-Forwarded-For; must precede rate-limiter middleware.
+app.set('trust proxy', 1);
+
+// CSP fully enforced in production; report-only in development (violations logged, no request blocking).
 app.use(helmet({
-  contentSecurityPolicy: env.NODE_ENV === 'production',
+  contentSecurityPolicy: env.NODE_ENV === 'production'
+    ? true               // enforced with helmet defaults
+    : { reportOnly: true }, // report-only: same directives, no blocking
   crossOriginEmbedderPolicy: env.NODE_ENV === 'production',
 }));
 
-// CORS configuration
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow multiple origins (comma-separated in env)
       const allowedOrigins = env.CORS_ORIGIN.split(',').map((o) => o.trim());
 
-      // Allow requests with no origin (mobile apps, Postman, curl)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -33,30 +44,38 @@ app.use(
         callback(new Error(`Origin ${origin} not allowed by CORS`));
       }
     },
-    credentials: true, // CRITICAL: Allow cookies to be sent with requests
+    credentials: true, // Required for cross-origin httpOnly cookie auth.
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     allowedHeaders: ['Authorization', 'Content-Type'],
   })
 );
 
-// Cookie parser for refresh token support
 app.use(cookieParser());
 
-// Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging
 if (env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
+  // Auth routes excluded from body logging to avoid logging passwords.
+  app.use((req: express.Request, _res: express.Response, next: express.NextFunction) => {
+    if (
+      req.method !== 'GET' &&
+      !req.path.includes('/auth/login') &&
+      !req.path.includes('/auth/register') &&
+      !req.path.includes('/auth/refresh') &&
+      Object.keys(req.body ?? {}).length > 0
+    ) {
+      console.log(`[REQ BODY] ${req.method} ${req.path}`, JSON.stringify(req.body));
+    }
+    next();
+  });
 } else {
   app.use(morgan('combined'));
 }
 
-// Global rate limiting
 app.use('/api', apiRateLimiter);
 
-// Root endpoint
 app.get('/', (_req: Request, res: Response) => {
   res.json({
     message: 'Online Health Consultation API',
@@ -65,10 +84,8 @@ app.get('/', (_req: Request, res: Response) => {
   });
 });
 
-// API routes
 app.use('/api', routes);
 
-// 404 handler
 app.use((_req: Request, res: Response) => {
   sendError(res, 'Route not found', 404, 'NOT_FOUND');
 });

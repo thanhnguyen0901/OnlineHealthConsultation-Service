@@ -1,4 +1,4 @@
-import prisma from '../config/db';
+import prisma from "../config/db";
 
 export class ReportService {
   /**
@@ -19,16 +19,16 @@ export class ReportService {
       pendingQuestions,
     ] = await Promise.all([
       prisma.user.count({ where: { isActive: true } }),
-      prisma.doctorProfile.count(),
+      prisma.doctorProfile.count({ where: { isActive: true } }),
       prisma.patientProfile.count(),
       prisma.specialty.count({ where: { isActive: true } }),
       prisma.question.count(),
       prisma.appointment.count(),
-      prisma.rating.count({ where: { status: 'VISIBLE' } }),
-      prisma.appointment.count({ where: { status: 'PENDING' } }),
-      prisma.appointment.count({ where: { status: 'COMPLETED' } }),
-      prisma.question.count({ where: { status: 'ANSWERED' } }),
-      prisma.question.count({ where: { status: 'PENDING' } }),
+      prisma.rating.count({ where: { status: "VISIBLE" } }),
+      prisma.appointment.count({ where: { status: "PENDING" } }),
+      prisma.appointment.count({ where: { status: "COMPLETED" } }),
+      prisma.question.count({ where: { status: "ANSWERED" } }),
+      prisma.question.count({ where: { status: "PENDING" } }),
     ]);
 
     return {
@@ -67,20 +67,20 @@ export class ReportService {
       },
     });
 
-    // Group by date
-    const groupedByDate: { [key: string]: { total: number; answered: number; pending: number } } = {};
+    const groupedByDate: {
+      [key: string]: { total: number; answered: number; pending: number };
+    } = {};
 
     questions.forEach((q) => {
-      const date = q.createdAt.toISOString().split('T')[0];
+      const date = q.createdAt.toISOString().split("T")[0];
       if (!groupedByDate[date]) {
         groupedByDate[date] = { total: 0, answered: 0, pending: 0 };
       }
       groupedByDate[date].total++;
-      if (q.status === 'ANSWERED') groupedByDate[date].answered++;
-      if (q.status === 'PENDING') groupedByDate[date].pending++;
+      if (q.status === "ANSWERED") groupedByDate[date].answered++;
+      if (q.status === "PENDING") groupedByDate[date].pending++;
     });
 
-    // Convert to array format
     const data = Object.entries(groupedByDate)
       .map(([date, stats]) => ({
         date,
@@ -103,15 +103,14 @@ export class ReportService {
       if (to) where.createdAt.lte = to;
     }
 
-    // Count users who created questions or appointments
     const [usersWithQuestions, usersWithAppointments] = await Promise.all([
       prisma.question.groupBy({
-        by: ['patientId'],
+        by: ["patientId"],
         where,
         _count: true,
       }),
       prisma.appointment.groupBy({
-        by: ['patientId'],
+        by: ["patientId"],
         where,
         _count: true,
       }),
@@ -122,15 +121,14 @@ export class ReportService {
       ...usersWithAppointments.map((a) => a.patientId),
     ]);
 
-    // Get doctor activity
     const [doctorsWithAnswers, doctorsWithAppointments] = await Promise.all([
       prisma.answer.groupBy({
-        by: ['doctorId'],
+        by: ["doctorId"],
         where,
         _count: true,
       }),
       prisma.appointment.groupBy({
-        by: ['doctorId'],
+        by: ["doctorId"],
         where,
         _count: true,
       }),
@@ -168,15 +166,15 @@ export class ReportService {
 
     return [
       {
-        type: 'statistics',
+        type: "statistics",
         data: statistics,
       },
       {
-        type: 'appointmentsChart',
+        type: "appointmentsChart",
         data: appointmentsChart,
       },
       {
-        type: 'questionsChart',
+        type: "questionsChart",
         data: questionsChart,
       },
     ];
@@ -202,11 +200,10 @@ export class ReportService {
       },
     });
 
-    // Group by date and status
     const groupedByDate: { [key: string]: any } = {};
 
     appointments.forEach((a) => {
-      const date = a.createdAt.toISOString().split('T')[0];
+      const date = a.createdAt.toISOString().split("T")[0];
       if (!groupedByDate[date]) {
         groupedByDate[date] = {
           date,
@@ -221,9 +218,8 @@ export class ReportService {
       groupedByDate[date][a.status.toLowerCase()]++;
     });
 
-    // Convert to array format suitable for charts
     const data = Object.values(groupedByDate).sort((a: any, b: any) =>
-      a.date.localeCompare(b.date)
+      a.date.localeCompare(b.date),
     );
 
     return data;
@@ -249,11 +245,10 @@ export class ReportService {
       },
     });
 
-    // Group by date and status
     const groupedByDate: { [key: string]: any } = {};
 
     questions.forEach((q) => {
-      const date = q.createdAt.toISOString().split('T')[0];
+      const date = q.createdAt.toISOString().split("T")[0];
       if (!groupedByDate[date]) {
         groupedByDate[date] = {
           date,
@@ -267,9 +262,8 @@ export class ReportService {
       groupedByDate[date][q.status.toLowerCase()]++;
     });
 
-    // Convert to array format suitable for charts
     const data = Object.values(groupedByDate).sort((a: any, b: any) =>
-      a.date.localeCompare(b.date)
+      a.date.localeCompare(b.date),
     );
 
     return data;
@@ -288,16 +282,17 @@ export class ReportService {
       take: limit,
       orderBy: [
         {
-          ratingAverage: 'desc',
+          ratingAverage: "desc",
         },
         {
-          ratingCount: 'desc',
+          ratingCount: "desc",
         },
       ],
       include: {
         user: {
           select: {
-            fullName: true,
+            firstName: true,
+            lastName: true,
             email: true,
           },
         },
@@ -307,8 +302,8 @@ export class ReportService {
 
     return doctors.map((d) => ({
       id: d.id,
-      doctorName: d.user.fullName,
-      specialty: d.specialty.name,
+      doctorName: `${d.user.firstName} ${d.user.lastName}`.trim(),
+      specialty: d.specialty.nameEn,
       ratingAverage: d.ratingAverage,
       ratingCount: d.ratingCount,
       yearsOfExperience: d.yearsOfExperience,
@@ -330,7 +325,7 @@ export class ReportService {
     });
 
     return specialties.map((s) => ({
-      name: s.name,
+      name: s.nameEn,
       doctorCount: s.doctors.length,
     }));
   }

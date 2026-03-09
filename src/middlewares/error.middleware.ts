@@ -3,9 +3,6 @@ import { ZodError } from 'zod';
 import { sendError } from '../utils/apiResponse';
 import { ERROR_CODES } from '../constants/errorCodes';
 
-/**
- * Custom error class for application errors
- */
 export class AppError extends Error {
   constructor(
     public message: string,
@@ -19,27 +16,28 @@ export class AppError extends Error {
   }
 }
 
-/**
- * Global error handler middleware
- */
 export const errorHandler = (
   err: Error | AppError | ZodError,
   _req: Request,
   res: Response,
   _next: NextFunction
 ): void => {
-  // Log error for debugging (in production, use proper logging service)
+  const statusCode =
+    err instanceof AppError
+      ? err.statusCode
+      : err instanceof ZodError
+      ? 400
+      : 500;
   if (process.env.NODE_ENV === 'development') {
-    console.error('Error:', err);
+    console.error(`[${statusCode}] Error:`, err);
   } else {
-    console.error('Error:', {
-      name: err.name,
-      message: err.message,
-      ...(err instanceof AppError && { code: err.code }),
+    // 5xx logged as error; 4xx logged as warn to reduce noise.
+    const logger = statusCode >= 500 ? console.error : console.warn;
+    logger(`[${statusCode}] ${err.name}: ${err.message}`, {
+      ...(err instanceof AppError && { code: err.code, details: err.details }),
     });
   }
 
-  // Handle Zod validation errors
   if (err instanceof ZodError) {
     const details = err.errors.map((e) => ({
       path: e.path.join('.'),
@@ -49,13 +47,11 @@ export const errorHandler = (
     return;
   }
 
-  // Handle custom AppError
   if (err instanceof AppError) {
     sendError(res, err.message, err.statusCode, err.code, err.details);
     return;
   }
 
-  // Handle Prisma errors
   if (err.name === 'PrismaClientKnownRequestError') {
     const prismaError = err as any;
     if (prismaError.code === 'P2002') {
@@ -68,7 +64,6 @@ export const errorHandler = (
     }
   }
 
-  // Handle JWT errors
   if (err.name === 'JsonWebTokenError') {
     sendError(res, 'Invalid token', 401, ERROR_CODES.INVALID_TOKEN);
     return;
@@ -79,7 +74,6 @@ export const errorHandler = (
     return;
   }
 
-  // Default server error
   sendError(
     res,
     process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message,
@@ -88,9 +82,6 @@ export const errorHandler = (
   );
 };
 
-/**
- * Async handler wrapper to catch errors in async route handlers
- */
 export const asyncHandler = (fn: Function) => {
   return (req: Request, res: Response, next: NextFunction) => {
     Promise.resolve(fn(req, res, next)).catch(next);

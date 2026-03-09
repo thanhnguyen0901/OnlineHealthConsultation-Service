@@ -18,27 +18,19 @@ then
 fi
 
 echo "🛑 Stopping containers..."
-docker-compose down -v
+docker compose down -v
 
 echo ""
 echo "🚀 Starting MySQL container..."
-docker-compose up -d
+docker compose up -d
 
 echo ""
 echo "⏳ Waiting for MySQL to be ready..."
 sleep 15
 
 echo ""
-echo "🔧 Generating Prisma Client..."
-npx prisma generate
-
-echo ""
-echo "📦 Pushing schema to database..."
-npx prisma db push --accept-data-loss
-
-echo ""
-echo "🌱 Seeding database..."
-npx ts-node prisma/seed.ts
+echo "🔧 Running full database setup (generate → migrate deploy → triggers → seed)..."
+npm run db:setup
 
 echo ""
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

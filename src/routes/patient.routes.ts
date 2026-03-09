@@ -4,37 +4,43 @@ import patientController, {
   createQuestionSchema,
   createAppointmentSchema,
   createRatingSchema,
+  idParamSchema,
 } from '../controllers/patient.controller';
-import adminController from '../controllers/admin.controller';
+import doctorController, {
+  getPublicDoctorsQuerySchema,
+} from '../controllers/doctor.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 import { requirePatient } from '../middlewares/role.middleware';
 import { validate } from '../middlewares/validation.middleware';
 
 const router = Router();
 
-// Public endpoints (no auth required) for booking
-router.get('/specialties', adminController.getSpecialties);
-router.get('/doctors', adminController.getDoctors);
+// Only specialties with ≥1 active doctor are returned so patients cannot select an unassignable specialty.
+router.get('/specialties', patientController.getAvailableSpecialties);
 
-// All routes below require authentication and PATIENT role
+router.get(
+  '/doctors',
+  validate({ query: getPublicDoctorsQuerySchema.shape.query }),
+  doctorController.getPublicDoctors
+);
+
 router.use(authenticate, requirePatient);
 
-// Profile
 router.get('/profile', patientController.getProfile);
 router.put('/profile', validate({ body: updateProfileSchema.shape.body }), patientController.updateProfile);
 
-// Questions
 router.get('/questions', patientController.getQuestions);
 router.post('/questions', validate({ body: createQuestionSchema.shape.body }), patientController.createQuestion);
+router.get('/questions/:id', validate({ params: idParamSchema.shape.params }), patientController.getQuestionById);
 
-// Appointments
 router.get('/appointments', patientController.getAppointments);
 router.post('/appointments', validate({ body: createAppointmentSchema.shape.body }), patientController.createAppointment);
+// cancel must be registered before :id or Express would match 'cancel' as a literal id.
+router.patch('/appointments/:id/cancel', validate({ params: idParamSchema.shape.params }), patientController.cancelAppointment);
+router.get('/appointments/:id', validate({ params: idParamSchema.shape.params }), patientController.getAppointmentById);
 
-// History
 router.get('/history', patientController.getHistory);
 
-// Ratings
 router.post('/ratings', validate({ body: createRatingSchema.shape.body }), patientController.createRating);
 router.get('/ratings', patientController.getRatings);
 

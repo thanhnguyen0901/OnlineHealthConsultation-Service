@@ -1,0 +1,43 @@
+name: Backend CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  ci:
+    name: Test & Build
+    runs-on: ubuntu-latest
+
+    # Dummy values required to satisfy the Zod env validation in src/config/env.ts,
+    # which runs at module load time when auth.service.ts is imported by tests.
+    # All three tests are fully mock-based — no real database connection is made.
+    env:
+      NODE_ENV: test
+      DATABASE_URL: mysql://ci:ci@localhost:3306/ci_db
+      JWT_SECRET: ci-jwt-secret-placeholder
+      JWT_REFRESH_SECRET: ci-jwt-refresh-secret-placeholder
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run prisma:generate
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build

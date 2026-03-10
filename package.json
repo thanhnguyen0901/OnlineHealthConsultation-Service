@@ -8,7 +8,7 @@
     "build": "tsc",
     "type-check": "tsc --noEmit",
     "start": "node dist/server.js",
-    "start:prod": "prisma migrate deploy && node dist/server.js",
+    "start:prod": "npm run build && prisma migrate deploy && node dist/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:create": "prisma migrate dev --create-only",

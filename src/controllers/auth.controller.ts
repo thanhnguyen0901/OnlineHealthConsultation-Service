@@ -89,7 +89,7 @@ export const registerSchema = z.object({  body: z.object({
     role: z.enum(['PATIENT', 'DOCTOR'], {
       errorMap: () => ({ message: 'Role must be either PATIENT or DOCTOR' }),
     }),
-    specialty: z.string().optional(),
+    specialty: z.string().uuid('specialty must be a valid UUID').optional(),
     bio: z.string().optional(),
     dateOfBirth: z.string().optional().transform((val) => val ? new Date(val) : undefined),
     gender: z.enum(['MALE', 'FEMALE', 'OTHER', 'male', 'female', 'other'])
@@ -99,6 +99,14 @@ export const registerSchema = z.object({  body: z.object({
     address: z.string().optional(),
   }).refine(data => data.firstName || data.fullName || data.name, {
     message: 'firstName or a combined fullName/name field is required',
+  }).superRefine((data, ctx) => {
+    if (data.role === 'DOCTOR' && !data.specialty) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['specialty'],
+        message: 'specialty is required when role is DOCTOR',
+      });
+    }
   }),
 });
 

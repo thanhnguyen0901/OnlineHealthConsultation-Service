@@ -10,6 +10,7 @@ import adminController, {
   queryAppointmentsSchema,
   queryUsersSchema,
   queryPatientsSchema,
+  createPatientSchema,
   idParamSchema,
   updateAppointmentSchema,
   moderateQuestionBodySchema,
@@ -38,6 +39,7 @@ router.put('/doctors/:id', validate({ params: idParamSchema, body: updateDoctorS
 router.delete('/doctors/:id', validate({ params: idParamSchema }), adminController.deleteDoctor);
 
 router.get('/patients', validate({ query: queryPatientsSchema }), adminController.getPatients);
+router.post('/patients', validate({ body: createPatientSchema.shape.body }), adminController.createPatient);
 router.put('/patients/:id', validate({ params: idParamSchema, body: updatePatientSchema.shape.body }), adminController.updatePatient);
 router.delete('/patients/:id', validate({ params: idParamSchema }), adminController.deletePatient);
 

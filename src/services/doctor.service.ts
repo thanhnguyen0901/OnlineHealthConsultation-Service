@@ -231,6 +231,16 @@ export class DoctorService {
               },
             },
           },
+          doctor: {
+            select: {
+              specialty: {
+                select: {
+                  nameEn: true,
+                  nameVi: true,
+                },
+              },
+            },
+          },
         },
         orderBy: { scheduledAt: 'desc' },
       }),
@@ -239,6 +249,70 @@ export class DoctorService {
 
     return {
       appointments,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  async getPatients(userId: string, page: number = 1, limit: number = 20, search?: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { doctorProfile: true },
+    });
+
+    if (!user || !user.doctorProfile) {
+      throw new AppError('Doctor profile not found', 404, ERROR_CODES.PROFILE_NOT_FOUND);
+    }
+
+    const where: any = {
+      OR: [
+        { appointments: { some: { doctorId: user.doctorProfile.id } } },
+        { questions: { some: { doctorId: user.doctorProfile.id } } },
+      ],
+    };
+
+    if (search?.trim()) {
+      where.AND = [
+        {
+          OR: [
+            { user: { firstName: { contains: search.trim() } } },
+            { user: { lastName: { contains: search.trim() } } },
+            { user: { email: { contains: search.trim() } } },
+            { phone: { contains: search.trim() } },
+          ],
+        },
+      ];
+    }
+
+    const skip = (page - 1) * limit;
+
+    const [patients, total] = await Promise.all([
+      prisma.patientProfile.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              isActive: true,
+            },
+          },
+        },
+        orderBy: { updatedAt: 'desc' },
+      }),
+      prisma.patientProfile.count({ where }),
+    ]);
+
+    return {
+      patients,
       pagination: {
         page,
         limit,
@@ -490,6 +564,16 @@ export class DoctorService {
             },
           },
         },
+        doctor: {
+          select: {
+            specialty: {
+              select: {
+                nameEn: true,
+                nameVi: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -733,9 +817,12 @@ export class DoctorService {
       id: doctor.id,
       firstName: doctor.user.firstName,
       lastName: doctor.user.lastName,
+      name: `${doctor.user.firstName} ${doctor.user.lastName}`.trim(),
       specialtyName: doctor.specialty.nameEn,
+      specialty: doctor.specialty.nameEn,
       specialtyId: doctor.specialtyId,
       yearsOfExperience: doctor.yearsOfExperience,
+      experienceYears: doctor.yearsOfExperience,
       bio: doctor.bio,
       ratingAverage: doctor.ratingAverage,
       ratingCount: doctor.ratingCount,

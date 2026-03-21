@@ -17,6 +17,7 @@ export class ReportService {
       completedAppointments,
       answeredQuestions,
       pendingQuestions,
+      activeUsers,
     ] = await Promise.all([
       prisma.user.count({ where: { isActive: true } }),
       prisma.doctorProfile.count({ where: { isActive: true } }),
@@ -29,6 +30,7 @@ export class ReportService {
       prisma.appointment.count({ where: { status: "COMPLETED" } }),
       prisma.question.count({ where: { status: "ANSWERED" } }),
       prisma.question.count({ where: { status: "PENDING" } }),
+      this.getActiveUsersStats(),
     ]);
 
     return {
@@ -44,6 +46,9 @@ export class ReportService {
       completedAppointments,
       answeredQuestions,
       pendingQuestions,
+      activePatients: activeUsers.activePatients,
+      activeDoctors: activeUsers.activeDoctors,
+      totalActiveUsers: activeUsers.totalActiveUsers,
     };
   }
 

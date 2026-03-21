@@ -489,6 +489,37 @@ export class AdminService {
       },
     };
   }
+
+  async createPatient(input: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: Date;
+    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    phone?: string;
+    address?: string;
+  }) {
+    const created = await this.createUser({
+      ...input,
+      role: 'PATIENT',
+    });
+
+    return {
+      id: created.id,
+      profileId: (created.patientProfile as any)?.id ?? null,
+      email: created.email,
+      firstName: created.firstName,
+      lastName: created.lastName,
+      isActive: created.isActive,
+      phone: (created.patientProfile as any)?.phone ?? null,
+      gender: (created.patientProfile as any)?.gender ?? null,
+      dateOfBirth: (created.patientProfile as any)?.dateOfBirth ?? null,
+      address: (created.patientProfile as any)?.address ?? null,
+      role: 'PATIENT' as const,
+    };
+  }
+
   // userId is User.id; FE transform flattens patientProfile to user.id rather than PatientProfile.id.
   async updatePatient(userId: string, input: { firstName?: string; lastName?: string; email?: string; isActive?: boolean }) {
     const user = await prisma.user.findUnique({
@@ -944,17 +975,17 @@ export class AdminService {
     return updatedRating;
   }
 
-  // Ratings are excluded from this queue; they have a dedicated moderate endpoint and no pending status in the DB schema.
   async getModerationItems(page: number = 1, limit: number = 20) {
-    const [questionCount, answerCount] = await Promise.all([
+    const [questionCount, answerCount, ratingCount] = await Promise.all([
       prisma.question.count({ where: { status: 'PENDING' } }),
       prisma.answer.count({ where: { isApproved: false } }),
+      prisma.rating.count(),
     ]);
 
-    const total = questionCount + answerCount;
+    const total = questionCount + answerCount + ratingCount;
 
     // In-memory pagination: moderation queue should remain small; large queues would need cursor-based per-type queries.
-    const [questions, answers] = await Promise.all([
+    const [questions, answers, ratings] = await Promise.all([
       questionCount > 0
         ? prisma.question.findMany({
             where: { status: 'PENDING' },
@@ -998,6 +1029,34 @@ export class AdminService {
             orderBy: { createdAt: 'desc' },
           })
         : Promise.resolve([]),
+      ratingCount > 0
+        ? prisma.rating.findMany({
+            include: {
+              patient: {
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
+              doctor: {
+                include: {
+                  user: {
+                    select: {
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
+            },
+            orderBy: { createdAt: 'desc' },
+          })
+        : Promise.resolve([]),
     ]);
 
     // Normalize to unified format
@@ -1023,6 +1082,19 @@ export class AdminService {
         authorId: a.doctor.user.id,
         status: a.isApproved ? 'APPROVED' : 'PENDING',
         entityId: a.id,
+      })),
+      ...ratings.map((r) => ({
+        id: `RATING_${r.id}`,
+        type: 'RATING' as const,
+        contentPreview: r.comment?.trim()
+          ? r.comment.substring(0, 100)
+          : `${r.score}/5`,
+        content: r.comment?.trim() || `${r.score}/5`,
+        createdAt: r.createdAt,
+        author: `${r.patient.user.firstName} ${r.patient.user.lastName}`,
+        authorId: r.patient.user.id,
+        status: r.status, // VISIBLE | HIDDEN
+        entityId: r.id,
       })),
     ];
 
@@ -1077,6 +1149,9 @@ export class AdminService {
         });
       }
 
+      case 'RATING':
+        return this.moderateRating(entityId, 'VISIBLE');
+
       default:
         throw new AppError('Invalid moderation item type', 400, 'INVALID_TYPE');
     }
@@ -1096,6 +1171,9 @@ export class AdminService {
       case 'ANSWER':
         // Reject leaves parent question PENDING; doctor may submit a revised answer.
         return this.moderateAnswer(entityId, false);
+
+      case 'RATING':
+        return this.moderateRating(entityId, 'HIDDEN');
 
       default:
         throw new AppError('Invalid moderation item type', 400, 'INVALID_TYPE');

@@ -66,6 +66,22 @@ export const getAppointmentsQuerySchema = z.object({
   }),
 });
 
+export const getPatientsQuerySchema = z.object({
+  query: z.object({
+    page: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 1))
+      .pipe(z.number().int().min(1)),
+    limit: z
+      .string()
+      .optional()
+      .transform((val) => (val ? parseInt(val, 10) : 20))
+      .pipe(z.number().int().min(1).max(100)),
+    search: z.string().optional(),
+  }),
+});
+
 export const updateProfileSchema = z.object({
   body: z
     .object({
@@ -172,12 +188,38 @@ export class DoctorController {
       id: a.id,
       patientId: a.patientId,
       patientName: `${a.patient?.user?.firstName ?? ''} ${a.patient?.user?.lastName ?? ''}`.trim(),
-      specialtyName: '',
+      specialtyName: a.doctor?.specialty?.nameEn || '',
+      specialtyNameVi: a.doctor?.specialty?.nameVi || '',
       scheduledAt:
         a.scheduledAt instanceof Date ? a.scheduledAt.toISOString() : (a.scheduledAt ?? null),
       reason: a.reason ?? '',
       notes: a.notes ?? null,
       status: (a.status as string).toLowerCase(),
+    }));
+
+    sendSuccess(res, transformed, result.pagination);
+  });
+
+  getPatients = asyncHandler(async (req: Request, res: Response) => {
+    const userId = req.user!.id;
+    const { page, limit, search } = req.query as {
+      page?: number;
+      limit?: number;
+      search?: string;
+    };
+    const result = await doctorService.getPatients(userId, page, limit, search);
+
+    const transformed = result.patients.map((p: any) => ({
+      id: p.user.id,
+      profileId: p.id,
+      firstName: p.user.firstName,
+      lastName: p.user.lastName,
+      email: p.user.email,
+      phone: p.phone ?? null,
+      gender: p.gender ?? null,
+      dateOfBirth: p.dateOfBirth ?? null,
+      address: p.address ?? null,
+      isActive: p.user.isActive,
     }));
 
     sendSuccess(res, transformed, result.pagination);
@@ -211,7 +253,8 @@ export class DoctorController {
       id: a.id,
       patientId: a.patientId,
       patientName: `${a.patient?.user?.firstName ?? ''} ${a.patient?.user?.lastName ?? ''}`.trim(),
-      specialtyName: '',
+      specialtyName: a.doctor?.specialty?.nameEn || '',
+      specialtyNameVi: a.doctor?.specialty?.nameVi || '',
       scheduledAt:
         a.scheduledAt instanceof Date ? a.scheduledAt.toISOString() : (a.scheduledAt ?? null),
       reason: a.reason ?? '',

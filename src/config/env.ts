@@ -23,6 +23,55 @@ const envSchema = z.object({
   APPOINTMENT_DURATION_MINUTES: z.string().default('60').transform(Number),
   // Reuse within window → 409 TOKEN_ROTATED (race, not replay); outside window → 401 all sessions revoked. Set 0 for strict mode.
   REFRESH_GRACE_WINDOW_MS: z.string().default('10000').transform(Number),
+}).superRefine((data, ctx) => {
+  const origins = data.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean);
+  const invalidOrigins = origins.filter((origin) => {
+    if (origin === '*') return true;
+    try {
+      const u = new URL(origin);
+      return !u.protocol.startsWith('http');
+    } catch {
+      return true;
+    }
+  });
+
+  if (invalidOrigins.length > 0) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['CORS_ORIGIN'],
+      message: `Invalid CORS_ORIGIN entries: ${invalidOrigins.join(', ')}`,
+    });
+  }
+
+  if (data.COOKIE_SAMESITE === 'none' && !data.COOKIE_SECURE) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['COOKIE_SAMESITE'],
+      message: 'COOKIE_SAMESITE=none requires COOKIE_SECURE=true',
+    });
+  }
+
+  if (data.NODE_ENV === 'production') {
+    if (!data.COOKIE_SECURE) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['COOKIE_SECURE'],
+        message: 'COOKIE_SECURE must be true in production',
+      });
+    }
+
+    const localhostOrigins = origins.filter(
+      (origin) => origin.includes('localhost') || origin.includes('127.0.0.1')
+    );
+    if (localhostOrigins.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['CORS_ORIGIN'],
+        message:
+          `CORS_ORIGIN contains localhost in production: ${localhostOrigins.join(', ')}`,
+      });
+    }
+  }
 });
 
 const parseEnv = () => {

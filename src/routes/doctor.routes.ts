@@ -5,6 +5,7 @@ import doctorController, {
   updateScheduleSchema,
   getQuestionsQuerySchema,
   getAppointmentsQuerySchema,
+  getPatientsQuerySchema,
   updateProfileSchema,
   getRatingsQuerySchema,
   doctorIdParamSchema,
@@ -33,6 +34,7 @@ router.post('/questions/:id/answer', (req, res) => {
 });
 
 router.get('/appointments', validate({ query: getAppointmentsQuerySchema.shape.query }), doctorController.getAppointments);
+router.get('/patients', validate({ query: getPatientsQuerySchema.shape.query }), doctorController.getPatients);
 router.get('/appointments/:id', validate({ params: doctorIdParamSchema.shape.params }), doctorController.getAppointmentById);
 router.put('/appointments/:id', validate({ params: doctorIdParamSchema.shape.params, body: updateAppointmentSchema.shape.body }), doctorController.updateAppointment);
 

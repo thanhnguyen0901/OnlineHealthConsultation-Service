@@ -51,6 +51,22 @@ npm run db:setup
 
 ## 🚀 PHẦN 2: Run Backend
 
+### Bước 0: Kiểm tra cấu hình Auth/Cookie trước khi chạy
+
+```bash
+# 1) Copy file env mẫu
+cp .env.example .env
+```
+
+Thiết lập tối thiểu cần đúng:
+
+- `CORS_ORIGIN` phải trùng URL frontend (ví dụ local: `http://localhost:5173`).
+- Nếu frontend và backend khác domain: dùng `COOKIE_SAMESITE=none` và bắt buộc `COOKIE_SECURE=true`.
+- Local HTTP cùng domain có thể dùng `COOKIE_SAMESITE=lax`.
+- Production không được dùng `localhost` trong `CORS_ORIGIN`.
+
+> Server sẽ fail-fast nếu cấu hình mâu thuẫn (ví dụ `COOKIE_SAMESITE=none` nhưng `COOKIE_SECURE=false`).
+
 ```bash
 # Chạy development server (hot reload)
 npm run dev

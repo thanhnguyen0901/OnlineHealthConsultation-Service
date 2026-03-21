@@ -131,6 +131,25 @@ export const updatePatientSchema = z.object({
   }),
 });
 
+export const createPatientSchema = z.object({
+  body: z.object({
+    email: z.string().email('Invalid email format'),
+    password: z.string().min(6, 'Password must be at least 6 characters'),
+    firstName: z.string().min(1, 'First name is required'),
+    lastName: z.string().min(1, 'Last name is required'),
+    dateOfBirth: z
+      .string()
+      .optional()
+      .transform((val) => (val ? new Date(val) : undefined)),
+    gender: z
+      .enum(['MALE', 'FEMALE', 'OTHER', 'male', 'female', 'other'])
+      .transform((val) => val.toUpperCase() as 'MALE' | 'FEMALE' | 'OTHER')
+      .optional(),
+    phone: z.string().optional(),
+    address: z.string().optional(),
+  }),
+});
+
 
 export const moderateQuestionBodySchema = z.object({
   status: z.enum(['PENDING', 'ANSWERED', 'MODERATED'], {
@@ -203,6 +222,7 @@ export class AdminController {
       isActive: doc.user.isActive,
       specialtyId: doc.specialtyId,
       specialtyName: doc.specialty?.nameEn || '',
+      specialtyNameVi: doc.specialty?.nameVi || '',
       bio: doc.bio,
       role: 'DOCTOR',
     }));
@@ -220,6 +240,7 @@ export class AdminController {
       isActive: (result as any).isActive,
       specialtyId: (result as any).doctorProfile?.specialtyId ?? null,
       specialtyName: (result as any).doctorProfile?.specialty?.nameEn ?? '',
+      specialtyNameVi: (result as any).doctorProfile?.specialty?.nameVi ?? '',
       bio: (result as any).doctorProfile?.bio ?? null,
       role: 'DOCTOR',
     };
@@ -238,6 +259,7 @@ export class AdminController {
       isActive: (result as any).isActive,
       specialtyId: (result as any).doctorProfile?.specialtyId,
       specialtyName: (result as any).doctorProfile?.specialty?.nameEn || '',
+      specialtyNameVi: (result as any).doctorProfile?.specialty?.nameVi || '',
       bio: (result as any).doctorProfile?.bio,
       role: 'DOCTOR',
     };
@@ -275,6 +297,11 @@ export class AdminController {
     }));
 
     sendSuccess(res, transformedPatients, result.pagination);
+  });
+
+  createPatient = asyncHandler(async (req: Request, res: Response) => {
+    const result = await adminService.createPatient(req.body);
+    sendSuccess(res, result, undefined, 201);
   });
 
   updatePatient = asyncHandler(async (req: Request, res: Response) => {
@@ -329,6 +356,7 @@ export class AdminController {
       doctorName: `${apt.doctor?.user?.firstName ?? ''} ${apt.doctor?.user?.lastName ?? ''}`.trim(),
       specialtyId: apt.doctor?.specialtyId || '',
       specialtyName: apt.doctor?.specialty?.nameEn || '',
+      specialtyNameVi: apt.doctor?.specialty?.nameVi || '',
       date: apt.scheduledAt,
       time: apt.scheduledAt ? new Date(apt.scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '',
       status: apt.status?.toLowerCase() || 'pending',
@@ -352,6 +380,7 @@ export class AdminController {
       doctorEmail: (appointment as any).doctor?.user?.email ?? null,
       specialtyId: (appointment as any).doctor?.specialtyId || '',
       specialtyName: (appointment as any).doctor?.specialty?.nameEn || '',
+      specialtyNameVi: (appointment as any).doctor?.specialty?.nameVi || '',
       scheduledAt: appointment.scheduledAt,
       status: appointment.status?.toLowerCase() || 'pending',
       reason: appointment.reason,
@@ -377,6 +406,7 @@ export class AdminController {
       doctorName: `${(result as any).doctor?.user?.firstName ?? ''} ${(result as any).doctor?.user?.lastName ?? ''}`.trim(),
       specialtyId: (result as any).doctor?.specialtyId || '',
       specialtyName: (result as any).doctor?.specialty?.nameEn || '',
+      specialtyNameVi: (result as any).doctor?.specialty?.nameVi || '',
       date: (result as any).scheduledAt,
       time: (result as any).scheduledAt
         ? new Date((result as any).scheduledAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })

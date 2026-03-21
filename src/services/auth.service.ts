@@ -180,6 +180,19 @@ export class AuthService {
 
     const passwordHash = await hashPassword(password);
 
+    if (role === 'DOCTOR') {
+      if (!profileData.specialty) {
+        throw new AppError('specialty is required for DOCTOR registration', 400, 'SPECIALTY_REQUIRED');
+      }
+      const specialty = await prisma.specialty.findUnique({
+        where: { id: profileData.specialty },
+        select: { id: true, isActive: true },
+      });
+      if (!specialty || !specialty.isActive) {
+        throw new AppError('Specialty not found or inactive', 404, ERROR_CODES.SPECIALTY_NOT_FOUND);
+      }
+    }
+
     const user = await prisma.user.create({
       data: {
         id: newId(),
@@ -188,6 +201,7 @@ export class AuthService {
         firstName,
         lastName,
         role,
+        ...(role === 'DOCTOR' && { isActive: false }),
         ...(role === 'PATIENT' && {
           patientProfile: {
             create: {
@@ -205,6 +219,7 @@ export class AuthService {
               id: newId(),
               specialtyId: profileData.specialty || '',
               bio: profileData.bio,
+              isActive: false,
             },
           },
         }),

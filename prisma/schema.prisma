@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -37,9 +37,27 @@ enum RatingStatus {
   HIDDEN
 }
 
+enum ConsultationStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 model User {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id           String    @id @db.Char(36)
+  id           String    @id @db.Uuid
   email        String    @unique
   passwordHash String
   firstName    String
@@ -55,6 +73,7 @@ model User {
   patientProfile PatientProfile?
   doctorProfile  DoctorProfile?
   sessions       UserSession[]
+  notifications  NotificationLog[]
 
   // email is covered by its own UNIQUE index — a plain @@index would be redundant.
   @@index([role])
@@ -64,8 +83,8 @@ model User {
 
 model PatientProfile {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id             String    @id @db.Char(36)
-  userId         String    @unique @db.Char(36)
+  id             String    @id @db.Uuid
+  userId         String    @unique @db.Uuid
   dateOfBirth    DateTime?
   gender         Gender?
   phone          String?
@@ -85,9 +104,9 @@ model PatientProfile {
 
 model DoctorProfile {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id                String    @id @db.Char(36)
-  userId            String    @unique @db.Char(36)
-  specialtyId       String    @db.Char(36)
+  id                String    @id @db.Uuid
+  userId            String    @unique @db.Uuid
+  specialtyId       String    @db.Uuid
   bio               String?   @db.Text
   yearsOfExperience Int       @default(0)
   ratingAverage     Float     @default(0)
@@ -118,7 +137,7 @@ model DoctorProfile {
 
 model Specialty {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id          String   @id @db.Char(36)
+  id          String   @id @db.Uuid
   nameEn      String   @unique
   nameVi      String
   description String?  @db.Text
@@ -134,14 +153,14 @@ model Specialty {
 
 model Question {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id               String         @id @db.Char(36)
-  patientId        String         @db.Char(36)
-  doctorId         String?        @db.Char(36)
+  id               String         @id @db.Uuid
+  patientId        String         @db.Uuid
+  doctorId         String?        @db.Uuid
   /// Immutable audit field. Written once at creation (= doctorId at that moment).
   /// Never updated afterwards — preserves assignment history even if doctorId is
   /// later SET NULL by a cascade hard-delete of the doctor's User record.
   /// No FK constraint intentionally: the audit value must survive doctor deletion.
-  originalDoctorId String?        @db.Char(36)
+  originalDoctorId String?        @db.Uuid
   title            String
   content          String         @db.Text
   status           QuestionStatus @default(PENDING)
@@ -163,9 +182,9 @@ model Question {
 
 model Answer {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id         String   @id @db.Char(36)
-  questionId String   @db.Char(36)
-  doctorId   String   @db.Char(36)
+  id         String   @id @db.Uuid
+  questionId String   @db.Uuid
+  doctorId   String   @db.Uuid
   content    String   @db.Text
   isApproved Boolean  @default(false)
   createdAt  DateTime @default(now())
@@ -181,9 +200,9 @@ model Answer {
 
 model Appointment {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id              String            @id @db.Char(36)
-  patientId       String            @db.Char(36)
-  doctorId        String            @db.Char(36)
+  id              String            @id @db.Uuid
+  patientId       String            @db.Uuid
+  doctorId        String            @db.Uuid
   scheduledAt     DateTime
   /// Duration of this slot in minutes (DB default: 60).
   /// Stored per-row so overlap detection in createAppointment() uses the actual
@@ -195,10 +214,11 @@ model Appointment {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
 
-  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  doctor  DoctorProfile  @relation(fields: [doctorId], references: [id])
+  patient PatientProfile       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor  DoctorProfile        @relation(fields: [doctorId], references: [id])
   /// 0..1 — one appointment has at most one rating (enforced by @unique on Rating.appointmentId).
   rating  Rating?
+  session ConsultationSession?
 
   @@index([patientId])
   @@index([doctorId])
@@ -213,13 +233,13 @@ model Appointment {
 
 model Rating {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id            String       @id @db.Char(36)
-  patientId     String       @db.Char(36)
-  doctorId      String       @db.Char(36)
+  id            String       @id @db.Uuid
+  patientId     String       @db.Uuid
+  doctorId      String       @db.Uuid
   /// @unique enforces the 0..1 relation with Appointment: at most one Rating per appointment.
   /// @unique enforces the 1:0..1 relation with Appointment.
   /// One rating per appointment maximum — replaces the former UNIQUE(appointmentId, patientId).
-  appointmentId String       @unique @db.Char(36)
+  appointmentId String       @unique @db.Uuid
   /// Integer 1-5. Enforced by CHECK constraint in the DB (chk_ratings_score).
   score         Int
   comment       String?      @db.Text
@@ -239,8 +259,8 @@ model Rating {
 
 model UserSession {
   /// UUIDv7, app-generated via newId() — always supplied before INSERT, never DB-default.
-  id               String    @id @db.Char(36)
-  userId           String    @db.Char(36)
+  id               String    @id @db.Uuid
+  userId           String    @db.Uuid
   /// SHA-256 hash of the refresh token. Unique to prevent duplicate sessions.
   refreshTokenHash String    @unique
   expiresAt        DateTime
@@ -268,4 +288,55 @@ model UserSession {
   /// The composite (userId, revokedAt, expiresAt) does NOT help here.
   @@index([revokedAt])
   @@map("user_sessions")
+}
+
+model ConsultationSession {
+  /// UUIDv7, app-generated via newId()
+  id            String             @id @db.Uuid
+  appointmentId String             @unique @db.Uuid
+  startedAt     DateTime?
+  endedAt       DateTime?
+  summary       String?            @db.Text
+  status        ConsultationStatus @default(SCHEDULED)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  appointment  Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  prescription Prescription?
+
+  @@map("consultation_sessions")
+}
+
+model Prescription {
+  /// UUIDv7, app-generated via newId()
+  id             String   @id @db.Uuid
+  sessionId      String   @unique @db.Uuid
+  medicationName String
+  dosage         String
+  frequency      String
+  duration       String
+  notes          String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  session ConsultationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("prescriptions")
+}
+
+model NotificationLog {
+  /// UUIDv7, app-generated via newId()
+  id        String             @id @db.Uuid
+  userId    String             @db.Uuid
+  type      NotificationType
+  content   String             @db.Text
+  status    NotificationStatus @default(PENDING)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@map("notification_logs")
 }

@@ -1,130 +1,67 @@
-# OnlineHealthConsultation-Service
+# Online Health Consultation Platform
 
-Backend REST API cho hệ thống tư vấn sức khỏe trực tuyến, xây dựng bằng Node.js, Express, TypeScript, Prisma và MySQL.
+Hệ thống Backend (REST API & Real-time WebSockets) cho Nền tảng Tư vấn Sức khỏe Trực tuyến, được xây dựng theo kiến trúc **Modular Monolith** dựa trên **NestJS** theo chuẩn tài liệu SRS v1.0.
 
-## Công nghệ
+## 🛠 Tech Stack (Kiến trúc chuẩn)
 
-- Node.js + Express
-- TypeScript
-- Prisma ORM
-- MySQL
-- Zod validation
-- JWT + bcrypt
-- cookie-parser, cors, helmet, rate-limit
-- Jest
+- **Framework:** NestJS (Node.js & TypeScript)
+- **Database:** PostgreSQL (Triển khai local qua Docker)
+- **ORM:** Prisma
+- **Validation:** class-validator & class-transformer
+- **Authentication:** JWT, băm mật khẩu `bcryptjs`
+- **Tài liệu API:** Swagger (`@nestjs/swagger`)
+- **Giao tiếp bất đồng bộ:** Event Emitter (`@nestjs/event-emitter`)
 
-## Chức năng chính
+## 📦 Kiến trúc Module (Domain-Driven)
 
-- Authentication bằng access token + refresh token
-- Authorization theo role: `PATIENT`, `DOCTOR`, `ADMIN`
-- Quản lý hồ sơ bệnh nhân/bác sĩ
-- Hỏi đáp giữa bệnh nhân và bác sĩ
-- Đặt lịch, cập nhật trạng thái lịch hẹn
-- Đánh giá bác sĩ
-- Moderation nội dung
-- Báo cáo thống kê
+Toàn bộ hệ thống được chia thành các Module độc lập đại diện cho từng Domain của nghiệp vụ:
 
-## Cấu trúc thư mục
+- **`IdentityModule`**: Đăng ký, đăng nhập, bảo mật JWT, cấp quyền User.
+- **`DoctorModule`**: Hồ sơ Bác sĩ (DoctorProfile) và Danh mục Chuyên khoa (Specialty).
+- **`PatientModule`**: Hồ sơ Bệnh nhân (PatientProfile).
+- **`AppointmentModule`**: Quản lý Lịch hẹn (đặt lịch, hủy lịch, bắt trùng lịch).
+- **`QuestionModule`**: Diễn đàn Hỏi đáp sức khỏe tự do (Hỏi - Đáp - Duyệt).
+- **`ConsultationModule`**: Quản lý phiên tư vấn, Đơn thuốc điện tử, Đánh giá bác sĩ.
+- **`NotificationModule`**: Xử lý logic gửi thông báo đa kênh nội bộ.
+- **`ReportingModule`**: Báo cáo thống kê dành cho Admin.
 
-```text
-OnlineHealthConsultation-Service/
-├── prisma/
-├── src/
-│   ├── config/
-│   ├── controllers/
-│   ├── middlewares/
-│   ├── routes/
-│   ├── services/
-│   ├── utils/
-│   ├── app.ts
-│   └── server.ts
-├── tests/
-├── package.json
-└── README.md
-```
-
-## API base
-
-- Base URL: `http://localhost:4000/api`
-- Health check: `GET /api/health`
-
-## Authentication & Authorization
-
-### Token model
-- `accessToken`: gửi trong header `Authorization: Bearer <token>`.
-- `refreshToken`: lưu trong `httpOnly cookie`.
-
-### Auth endpoints
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/refresh` (đọc refresh token từ cookie)
-- `POST /api/auth/logout` (đọc refresh token từ cookie)
-- `GET /api/auth/me`
-
-### Role-based routes
-- `PATIENT`: `/api/patients/**`
-- `DOCTOR`: `/api/doctors/**`
-- `ADMIN`: `/api/admin/**`
-- `ADMIN | DOCTOR`: `/api/reports/**`
-
-## Cài đặt và chạy local
+## 🚀 Cài đặt và Khởi động
 
 ### Yêu cầu
 - Node.js 18+
-- Docker + Docker Compose (khuyến nghị)
+- Docker & Docker Compose (cho PostgreSQL)
 
-### Chạy nhanh
+### Thiết lập Local
 
-```bash
-npm install
-docker-compose up -d
-npm run prisma:generate
-npm run prisma:migrate
-npm run prisma:seed
-npm run dev
-```
+1. **Khởi chạy Cơ sở dữ liệu (PostgreSQL)**
+   ```bash
+   docker-compose up -d
+   ```
 
-Service chạy tại: `http://localhost:4000`
+2. **Cài đặt thư viện**
+   ```bash
+   npm install
+   ```
 
-## Cấu hình môi trường
+3. **Database Migration**
+   Chạy lệnh sau để đồng bộ Prisma Schema xuống PostgreSQL:
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev
+   ```
 
-Copy `.env.example` thành `.env` rồi cập nhật giá trị phù hợp.
+4. **Khởi chạy Server đồ án**
+   ```bash
+   npm run start:dev
+   ```
 
-Các biến quan trọng:
-- `DATABASE_URL`
-- `JWT_SECRET`
-- `JWT_REFRESH_SECRET`
-- `JWT_ACCESS_EXPIRE` (default: `15m`)
-- `JWT_REFRESH_EXPIRE` (default: `7d`)
-- `CORS_ORIGIN`
-- `COOKIE_SECURE`, `COOKIE_SAMESITE`
+Server sẽ khởi chạy tại cổng **`3000`** (hoặc `PORT` cấu hình trong `.env`).
+Tài liệu **Swagger UI** (OpenAPI) có thể được truy cập trực tiếp tại:  
+👉 **`http://localhost:3000/api/docs`**
 
-## Database
+## 🔐 Authentication & Authorization
 
-```bash
-npm run prisma:generate
-npm run prisma:migrate
-npm run prisma:seed
-```
-
-## Scripts
-
-```bash
-npm run dev
-npm run build
-npm start
-npm run test
-npm run prisma:studio
-```
-
-## Testing
-
-```bash
-npm run test
-```
-
-Một số test auth nằm tại `tests/auth-*.test.ts`.
-
-## Ghi chú tích hợp frontend
-
-Frontend (`OnlineHealthConsultation-Web`) gọi API qua `/api/...` và dùng cơ chế refresh token qua cookie.
+- Hệ thống hỗ trợ **4 Roles** định trước: `GUEST`, `PATIENT`, `DOCTOR`, `ADMIN`.
+- Truyền tải Token qua dạng `Authorization: Bearer <AccessToken>`.
+- Các APIs đều được gắn Header Auth mô phỏng trực tiếp từ Swagger UI.
+- Thao tác đăng ký tài khoản (Register) sẽ tự động tạo `Profile` rỗng tương ứng với dạng tài khoản đó sử dụng **Prisma Transaction**. Mọi khoá chính (ID) đều được ứng dụng tạo bằng chuẩn **UUIDv7**.

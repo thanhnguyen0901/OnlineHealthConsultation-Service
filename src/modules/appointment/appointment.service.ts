@@ -4,7 +4,12 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AppointmentStatus, NotificationStatus, NotificationType, Prisma } from '@prisma/client';
+import {
+  AppointmentStatus,
+  NotificationStatus,
+  NotificationType,
+  Prisma,
+} from '@prisma/client';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '../../prisma/prisma.service';
@@ -314,6 +319,66 @@ export class AppointmentService {
           },
         },
       },
+    });
+  }
+
+  async adminUpdateAppointmentStatus(
+    adminUserId: string,
+    appointmentId: string,
+    status: AppointmentStatus,
+  ) {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: true,
+        doctor: true,
+      },
+    });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.appointment.update({
+        where: { id: appointmentId },
+        data: { status },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          id: uuidv7(),
+          actorUserId: adminUserId,
+          action: 'APPOINTMENT_STATUS_UPDATED_BY_ADMIN',
+          resource: 'APPOINTMENT',
+          resourceId: appointmentId,
+          metadata: {
+            previousStatus: appointment.status,
+            nextStatus: status,
+          },
+        },
+      });
+
+      await tx.notificationLog.createMany({
+        data: [
+          {
+            id: uuidv7(),
+            userId: appointment.patient.userId,
+            type: NotificationType.EMAIL,
+            content: `Appointment status changed to ${status}.`,
+            status: NotificationStatus.SENT,
+            provider: 'IN_APP',
+          },
+          {
+            id: uuidv7(),
+            userId: appointment.doctor.userId,
+            type: NotificationType.EMAIL,
+            content: `Appointment status changed to ${status}.`,
+            status: NotificationStatus.SENT,
+            provider: 'IN_APP',
+          },
+        ],
+      });
+      return updated;
     });
   }
 }

@@ -63,7 +63,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [ ] FR-09 Consultation outcome and prescription (`IN_PROGRESS`)
 - [ ] FR-10 Rating and feedback (`IN_PROGRESS`)
 - [ ] FR-11 Notifications (`IN_PROGRESS`)
-- [ ] FR-12 Administration (`NOT_STARTED`)
+- [x] FR-12 Administration (`DONE`)
 - [ ] FR-13 Reporting and statistics (`IN_PROGRESS`)
 
 ## 4.3 NFR Completion
@@ -161,3 +161,5 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Started Phase 5 implementation: added notification APIs (`/notifications/mine`, `/admin/notifications/logs`) and wired Notification module.
   - Added notification log creation in booking/appointment confirmation/question answered flows to provide user-visible notification history.
   - Added reporting APIs (`/reports/dashboard`, `/reports/consultations/trend`) for admin KPI and consultation trend use-cases.
+  - Implemented admin user management APIs (`GET /admin/users`, `PATCH /admin/users/:userId/status`) with pagination/filtering, account activation/deactivation, session revoke on deactivation, and audit logging.
+  - Implemented admin appointment management update API (`PATCH /admin/appointments/:id/status`) with audit and notification logs.

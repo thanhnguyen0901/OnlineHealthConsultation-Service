@@ -69,6 +69,7 @@ Base URL: `/api/v1`
   - `PATCH /appointments/:id/complete`
 - Admin:
   - `GET /admin/appointments`
+  - `PATCH /admin/appointments/:id/status`
 
 ## 8. Consultation APIs
 
@@ -103,4 +104,4 @@ Base URL: `/api/v1`
 - `Profiles/Specialties`: DONE
 - `Questions/Appointments`: DONE
 - `Consultation/Prescription/Rating`: IN_PROGRESS
-- `Admin/Reporting`: IN_PROGRESS
+- `Admin/Reporting`: IN_PROGRESS (Admin management APIs added)

@@ -4,6 +4,8 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcryptjs';
 import { uuidv7 } from 'uuidv7';
 import { Role } from '@prisma/client';
+import { ListUsersQueryDto } from './dto/list-users-query.dto';
+import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
 @Injectable()
 export class UsersService {
@@ -102,5 +104,99 @@ export class UsersService {
 
     const { passwordHash, ...safeUser } = updated;
     return safeUser;
+  }
+
+  async listUsers(query: ListUsersQueryDto) {
+    const page = query.page ?? 1;
+    const limit = Math.min(query.limit ?? 20, 100);
+    const skip = (page - 1) * limit;
+
+    const where = {
+      ...(query.role ? { role: query.role } : {}),
+      ...(query.isActive !== undefined ? { isActive: query.isActive } : {}),
+    };
+
+    const [items, total] = await Promise.all([
+      this.prisma.user.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          isActive: true,
+          deletedAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      this.prisma.user.count({ where }),
+    ]);
+
+    return {
+      data: items,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(Math.ceil(total / limit), 1),
+      },
+    };
+  }
+
+  async updateUserStatus(adminUserId: string, targetUserId: string, dto: UpdateUserStatusDto) {
+    if (adminUserId === targetUserId && dto.isActive === false) {
+      throw new BadRequestException('Admin cannot deactivate their own account');
+    }
+
+    const existing = await this.prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!existing) {
+      throw new BadRequestException('User not found');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: {
+        isActive: dto.isActive,
+        deletedAt: dto.isActive ? null : new Date(),
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!dto.isActive) {
+      await this.prisma.userSession.updateMany({
+        where: { userId: targetUserId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+    }
+
+    await this.prisma.auditLog.create({
+      data: {
+        id: uuidv7(),
+        actorUserId: adminUserId,
+        action: dto.isActive ? 'USER_ACTIVATED' : 'USER_DEACTIVATED',
+        resource: 'USER',
+        resourceId: targetUserId,
+        metadata: {
+          reason: dto.reason ?? null,
+        },
+      },
+    });
+
+    return updated;
   }
 }

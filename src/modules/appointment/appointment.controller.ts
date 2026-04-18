@@ -8,6 +8,7 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { AdminUpdateAppointmentStatusDto } from './dto/admin-update-appointment-status.dto';
 
 @ApiTags('Appointments')
 @ApiBearerAuth()
@@ -71,5 +72,15 @@ export class AdminAppointmentController {
   @ApiOperation({ summary: 'Admin lists all appointments' })
   listAllAppointments() {
     return this.appointmentService.listAllAppointments();
+  }
+
+  @Patch(':id/status')
+  @ApiOperation({ summary: 'Admin updates appointment status' })
+  updateAppointmentStatus(
+    @CurrentUser() user: { sub: string },
+    @Param('id') appointmentId: string,
+    @Body() dto: AdminUpdateAppointmentStatusDto,
+  ) {
+    return this.appointmentService.adminUpdateAppointmentStatus(user.sub, appointmentId, dto.status);
   }
 }

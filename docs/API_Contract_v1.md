@@ -27,6 +27,12 @@ Base URL: `/api/v1`
 - `POST /auth/forgot-password`
 - `POST /auth/reset-password`
 - `GET /auth/me`
+- `POST /admin/users`
+- `GET /admin/users`
+- `GET /admin/users/:userId`
+- `PATCH /admin/users/:userId`
+- `PATCH /admin/users/:userId/status`
+- `DELETE /admin/users/:userId`
 
 ## 4. Profile APIs
 

@@ -4,6 +4,8 @@ import { RegisterDto } from './dto/register.dto';
 import * as bcrypt from 'bcryptjs';
 import { uuidv7 } from 'uuidv7';
 import { Role } from '@prisma/client';
+import { AdminCreateUserDto } from './dto/admin-create-user.dto';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { ListUsersQueryDto } from './dto/list-users-query.dto';
 import { UpdateUserStatusDto } from './dto/update-user-status.dto';
 
@@ -12,13 +14,40 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async createUser(dto: RegisterDto) {
+    return this.createUserCore(dto, { allowAdminRole: false });
+  }
+
+  async createUserByAdmin(adminUserId: string, dto: AdminCreateUserDto) {
+    if (dto.role !== Role.PATIENT && dto.role !== Role.DOCTOR) {
+      throw new BadRequestException('Admin can only create PATIENT or DOCTOR accounts');
+    }
+    const created = await this.createUserCore(dto, { allowAdminRole: false });
+    await this.prisma.auditLog.create({
+      data: {
+        id: uuidv7(),
+        actorUserId: adminUserId,
+        action: 'USER_CREATED_BY_ADMIN',
+        resource: 'USER',
+        resourceId: created.id,
+        metadata: {
+          role: created.role,
+        },
+      },
+    });
+    return created;
+  }
+
+  private async createUserCore(
+    dto: Pick<RegisterDto, 'email' | 'password' | 'firstName' | 'lastName' | 'role' | 'specialtyId'>,
+    options: { allowAdminRole: boolean },
+  ) {
     const existing = await this.prisma.user.findUnique({ where: { email: dto.email } });
     if (existing) {
       throw new ConflictException('Email already exists');
     }
 
-    if (dto.role === Role.ADMIN) {
-      throw new BadRequestException('Cannot register admin via this endpoint');
+    if (!options.allowAdminRole && dto.role === Role.ADMIN) {
+      throw new BadRequestException('Cannot create admin user via this endpoint');
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -74,6 +103,30 @@ export class UsersService {
 
   async findById(id: string) {
     return this.prisma.user.findUnique({ where: { id } });
+  }
+
+  async getUserDetailForAdmin(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        patientProfile: true,
+        doctorProfile: {
+          include: {
+            specialties: {
+              include: {
+                specialty: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const { passwordHash, ...safeUser } = user;
+    return safeUser;
   }
 
   async deactivateUser(adminUserId: string, targetUserId: string, reason?: string) {
@@ -195,6 +248,120 @@ export class UsersService {
           reason: dto.reason ?? null,
         },
       },
+    });
+
+    return updated;
+  }
+
+  async updateUserByAdmin(adminUserId: string, targetUserId: string, dto: AdminUpdateUserDto) {
+    if (adminUserId === targetUserId && dto.isActive === false) {
+      throw new BadRequestException('Admin cannot deactivate their own account');
+    }
+
+    const existing = await this.prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!existing) {
+      throw new BadRequestException('User not found');
+    }
+
+    if (dto.email && dto.email !== existing.email) {
+      const duplicate = await this.prisma.user.findUnique({ where: { email: dto.email } });
+      if (duplicate) {
+        throw new ConflictException('Email already exists');
+      }
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: {
+        ...(dto.email !== undefined ? { email: dto.email } : {}),
+        ...(dto.firstName !== undefined ? { firstName: dto.firstName } : {}),
+        ...(dto.lastName !== undefined ? { lastName: dto.lastName } : {}),
+        ...(dto.isActive !== undefined
+          ? { isActive: dto.isActive, deletedAt: dto.isActive ? null : new Date() }
+          : {}),
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        deletedAt: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (dto.isActive === false) {
+      await this.prisma.userSession.updateMany({
+        where: { userId: targetUserId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+    }
+
+    await this.prisma.auditLog.create({
+      data: {
+        id: uuidv7(),
+        actorUserId: adminUserId,
+        action: 'USER_UPDATED_BY_ADMIN',
+        resource: 'USER',
+        resourceId: targetUserId,
+        metadata: {
+          changedFields: Object.keys(dto),
+        },
+      },
+    });
+
+    return updated;
+  }
+
+  async deleteUserByAdmin(adminUserId: string, targetUserId: string) {
+    if (adminUserId === targetUserId) {
+      throw new BadRequestException('Admin cannot delete their own account');
+    }
+
+    const existing = await this.prisma.user.findUnique({ where: { id: targetUserId } });
+    if (!existing) {
+      throw new BadRequestException('User not found');
+    }
+
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const user = await tx.user.update({
+        where: { id: targetUserId },
+        data: {
+          isActive: false,
+          deletedAt: new Date(),
+        },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          isActive: true,
+          deletedAt: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
+      await tx.userSession.updateMany({
+        where: { userId: targetUserId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          id: uuidv7(),
+          actorUserId: adminUserId,
+          action: 'USER_DELETED_BY_ADMIN',
+          resource: 'USER',
+          resourceId: targetUserId,
+        },
+      });
+
+      return user;
     });
 
     return updated;

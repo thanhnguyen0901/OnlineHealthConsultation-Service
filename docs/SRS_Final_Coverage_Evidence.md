@@ -5,7 +5,7 @@ Source SRS: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 
 ## 1. Verification Summary
 
-- Code implementation has broad FR coverage, but re-review found reopened compliance gaps for FR-03 and FR-12.
+- Code implementation has broad FR coverage, but re-review found reopened compliance gaps for FR-12.
 - Build gates executed and passed:
   - `npm run type-check`
   - `npm run build`
@@ -51,7 +51,7 @@ Source SRS: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 ## 5. Reopened SRS Gaps (2026-04-18 Re-Review)
 
 - FR-03/FR-12:
-  - Admin user lifecycle chưa đầy đủ theo yêu cầu quản trị tài khoản (thiếu create/update/detail/delete admin endpoints chuẩn hóa).
+  - FR-03 lifecycle gap closed on 2026-04-18: added admin create/detail/update/delete user endpoints with audit and revoke-session behavior.
 - FR-08:
   - Closed on 2026-04-18: added realtime chat gateway + persisted consultation messages + time-window validation for start/join.
 - FR-11:

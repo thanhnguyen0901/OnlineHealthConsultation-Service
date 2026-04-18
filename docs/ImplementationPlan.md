@@ -115,7 +115,7 @@ Dependencies: Phase 4.
 Goal: đóng toàn bộ gap còn lại để xác nhận full compliance với SRS.
 
 Tasks:
-- [ ] FR-03/FR-12: bổ sung admin user lifecycle đầy đủ (create/update/detail/delete theo policy).
+- [x] FR-03/FR-12: bổ sung admin user lifecycle đầy đủ (create/update/detail/delete theo policy).
 - [x] FR-08: triển khai chat realtime baseline (WebSocket/Gateway + message persistence tối thiểu) cho consultation session.
 - [x] FR-08: thêm time-window validation khi start/join consultation theo lịch hẹn và grace window cấu hình.
 - [x] FR-11: chuẩn hóa notification pipeline để tránh duplicate (single source of truth qua outbox hoặc direct dispatch có idempotency key).

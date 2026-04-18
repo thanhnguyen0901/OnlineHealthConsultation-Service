@@ -54,7 +54,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 - [x] FR-01 Public access (`DONE`)
 - [x] FR-02 Authentication and authorization (`DONE`)
-- [ ] FR-03 Profile management (`IN_PROGRESS`)
+- [x] FR-03 Profile management (`DONE`)
 - [x] FR-04 Specialty management (`DONE`)
 - [x] FR-05 Doctor discovery (`DONE`)
 - [x] FR-06 Health Q&A (`DONE`)
@@ -111,7 +111,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 ## Phase 6 - Gap Closure (Post Re-Review)
 
-- [ ] Close FR-03 admin user lifecycle gaps (`NOT_STARTED`)
+- [x] Close FR-03 admin user lifecycle gaps (`DONE`)
 - [x] Close FR-08 consultation real-time/time-window gaps (`DONE`)
 - [x] Close FR-11 outbox retry/scheduling/idempotency gaps (`DONE`)
 - [ ] Close FR-12 moderation/audit coverage gaps (`NOT_STARTED`)
@@ -196,3 +196,6 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
     - Added outbox retry processing for `FAILED` events with `nextRetryAt` gating.
     - Added cron-based scheduler for automatic outbox processing and appointment reminder dispatch.
     - Removed direct notification writes from appointment/question core flows where outbox already exists.
+  - Implemented admin user lifecycle APIs for FR-03/FR-12:
+    - Added admin create/detail/update/delete user endpoints with role policy.
+    - Added audit logs and session revoke on deactivation/delete paths.

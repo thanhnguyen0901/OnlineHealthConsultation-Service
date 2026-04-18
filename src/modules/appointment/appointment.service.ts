@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { AppointmentStatus, Prisma } from '@prisma/client';
+import { AppointmentStatus, NotificationStatus, NotificationType, Prisma } from '@prisma/client';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '../../prisma/prisma.service';
@@ -109,6 +109,27 @@ export class AppointmentService {
         },
       });
 
+      await tx.notificationLog.createMany({
+        data: [
+          {
+            id: uuidv7(),
+            userId: patient.userId,
+            type: NotificationType.EMAIL,
+            content: `Appointment booked successfully for ${start.toISOString()}.`,
+            status: NotificationStatus.SENT,
+            provider: 'IN_APP',
+          },
+          {
+            id: uuidv7(),
+            userId: doctor.userId,
+            type: NotificationType.EMAIL,
+            content: `New appointment request at ${start.toISOString()}.`,
+            status: NotificationStatus.SENT,
+            provider: 'IN_APP',
+          },
+        ],
+      });
+
       return appointment;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
@@ -144,7 +165,12 @@ export class AppointmentService {
       throw new NotFoundException('Patient profile not found');
     }
 
-    const appointment = await this.prisma.appointment.findUnique({ where: { id: appointmentId } });
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: true,
+      },
+    });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
@@ -197,7 +223,12 @@ export class AppointmentService {
       throw new NotFoundException('Doctor profile not found');
     }
 
-    const appointment = await this.prisma.appointment.findUnique({ where: { id: appointmentId } });
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: true,
+      },
+    });
     if (!appointment) {
       throw new NotFoundException('Appointment not found');
     }
@@ -210,9 +241,24 @@ export class AppointmentService {
       throw new BadRequestException('Appointment is not in pending confirmation status');
     }
 
-    return this.prisma.appointment.update({
-      where: { id: appointmentId },
-      data: { status: AppointmentStatus.CONFIRMED },
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.appointment.update({
+        where: { id: appointmentId },
+        data: { status: AppointmentStatus.CONFIRMED },
+      });
+
+      await tx.notificationLog.create({
+        data: {
+          id: uuidv7(),
+          userId: appointment.patient.userId,
+          type: NotificationType.EMAIL,
+          content: `Your appointment on ${appointment.scheduledAt.toISOString()} has been confirmed.`,
+          status: NotificationStatus.SENT,
+          provider: 'IN_APP',
+        },
+      });
+
+      return updated;
     });
   }
 

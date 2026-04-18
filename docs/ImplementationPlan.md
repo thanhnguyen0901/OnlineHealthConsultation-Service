@@ -98,7 +98,7 @@ Goal: hoàn thiện quản trị, báo cáo, và vận hành production-baseline
 
 Tasks:
 - [ ] Admin management endpoints.
-- [ ] KPI/report APIs.
+- [x] KPI/report APIs.
 - [ ] Observability: healthcheck, metrics hooks, audit coverage.
 - [ ] Deployment docs + rollback + backup.
 

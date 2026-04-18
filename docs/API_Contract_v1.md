@@ -103,4 +103,4 @@ Base URL: `/api/v1`
 - `Profiles/Specialties`: DONE
 - `Questions/Appointments`: DONE
 - `Consultation/Prescription/Rating`: IN_PROGRESS
-- `Admin/Reporting`: NOT_STARTED
+- `Admin/Reporting`: IN_PROGRESS

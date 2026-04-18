@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { QuestionStatus } from '@prisma/client';
+import { NotificationStatus, NotificationType, QuestionStatus } from '@prisma/client';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '../../prisma/prisma.service';
@@ -133,6 +133,24 @@ export class QuestionService {
           },
         },
       });
+
+      const patient = await tx.patientProfile.findUnique({
+        where: { id: question.patientId },
+        select: { userId: true },
+      });
+
+      if (patient) {
+        await tx.notificationLog.create({
+          data: {
+            id: uuidv7(),
+            userId: patient.userId,
+            type: NotificationType.EMAIL,
+            content: `Your question "${question.title}" has been answered.`,
+            status: NotificationStatus.SENT,
+            provider: 'IN_APP',
+          },
+        });
+      }
 
       return tx.question.findUnique({
         where: { id: question.id },

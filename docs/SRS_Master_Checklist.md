@@ -62,9 +62,9 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [ ] FR-08 Consultation session (`IN_PROGRESS`)
 - [ ] FR-09 Consultation outcome and prescription (`IN_PROGRESS`)
 - [ ] FR-10 Rating and feedback (`IN_PROGRESS`)
-- [ ] FR-11 Notifications (`NOT_STARTED`)
+- [ ] FR-11 Notifications (`IN_PROGRESS`)
 - [ ] FR-12 Administration (`NOT_STARTED`)
-- [ ] FR-13 Reporting and statistics (`NOT_STARTED`)
+- [ ] FR-13 Reporting and statistics (`IN_PROGRESS`)
 
 ## 4.3 NFR Completion
 
@@ -106,8 +106,8 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 ## Phase 5 - Admin/Reporting/Ops
 
-- [ ] Complete all phase-5 tasks
-- [ ] Final SRS coverage evidence collected
+- [ ] Complete all phase-5 tasks (`IN_PROGRESS`)
+- [ ] Final SRS coverage evidence collected (`IN_PROGRESS`)
 
 ## 6. Immediate Next Actions
 
@@ -120,6 +120,8 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [x] Start implementation Phase 3 (Q&A/Appointment) (`DONE`)
 - [x] Start implementation Phase 4 (Consultation/Prescription/Rating) (`DONE`)
 - [ ] Continue implementation Phase 4 verification + closure (`IN_PROGRESS`)
+- [x] Start implementation Phase 5 (Admin/Reporting/Ops) (`DONE`)
+- [ ] Continue implementation Phase 5 modules and closure (`IN_PROGRESS`)
 
 ## 7. Progress Log
 
@@ -156,3 +158,6 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Added channel selection with VIDEO->CHAT fallback behavior at consultation start when video provider is unavailable.
   - Added duplicate-rating guard (one rating per appointment) and re-verified `npm run type-check` + `npm run build`.
   - Updated FR/Phase statuses for consultation, prescription, and rating to `IN_PROGRESS` while verification and closure evidence are being completed.
+  - Started Phase 5 implementation: added notification APIs (`/notifications/mine`, `/admin/notifications/logs`) and wired Notification module.
+  - Added notification log creation in booking/appointment confirmation/question answered flows to provide user-visible notification history.
+  - Added reporting APIs (`/reports/dashboard`, `/reports/consultations/trend`) for admin KPI and consultation trend use-cases.

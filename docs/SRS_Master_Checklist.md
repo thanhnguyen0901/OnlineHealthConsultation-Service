@@ -69,7 +69,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 ## 4.3 NFR Completion
 
 - [x] NFR-01 Security (`DONE`)
-- [ ] NFR-02 Privacy (`IN_PROGRESS`)
+- [x] NFR-02 Privacy (`DONE`)
 - [ ] NFR-03 Performance (`NOT_STARTED`)
 - [ ] NFR-04 Scalability (`NOT_STARTED`)
 - [ ] NFR-05 Reliability (`NOT_STARTED`)
@@ -207,3 +207,5 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
     - Reduced sensitive exposure surface: removed `devResetToken` response, removed email from JWT context payload, minimized exception details in production/server errors.
     - Request logging now uses sanitized route path (`req.path`) to avoid leaking query data.
     - Re-verified `npm run type-check` and `npm run build` after privacy refactor.
+  - Published `docs/Privacy_and_Data_Handling.md` with data visibility, retention baseline, and operational privacy checklist.
+  - Marked NFR-02 as `DONE` with implemented masking/minimization controls and documentation evidence.

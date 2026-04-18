@@ -19,6 +19,13 @@ Updated: 2026-04-18
 - `JWT_REFRESH_EXPIRE`
 - `CORS_ORIGIN`
 - `BCRYPT_ROUNDS`
+- `CONSULTATION_EARLY_JOIN_MINUTES`
+- `CONSULTATION_LATE_JOIN_MINUTES`
+- `VIDEO_PROVIDER_ENABLED`
+- `NOTIFICATION_OUTBOX_CRON`
+- `NOTIFICATION_REMINDER_CRON`
+- `NOTIFICATION_OUTBOX_BATCH_LIMIT`
+- `NOTIFICATION_REMINDER_WINDOW_MINUTES`
 
 ## 3. Deployment Baseline
 
@@ -38,6 +45,9 @@ Updated: 2026-04-18
 - Structured logs (JSON preferred in production).
 - Error alerts for 5xx spikes.
 - DB connection and latency monitoring.
+- Privacy baseline:
+  - avoid query-string logging for request traces,
+  - sanitize sensitive audit metadata before persistence.
 
 ## 6. Backup and Recovery
 

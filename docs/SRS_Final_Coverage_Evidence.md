@@ -35,6 +35,10 @@ Source SRS: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 - Security:
   - JWT auth + role guard + ownership checks on protected resources.
   - Audit logs for sensitive admin/moderation/auth actions.
+- Privacy:
+  - Centralized masking/redaction for sensitive audit metadata and IP.
+  - Request/error output minimization to reduce accidental PII exposure.
+  - Privacy policy baseline documented in `docs/Privacy_and_Data_Handling.md`.
 - Reliability:
   - Transactional flows for registration, booking conflict checks, question-answer side-effects, consultation completion/prescription.
   - Outbox persistence + retry metadata for notification processing.

@@ -11,6 +11,7 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { ReportingModule } from './modules/reporting/reporting.module';
 import { SpecialtyModule } from './modules/specialty/specialty.module';
 import { DiscoveryModule } from './modules/discovery/discovery.module';
+import { OperationsModule } from './modules/operations/operations.module';
 
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -28,6 +29,7 @@ import { PrismaModule } from './prisma/prisma.module';
     ReportingModule,
     SpecialtyModule,
     DiscoveryModule,
+    OperationsModule,
   ],
   controllers: [],
   providers: [],

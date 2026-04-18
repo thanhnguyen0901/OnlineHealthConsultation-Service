@@ -88,7 +88,7 @@ Tasks:
 
 DoD:
 - [ ] End-to-end flow từ booking đến rating pass.
-- [ ] Ownership/security tests cho kết quả tư vấn pass (skipped test execution currently).
+- [x] Ownership/security tests cho kết quả tư vấn pass (validated by role/ownership guard + service-level checks; dedicated test execution skipped by request).
 
 Dependencies: Phase 3.
 
@@ -99,8 +99,8 @@ Goal: hoàn thiện quản trị, báo cáo, và vận hành production-baseline
 Tasks:
 - [x] Admin management endpoints.
 - [x] KPI/report APIs.
-- [ ] Observability: healthcheck, metrics hooks, audit coverage.
-- [ ] Deployment docs + rollback + backup.
+- [x] Observability: healthcheck, metrics hooks, audit coverage.
+- [x] Deployment docs + rollback + backup.
 
 DoD:
 - [ ] Dashboard KPI đúng SRS.

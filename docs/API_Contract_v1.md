@@ -99,11 +99,16 @@ Base URL: `/api/v1`
 - `GET /reports/dashboard?from=&to=`
 - `GET /reports/consultations/trend?from=&to=&groupBy=`
 
-## 12. Endpoint Status Board
+## 12. Operations APIs
+
+- `GET /health`
+- `GET /admin/ops/metrics`
+
+## 13. Endpoint Status Board
 
 - `Identity`: IN_PROGRESS
 - `Public/Discovery`: DONE
 - `Profiles/Specialties`: DONE
 - `Questions/Appointments`: DONE
-- `Consultation/Prescription/Rating`: IN_PROGRESS
-- `Admin/Reporting`: IN_PROGRESS (Admin management APIs added)
+- `Consultation/Prescription/Rating`: DONE
+- `Admin/Reporting`: DONE

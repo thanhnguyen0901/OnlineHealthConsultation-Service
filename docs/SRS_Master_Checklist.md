@@ -59,9 +59,9 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [x] FR-05 Doctor discovery (`DONE`)
 - [x] FR-06 Health Q&A (`DONE`)
 - [x] FR-07 Appointment management (`DONE`)
-- [ ] FR-08 Consultation session (`NOT_STARTED`)
-- [ ] FR-09 Consultation outcome and prescription (`NOT_STARTED`)
-- [ ] FR-10 Rating and feedback (`NOT_STARTED`)
+- [ ] FR-08 Consultation session (`IN_PROGRESS`)
+- [ ] FR-09 Consultation outcome and prescription (`IN_PROGRESS`)
+- [ ] FR-10 Rating and feedback (`IN_PROGRESS`)
 - [ ] FR-11 Notifications (`NOT_STARTED`)
 - [ ] FR-12 Administration (`NOT_STARTED`)
 - [ ] FR-13 Reporting and statistics (`NOT_STARTED`)
@@ -101,8 +101,8 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 ## Phase 4 - Consultation/Prescription/Rating
 
-- [ ] Complete all phase-4 tasks
-- [ ] End-to-end consultation flow evidence collected
+- [ ] Complete all phase-4 tasks (`IN_PROGRESS`)
+- [ ] End-to-end consultation flow evidence collected (`IN_PROGRESS`)
 
 ## Phase 5 - Admin/Reporting/Ops
 
@@ -116,7 +116,10 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [x] Draft API contract for phase 0-2 modules (`DONE`)
 - [x] Start implementation Phase 0 (`DONE`)
 - [x] Start implementation Phase 1 (Identity Hardening) (`DONE`)
-- [ ] Start implementation Phase 2 (Profile/Specialty/Discovery) (`IN_PROGRESS`)
+- [x] Start implementation Phase 2 (Profile/Specialty/Discovery) (`DONE`)
+- [x] Start implementation Phase 3 (Q&A/Appointment) (`DONE`)
+- [x] Start implementation Phase 4 (Consultation/Prescription/Rating) (`DONE`)
+- [ ] Continue implementation Phase 4 verification + closure (`IN_PROGRESS`)
 
 ## 7. Progress Log
 
@@ -147,3 +150,9 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Verified `npm run type-check`, `npm run build`, and `npm run test` after Phase 3 integration.
   - Started Phase 1 identity hardening: added auth endpoints for refresh/logout/forgot-password/reset-password and implemented session/token rotation flow.
   - Added role decorator/guard scaffolding and re-verified `type-check`, `build`, and `test`.
+  - Started Phase 4 implementation: added consultation/rating services and new DTOs for session lifecycle, summary, prescription, and moderation.
+  - Added phase-4 controllers/routes: consultation start/join/end/summary/prescription, patient rating create/list, and admin rating moderation.
+  - Extended phase-4 scope with consultation history APIs (`/consultations/mine`, `/consultations/doctor/me`) for ownership-scoped result access.
+  - Added channel selection with VIDEO->CHAT fallback behavior at consultation start when video provider is unavailable.
+  - Added duplicate-rating guard (one rating per appointment) and re-verified `npm run type-check` + `npm run build`.
+  - Updated FR/Phase statuses for consultation, prescription, and rating to `IN_PROGRESS` while verification and closure evidence are being completed.

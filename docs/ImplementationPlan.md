@@ -81,14 +81,14 @@ Dependencies: Phase 2.
 Goal: hoàn thành tư vấn, kê đơn và đánh giá.
 
 Tasks:
-- [ ] Consultation session lifecycle.
-- [ ] Chat baseline + video fallback.
-- [ ] Summary + prescription.
-- [ ] Rating after completed appointment.
+- [x] Consultation session lifecycle.
+- [x] Chat baseline + video fallback.
+- [x] Summary + prescription.
+- [x] Rating after completed appointment.
 
 DoD:
 - [ ] End-to-end flow từ booking đến rating pass.
-- [ ] Ownership/security tests cho kết quả tư vấn pass.
+- [ ] Ownership/security tests cho kết quả tư vấn pass (skipped test execution currently).
 
 Dependencies: Phase 3.
 

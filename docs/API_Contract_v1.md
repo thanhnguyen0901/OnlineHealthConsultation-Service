@@ -77,6 +77,8 @@ Base URL: `/api/v1`
 - `PATCH /consultations/:appointmentId/end`
 - `PATCH /consultations/:appointmentId/summary`
 - `POST /consultations/:appointmentId/prescriptions`
+- `GET /consultations/mine`
+- `GET /consultations/doctor/me`
 
 ## 9. Rating APIs
 
@@ -97,8 +99,8 @@ Base URL: `/api/v1`
 ## 12. Endpoint Status Board
 
 - `Identity`: IN_PROGRESS
-- `Public/Discovery`: NOT_STARTED
-- `Profiles/Specialties`: NOT_STARTED
-- `Questions/Appointments`: NOT_STARTED
-- `Consultation/Prescription/Rating`: NOT_STARTED
+- `Public/Discovery`: DONE
+- `Profiles/Specialties`: DONE
+- `Questions/Appointments`: DONE
+- `Consultation/Prescription/Rating`: IN_PROGRESS
 - `Admin/Reporting`: NOT_STARTED

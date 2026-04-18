@@ -107,7 +107,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 ## Phase 5 - Admin/Reporting/Ops
 
 - [x] Complete all phase-5 tasks (`DONE`)
-- [ ] Final SRS coverage evidence collected (`IN_PROGRESS`)
+- [x] Final SRS coverage evidence collected (`DONE`)
 
 ## 6. Immediate Next Actions
 
@@ -123,6 +123,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [x] Start implementation Phase 5 (Admin/Reporting/Ops) (`DONE`)
 - [x] Continue implementation Phase 5 modules and closure (`DONE`)
 - [x] Close implementation Phase 5 modules (`DONE`)
+- [x] Publish final SRS coverage evidence (`DONE`)
 
 ## 7. Progress Log
 
@@ -168,3 +169,4 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Completed FR-11 and FR-13 implementation scope with build/type-check validation.
   - Added operations module with `/health` and `/admin/ops/metrics` for observability baseline.
   - Marked FR-01 and FR-08..FR-13 as `DONE` based on implemented APIs and service-level business rules.
+  - Added `docs/SRS_Final_Coverage_Evidence.md` to close end-to-end traceability and final verification summary.

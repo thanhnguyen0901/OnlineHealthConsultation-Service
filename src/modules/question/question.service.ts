@@ -121,6 +121,19 @@ export class QuestionService {
         },
       });
 
+      await tx.auditLog.create({
+        data: {
+          id: uuidv7(),
+          actorUserId: userId,
+          action: 'QUESTION_ANSWERED_BY_DOCTOR',
+          resource: 'QUESTION',
+          resourceId: question.id,
+          metadata: {
+            doctorId: doctorProfile.id,
+          },
+        },
+      });
+
       await tx.outboxEvent.create({
         data: {
           id: uuidv7(),

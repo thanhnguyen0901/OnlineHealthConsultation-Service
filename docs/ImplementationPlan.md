@@ -120,14 +120,14 @@ Tasks:
 - [x] FR-08: thêm time-window validation khi start/join consultation theo lịch hẹn và grace window cấu hình.
 - [x] FR-11: chuẩn hóa notification pipeline để tránh duplicate (single source of truth qua outbox hoặc direct dispatch có idempotency key).
 - [x] FR-11: hoàn thiện retry policy (consume `FAILED` theo `nextRetryAt`) + scheduler/worker tự động.
-- [ ] NFR-01: bổ sung audit log cho doctor answer và các appointment status updates còn thiếu.
-- [ ] Cập nhật lại `SRS_Final_Coverage_Evidence.md` và checklist sau khi đóng gap.
+- [x] NFR-01: bổ sung audit log cho doctor answer và các appointment status updates còn thiếu.
+- [x] Cập nhật lại `SRS_Final_Coverage_Evidence.md` và checklist sau khi đóng gap.
 
 DoD:
-- [ ] FR-03, FR-08, FR-11, FR-12 chuyển `DONE` với evidence rõ.
-- [ ] Không còn duplicate notification trong các flow chính.
-- [ ] Có evidence retry tự động cho outbox failover path.
-- [ ] Gate C được xác nhận lại với trạng thái `DONE`.
+- [x] FR-03, FR-08, FR-11, FR-12 chuyển `DONE` với evidence rõ.
+- [x] Không còn duplicate notification trong các flow chính.
+- [x] Có evidence retry tự động cho outbox failover path.
+- [x] Gate C được xác nhận lại với trạng thái `DONE`.
 
 Dependencies: Phase 5.
 

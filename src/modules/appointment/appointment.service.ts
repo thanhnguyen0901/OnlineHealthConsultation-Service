@@ -114,6 +114,21 @@ export class AppointmentService {
         },
       });
 
+      await tx.auditLog.create({
+        data: {
+          id: uuidv7(),
+          actorUserId: userId,
+          action: 'APPOINTMENT_CREATED',
+          resource: 'APPOINTMENT',
+          resourceId: appointment.id,
+          metadata: {
+            doctorId: doctor.id,
+            patientId: patient.id,
+            scheduledAt: start.toISOString(),
+          },
+        },
+      });
+
       return appointment;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
@@ -170,9 +185,23 @@ export class AppointmentService {
       throw new BadRequestException('Appointment cannot be cancelled in current status');
     }
 
-    return this.prisma.appointment.update({
-      where: { id: appointmentId },
-      data: { status: AppointmentStatus.CANCELLED },
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.appointment.update({
+        where: { id: appointmentId },
+        data: { status: AppointmentStatus.CANCELLED },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          id: uuidv7(),
+          actorUserId: userId,
+          action: 'APPOINTMENT_CANCELLED_BY_PATIENT',
+          resource: 'APPOINTMENT',
+          resourceId: appointmentId,
+        },
+      });
+
+      return updated;
     });
   }
 
@@ -246,6 +275,16 @@ export class AppointmentService {
         },
       });
 
+      await tx.auditLog.create({
+        data: {
+          id: uuidv7(),
+          actorUserId: userId,
+          action: 'APPOINTMENT_CONFIRMED_BY_DOCTOR',
+          resource: 'APPOINTMENT',
+          resourceId: appointmentId,
+        },
+      });
+
       return updated;
     });
   }
@@ -269,9 +308,23 @@ export class AppointmentService {
       throw new BadRequestException('Appointment is not in confirmed status');
     }
 
-    return this.prisma.appointment.update({
-      where: { id: appointmentId },
-      data: { status: AppointmentStatus.COMPLETED },
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.appointment.update({
+        where: { id: appointmentId },
+        data: { status: AppointmentStatus.COMPLETED },
+      });
+
+      await tx.auditLog.create({
+        data: {
+          id: uuidv7(),
+          actorUserId: userId,
+          action: 'APPOINTMENT_COMPLETED_BY_DOCTOR',
+          resource: 'APPOINTMENT',
+          resourceId: appointmentId,
+        },
+      });
+
+      return updated;
     });
   }
 

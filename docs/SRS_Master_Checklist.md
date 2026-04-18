@@ -59,16 +59,16 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [x] FR-05 Doctor discovery (`DONE`)
 - [x] FR-06 Health Q&A (`DONE`)
 - [x] FR-07 Appointment management (`DONE`)
-- [ ] FR-08 Consultation session (`IN_PROGRESS`)
+- [x] FR-08 Consultation session (`DONE`)
 - [x] FR-09 Consultation outcome and prescription (`DONE`)
 - [x] FR-10 Rating and feedback (`DONE`)
 - [x] FR-11 Notifications (`DONE`)
-- [ ] FR-12 Administration (`IN_PROGRESS`)
+- [x] FR-12 Administration (`DONE`)
 - [x] FR-13 Reporting and statistics (`DONE`)
 
 ## 4.3 NFR Completion
 
-- [ ] NFR-01 Security (`IN_PROGRESS`)
+- [x] NFR-01 Security (`DONE`)
 - [ ] NFR-02 Privacy (`NOT_STARTED`)
 - [ ] NFR-03 Performance (`NOT_STARTED`)
 - [ ] NFR-04 Scalability (`NOT_STARTED`)
@@ -107,15 +107,15 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 ## Phase 5 - Admin/Reporting/Ops
 
 - [x] Complete all phase-5 tasks (`DONE`)
-- [ ] Final SRS coverage evidence collected (`IN_PROGRESS`)
+- [x] Final SRS coverage evidence collected (`DONE`)
 
 ## Phase 6 - Gap Closure (Post Re-Review)
 
 - [x] Close FR-03 admin user lifecycle gaps (`DONE`)
 - [x] Close FR-08 consultation real-time/time-window gaps (`DONE`)
 - [x] Close FR-11 outbox retry/scheduling/idempotency gaps (`DONE`)
-- [ ] Close FR-12 moderation/audit coverage gaps (`NOT_STARTED`)
-- [ ] Re-validate SRS coverage evidence after fixes (`NOT_STARTED`)
+- [x] Close FR-12 moderation/audit coverage gaps (`DONE`)
+- [x] Re-validate SRS coverage evidence after fixes (`DONE`)
 
 ## 6. Immediate Next Actions
 
@@ -133,7 +133,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [x] Close implementation Phase 5 modules (`DONE`)
 - [x] Publish final SRS coverage evidence (`DONE`)
 - [x] Re-review full codebase against SRS and reopen unresolved items (`DONE`)
-- [ ] Start Phase 6 gap-closure implementation (`IN_PROGRESS`)
+- [x] Start Phase 6 gap-closure implementation (`DONE`)
 
 ## 7. Progress Log
 
@@ -199,3 +199,5 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Implemented admin user lifecycle APIs for FR-03/FR-12:
     - Added admin create/detail/update/delete user endpoints with role policy.
     - Added audit logs and session revoke on deactivation/delete paths.
+  - Added audit logging coverage for doctor answer and key appointment lifecycle transitions (create/cancel/confirm/complete).
+  - Closed Phase 6 gap-closure items and revalidated SRS coverage evidence status.

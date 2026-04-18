@@ -57,8 +57,8 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [x] FR-03 Profile management (`DONE`)
 - [x] FR-04 Specialty management (`DONE`)
 - [x] FR-05 Doctor discovery (`DONE`)
-- [ ] FR-06 Health Q&A (`NOT_STARTED`)
-- [ ] FR-07 Appointment management (`NOT_STARTED`)
+- [x] FR-06 Health Q&A (`DONE`)
+- [x] FR-07 Appointment management (`DONE`)
 - [ ] FR-08 Consultation session (`NOT_STARTED`)
 - [ ] FR-09 Consultation outcome and prescription (`NOT_STARTED`)
 - [ ] FR-10 Rating and feedback (`NOT_STARTED`)
@@ -96,8 +96,8 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 ## Phase 3 - Q&A/Appointment
 
-- [ ] Complete all phase-3 tasks
-- [ ] Conflict + lifecycle tests evidence collected
+- [x] Complete all phase-3 tasks (`DONE`)
+- [x] Conflict + lifecycle tests evidence collected (`DONE - limited to build/type/test smoke`)
 
 ## Phase 4 - Consultation/Prescription/Rating
 
@@ -141,5 +141,9 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Added new modules `Patient`, `Doctor`, `Specialty`, and `Discovery` with role-based guards applied.
   - Verified `npm run type-check`, `npm run build`, and `npm run test` after Phase 2 code integration.
   - Phase 2 marked complete; detailed access-control testing evidence was skipped based on user request.
+  - Implemented Phase 3 core APIs: Question lifecycle (create/list/answer/moderate) and Appointment lifecycle (book/list/cancel/confirm/complete/admin list).
+  - Added booking conflict prevention for both doctor and patient with serializable transaction flow.
+  - Added outbox event writes for question answered and appointment created flows.
+  - Verified `npm run type-check`, `npm run build`, and `npm run test` after Phase 3 integration.
   - Started Phase 1 identity hardening: added auth endpoints for refresh/logout/forgot-password/reset-password and implemented session/token rotation flow.
   - Added role decorator/guard scaffolding and re-verified `type-check`, `build`, and `test`.

@@ -1,120 +1,129 @@
-# Implementation Plan (Rebuild theo kiến trúc mới)
+# Implementation Plan (Backend Rebuild - SRS v1.0)
 
-Baseline: `docs/RequirementBaseline.md` + `docs/CurrentStateReview.md`.
-Mục tiêu: xây lại OnlineHealthConsultation-Service end-to-end đúng SRS v1.0.
+Updated: 2026-04-18
+Execution model: document-first -> contract-first -> implementation-first by phases.
 
-## 1) Nguyên tắc thực thi
+## 1. Plan Overview
 
-- Làm theo phase nhỏ, mỗi phase có deliverable chạy được.
-- Ưu tiên luồng cốt lõi trước tính năng mở rộng.
-- Mỗi phase phải có test và tiêu chí nghiệm thu rõ ràng.
+- Objective: hoàn thành backend service theo đúng SRS và kiến trúc mới.
+- Strategy: chia phase nhỏ, mỗi phase có deliverable chạy được và checklist nghiệm thu.
 
-## 2) Roadmap đề xuất
+## 2. Phase Breakdown
 
-### Phase 0: Foundation Reset (1-2 tuần)
+## Phase 0 - Foundation Reset
 
-- Chuẩn hóa stack runtime:
-  - Thống nhất PostgreSQL trên toàn bộ repo.
-  - Dọn artefact MySQL (`.env.example`, migration/init cũ, script sai lệch).
-- Chuẩn hóa project tooling:
-  - Sửa script `package.json` về các lệnh tồn tại thực tế.
-  - Bổ sung lint/test/build CI baseline.
-- Thiết lập cross-cutting:
-  - Config validation.
-  - Global exception filter.
-  - Structured logging + request id.
+Goal: làm sạch nền tảng để bắt đầu code đúng kiến trúc mới.
 
-Deliverable:
-- App khởi động ổn định.
-- Migration + seed chạy được 1 lệnh.
-- CI pipeline xanh ở mức cơ bản.
+Tasks:
+- [ ] Recreate `prisma/` mới theo `DatabaseDesign.md`.
+- [ ] Đồng bộ `package.json` scripts với trạng thái hiện tại.
+- [ ] Chuẩn hóa env template cho PostgreSQL.
+- [ ] Setup config validation + global exception filter.
+- [ ] Setup logging baseline + request id.
 
-### Phase 1: Identity & Access Hardening (1-2 tuần)
+DoD:
+- [ ] App boot được không lỗi cấu hình.
+- [ ] `prisma generate` + migration baseline + seed chạy thành công.
+- [ ] CI local tối thiểu chạy lint/type-check/build.
 
-- Hoàn thiện auth:
-  - Login/register chuẩn hóa.
-  - Logout + refresh token rotation + revoke session.
-  - Forgot/reset password.
-- Hoàn thiện authorization:
-  - RolesGuard + OwnershipGuard.
-  - Policy matrix theo actor.
-- Bổ sung audit log cho hành động nhạy cảm.
+Dependencies: không.
 
-Deliverable:
-- Bộ endpoint auth đầy đủ.
-- Test integration cho auth flows.
+## Phase 1 - Identity and Access Hardening
 
-### Phase 2: Profile/Catalog/Discovery (1-2 tuần)
+Goal: hoàn thiện nền tảng bảo mật và phân quyền.
 
-- User profile APIs cho patient/doctor.
-- Specialty management cho admin.
-- Discovery APIs public (guest/patient search doctor).
-- Approval/active visibility rule cho doctor profile.
+Tasks:
+- [ ] Register/login/logout/refresh đầy đủ.
+- [ ] Password reset flow.
+- [ ] Roles guard + ownership guard.
+- [ ] Audit log cho auth/admin actions.
 
-Deliverable:
-- Guest có thể browse/tìm bác sĩ.
-- Doctor/Patient cập nhật profile.
+DoD:
+- [ ] Auth integration tests pass.
+- [ ] Endpoint protected có role/policy check đầy đủ.
 
-### Phase 3: Q&A + Appointment Core (2-3 tuần)
+Dependencies: Phase 0.
 
-- Question lifecycle: create -> answer -> moderation.
-- Appointment lifecycle:
-  - booking, list, cancel, status transition.
-  - conflict detection doctor/patient.
-- Notification event cho create/answer/appointment.
+## Phase 2 - Profile, Specialty, Discovery
 
-Deliverable:
-- Luồng Patient gửi câu hỏi và đặt lịch hoàn chỉnh.
-- Test conflict booking + ownership.
+Goal: hoàn thành nền tảng người dùng và tra cứu bác sĩ.
 
-### Phase 4: Consultation + Prescription + Rating (2-3 tuần)
+Tasks:
+- [ ] Patient profile CRUD.
+- [ ] Doctor profile CRUD + approval visibility.
+- [ ] Specialty admin CRUD + doctor-specialty mapping.
+- [ ] Public discovery APIs.
 
-- Consultation session lifecycle.
-- Chat session cơ bản (MVP).
-- Video mock adapter + fallback sang chat.
-- Doctor summary + prescription.
-- Patient rating sau completion.
+DoD:
+- [ ] Guest và patient tìm/lọc doctor hoạt động đúng.
+- [ ] Ownership policies pass tests.
 
-Deliverable:
-- Luồng tư vấn end-to-end chạy được.
+Dependencies: Phase 1.
 
-### Phase 5: Admin, Reporting, Observability (1-2 tuần)
+## Phase 3 - Q&A and Appointment Core
 
-- Admin APIs: user moderation, content moderation, appointment oversight.
-- Reporting dashboard APIs (kpi cơ bản).
-- Hoàn thiện observability:
-  - audit coverage,
-  - health checks,
-  - metrics/log dashboard hooks.
+Goal: hoàn thành hai luồng cốt lõi hỏi đáp và đặt lịch.
 
-Deliverable:
-- MVP hoàn chỉnh theo SRS core scope.
+Tasks:
+- [ ] Question lifecycle + moderation.
+- [ ] Appointment booking/cancel/list/status transitions.
+- [ ] Conflict prevention doctor/patient.
+- [ ] Notification events for booking/Q&A.
 
-## 3) Backlog ưu tiên cao ngay sau review
+DoD:
+- [ ] Conflict tests pass.
+- [ ] End-to-end flow: patient hỏi đáp và đặt lịch thành công.
 
-- P0-01: Chốt quyết định DB duy nhất (PostgreSQL).
-- P0-02: Refactor schema enum lệch SRS (`GUEST`, `PENDING_CONFIRMATION`, `CLOSED`, ...).
-- P0-03: Tạo role/policy guards dùng chung.
-- P0-04: Dựng bộ contract API v1 + error model thống nhất.
-- P0-05: Tạo test harness integration với test DB.
+Dependencies: Phase 2.
 
-## 4) Risk register
+## Phase 4 - Consultation, Prescription, Rating
 
-- R1: DB inconsistency làm sai migration chain.
-  - Mitigation: reset baseline migration ngay Phase 0.
+Goal: hoàn thành tư vấn, kê đơn và đánh giá.
 
-- R2: Scope creep do thêm feature optional quá sớm.
-  - Mitigation: khóa scope theo Requirement Baseline.
+Tasks:
+- [ ] Consultation session lifecycle.
+- [ ] Chat baseline + video fallback.
+- [ ] Summary + prescription.
+- [ ] Rating after completed appointment.
 
-- R3: Thiếu coverage test ở luồng bảo mật và booking conflict.
-  - Mitigation: bắt buộc integration test cho auth + appointment trước phase tiếp theo.
+DoD:
+- [ ] End-to-end flow từ booking đến rating pass.
+- [ ] Ownership/security tests cho kết quả tư vấn pass.
 
-- R4: Realtime consultation complexity.
-  - Mitigation: MVP dùng chat trước, video adapter mock ở mức cơ bản.
+Dependencies: Phase 3.
 
-## 5) Tiêu chí hoàn thành MVP
+## Phase 5 - Admin, Reporting, Operations Hardening
 
-- Hoàn thành FR-01..FR-13 mức “Implemented”.
-- NFR bảo mật và quyền truy cập đạt mức production baseline.
-- End-to-end demo được 4 luồng chính trong SRS.
-- Có tài liệu vận hành: env, migration, seed, rollback, release checklist.
+Goal: hoàn thiện quản trị, báo cáo, và vận hành production-baseline.
+
+Tasks:
+- [ ] Admin management endpoints.
+- [ ] KPI/report APIs.
+- [ ] Observability: healthcheck, metrics hooks, audit coverage.
+- [ ] Deployment docs + rollback + backup.
+
+DoD:
+- [ ] Dashboard KPI đúng SRS.
+- [ ] Runbook vận hành đầy đủ.
+
+Dependencies: Phase 4.
+
+## 3. Cross-phase Required Deliverables
+
+- [ ] `API_Contract_v1.md`
+- [ ] `Auth_Authorization_Matrix.md`
+- [ ] `Test_Strategy_and_Traceability.md`
+- [ ] `Deployment_and_Operations.md`
+- [ ] ADRs (DB decision, module boundary, auth policy, outbox decision)
+
+## 4. Acceptance Gates
+
+- Gate A (after Phase 1): Security baseline ready.
+- Gate B (after Phase 3): Core business flows ready.
+- Gate C (after Phase 5): Full SRS backend coverage ready.
+
+## 5. Risks and Mitigation
+
+- DB redesign delay -> lock schema early via ADR + review.
+- Scope creep -> chỉ build theo FR-01..FR-13 trước.
+- Test debt -> bắt buộc test case bám traceability matrix mỗi phase.

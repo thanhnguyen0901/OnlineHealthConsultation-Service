@@ -1,110 +1,189 @@
-# Requirement Baseline (Chuẩn hóa từ SRS v1.0)
+# Requirement Baseline (SRS v1.0)
 
-Nguồn chuẩn: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`.
-Mục tiêu tài liệu này là chuẩn hóa yêu cầu để làm baseline triển khai cho kiến trúc mới.
+Updated: 2026-04-18
+Source of truth: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 
-## 1) Scope chuẩn MVP
+## 1. Scope Baseline
 
-- In-scope:
-  - Public discovery cho Guest User (trang chủ, chuyên khoa, tra cứu bác sĩ).
-  - Identity & Access: đăng ký/đăng nhập/đăng xuất, RBAC cho Guest/Patient/Doctor/Admin.
-  - Quản lý hồ sơ Patient và Doctor.
-  - Quản lý chuyên khoa.
-  - Gửi/đáp câu hỏi sức khỏe.
-  - Đặt lịch, quản lý lịch hẹn, chống trùng lịch.
-  - Phiên tư vấn online (chat bắt buộc, video ở mức mô phỏng/tích hợp cơ bản).
-  - Kết luận tư vấn, đơn thuốc điện tử cơ bản.
-  - Lịch sử tư vấn, đánh giá sau tư vấn.
-  - Notification (email bắt buộc, SMS tùy chọn).
-  - Dashboard và báo cáo cơ bản cho Admin.
+## 1.1 In-scope MVP
 
-- Out-of-scope MVP:
-  - AI diagnosis production, EHR/hospital integration, IoT/wearable.
-  - Bảo hiểm, logistics giao thuốc.
-  - Video enterprise (ghi hình/lưu trữ/phát lại).
-  - Native mobile app.
+- Public access cho Guest: homepage, specialty list, doctor discovery.
+- Identity: register, login, logout, role-based access control.
+- Profile: patient profile, doctor profile.
+- Specialty management.
+- Health Q&A.
+- Appointment booking and management.
+- Consultation session (chat required, video basic/mock optional).
+- Consultation outcome and basic e-prescription.
+- Rating and feedback after completed consultation.
+- Notification (email required, SMS optional).
+- Admin management + reporting dashboard.
 
-## 2) Actors & quyền nghiệp vụ
+## 1.2 Out-of-scope MVP
 
-- Guest User: chỉ truy cập dữ liệu public, không thao tác protected.
-- Patient: quản lý hồ sơ, hỏi đáp, đặt lịch, tham gia tư vấn, xem kết quả/đơn thuốc, đánh giá.
-- Doctor: quản lý hồ sơ chuyên môn, xử lý câu hỏi, lịch hẹn, phiên tư vấn, kết luận/đơn thuốc.
-- Admin: quản trị user/chuyên khoa/lịch hẹn, kiểm duyệt nội dung, xem báo cáo.
+- AI diagnosis production.
+- Hospital/EHR integration.
+- IoT/wearable integration.
+- Insurance and medicine delivery.
+- Enterprise-grade video recording/playback.
 
-## 3) Functional Requirement chuẩn hóa (FR)
+## 2. Role Baseline
 
-- FR-01 Public Access
-  - Hệ thống cho phép Guest xem nội dung public, tìm bác sĩ theo chuyên khoa/từ khóa.
-  - Chỉ hiển thị bác sĩ active + approved ở public area.
-  - Các action protected phải redirect sang đăng nhập/đăng ký.
+- Guest User: chỉ đọc dữ liệu public, không thao tác protected.
+- Patient: tạo/sửa profile, hỏi đáp, đặt lịch, tham gia tư vấn, xem kết quả, đánh giá.
+- Doctor: quản lý profile chuyên môn, trả lời câu hỏi, quản lý lịch, thực hiện tư vấn, kê đơn cơ bản.
+- Administrator: quản lý người dùng, chuyên khoa, lịch hẹn, kiểm duyệt nội dung, xem báo cáo.
 
-- FR-02 Authentication & Authorization
-  - Đăng ký, đăng nhập, đăng xuất.
-  - RBAC theo vai trò Guest/Patient/Doctor/Admin.
-  - Chỉ truy cập dữ liệu/chức năng hợp vai trò.
-  - Có quy trình quên mật khẩu/reset mật khẩu.
+## 3. UC -> FR Traceability
 
-- FR-03 User Profile Management
-  - Patient profile: thông tin cá nhân + sức khỏe cơ bản.
-  - Doctor profile: chuyên khoa, bằng cấp, kinh nghiệm, mô tả, lịch làm việc.
-  - Admin có thể tạo/cập nhật/kích hoạt/vô hiệu hóa user.
+| Use-case group | Use-cases | Linked FR |
+|---|---|---|
+| Guest | UC-G-01..UC-G-06 | FR-01, FR-05 |
+| Patient | UC-P-01..UC-P-15 | FR-02..FR-11 |
+| Doctor | UC-D-01..UC-D-11 | FR-02..FR-11 |
+| Admin | UC-A-01..UC-A-08 | FR-02, FR-04, FR-06, FR-07, FR-10, FR-12, FR-13 |
+| External | UC-E-01..UC-E-04 | FR-08, FR-11 |
 
-- FR-04 Specialty Management
-  - Admin CRUD chuyên khoa và vô hiệu hóa chuyên khoa.
-  - Doctor có thể gắn nhiều chuyên khoa (N-N).
+## 4. FR Baseline with Testable Acceptance
 
-- FR-05 Doctor Discovery
-  - Guest/Patient có thể tìm/lọc bác sĩ.
-  - Hiển thị thông tin chuyên môn + lịch khả dụng.
+## 4.1 FR-01 Public Access
 
-- FR-06 Health Q&A
-  - Patient gửi câu hỏi.
-  - Trạng thái tối thiểu: `PENDING`, `ANSWERED`, `CLOSED`.
-  - Doctor xử lý và trả lời; Admin có thể kiểm duyệt.
+- Requirement:
+  - Guest truy cập trang public không cần auth.
+  - Chỉ doctor active + approved được hiển thị public.
+  - Action protected phải chuyển sang auth flow.
+- Acceptance:
+  - `GET /public/home`, `GET /public/specialties`, `GET /public/doctors` trả về `200` không cần token.
+  - Doctor `inactive/unapproved` không xuất hiện trong response public.
+  - Gọi endpoint protected không token trả `401/403` đúng chuẩn.
 
-- FR-07 Appointment Management
-  - Patient đặt lịch với slot còn trống.
+## 4.2 FR-02 Authentication & Authorization
+
+- Requirement:
+  - Register, login, logout.
+  - RBAC cho Guest/Patient/Doctor/Admin.
+  - Có reset password flow.
+- Acceptance:
+  - Register/login thành công trả token/session hợp lệ.
+  - Logout revoke session/token theo policy.
+  - Endpoint role-restricted trả `403` khi role không phù hợp.
+  - Reset password flow có token xác thực và invalidate token sau khi dùng.
+
+## 4.3 FR-03 User Profiles
+
+- Requirement:
+  - CRUD profile cho patient và doctor.
+  - Admin có thể activate/deactivate user.
+- Acceptance:
+  - Patient chỉ sửa profile của chính mình.
+  - Doctor chỉ sửa profile chuyên môn của chính mình.
+  - Admin đổi trạng thái user có audit log.
+
+## 4.4 FR-04 Specialty Management
+
+- Requirement:
+  - Admin CRUD specialty.
+  - Doctor có thể gắn nhiều specialty.
+- Acceptance:
+  - Tạo/sửa/vô hiệu hóa specialty hoạt động đúng role.
+  - N-N doctor-specialty lưu đúng và truy vấn được từ discovery.
+
+## 4.5 FR-05 Doctor Discovery
+
+- Requirement:
+  - Guest/Patient tìm kiếm doctor theo keyword/specialty.
+- Acceptance:
+  - Filter theo specialty hoạt động đúng.
+  - Response có summary profile + availability.
+
+## 4.6 FR-06 Health Q&A
+
+- Requirement:
+  - Patient tạo câu hỏi.
+  - Doctor trả lời.
+  - Admin có thể kiểm duyệt.
+- Acceptance:
+  - State transition hợp lệ: `PENDING -> ANSWERED -> CLOSED`.
+  - Patient chỉ xem câu hỏi của chính mình.
+
+## 4.7 FR-07 Appointment Management
+
+- Requirement:
+  - Booking theo slot trống.
   - Chống trùng lịch doctor và patient.
-  - Trạng thái tối thiểu: `PENDING_CONFIRMATION`, `CONFIRMED`, `COMPLETED`, `CANCELLED`.
+  - Hỗ trợ trạng thái lịch hẹn chuẩn SRS.
+- Acceptance:
+  - Booking trùng trả lỗi conflict.
+  - Chỉ transition trạng thái hợp lệ.
+  - Doctor/patient/admin chỉ xem được phạm vi dữ liệu hợp role.
 
-- FR-08 Consultation Session
-  - Khởi tạo session cho appointment hợp lệ.
-  - Chat realtime bắt buộc; video có thể tích hợp cơ bản.
-  - Fallback video -> chat khi lỗi.
+## 4.8 FR-08 Consultation Session
 
-- FR-09 Consultation Outcome & Prescription
-  - Doctor ghi nhận kết luận.
-  - Doctor tạo đơn thuốc cơ bản theo session.
-  - Patient chỉ xem dữ liệu thuộc phiên của chính mình.
+- Requirement:
+  - Session gắn appointment hợp lệ.
+  - Chat realtime.
+  - Video fallback sang chat khi lỗi.
+- Acceptance:
+  - Không tạo/join session cho appointment không hợp lệ.
+  - Fallback path ghi log và người dùng vẫn tư vấn được.
 
-- FR-10 Ratings & Feedback
-  - Chỉ đánh giá khi appointment đã hoàn tất.
-  - Có điểm + nhận xét text.
+## 4.9 FR-09 Outcome & Prescription
 
-- FR-11 Notifications
-  - Gửi xác nhận tạo lịch/xác nhận lịch.
-  - Nhắc lịch trước giờ hẹn.
-  - Thông báo khi câu hỏi được trả lời.
+- Requirement:
+  - Doctor ghi summary và kê đơn cơ bản.
+  - Patient chỉ xem kết quả của chính mình.
+- Acceptance:
+  - Prescription bắt buộc các trường thuốc/liều/tần suất/thời lượng.
+  - Ownership check chặn đọc chéo dữ liệu.
 
-- FR-12 Administration
-  - Quản lý user, chuyên khoa, lịch hẹn, nội dung kiểm duyệt.
+## 4.10 FR-10 Ratings & Feedback
 
-- FR-13 Reporting
-  - Dashboard tối thiểu: tổng lượt tư vấn, active user, xu hướng theo thời gian.
+- Requirement:
+  - Chỉ rating khi appointment completed.
+- Acceptance:
+  - Appointment chưa completed không thể rating.
+  - Mỗi appointment tối đa 1 rating.
 
-## 4) Non-functional baseline (NFR)
+## 4.11 FR-11 Notifications
 
-- NFR-01 Security: HTTPS, hash password mạnh (bcrypt/Argon2), validate input server-side, chống OWASP Top Risks, audit log hành động quan trọng.
-- NFR-02 Privacy: bảo vệ dữ liệu sức khỏe, hạn chế lộ dữ liệu trên UI/log.
-- NFR-03 Performance: mục tiêu P95 < 3s cho API thường (không tính realtime/media/upload).
-- NFR-04 Scalability: kiến trúc module hóa, service stateless, dễ thay provider ngoài.
-- NFR-05 Reliability: xử lý lỗi nhất quán, không mất nhất quán dữ liệu lịch hẹn.
-- NFR-06 Maintainability: code theo module/domain, tài liệu API nhất quán, cấu hình đa môi trường.
+- Requirement:
+  - Gửi xác nhận đặt lịch/nhắc lịch/thông báo có trả lời.
+- Acceptance:
+  - Notification log có trạng thái `PENDING/SENT/FAILED`.
+  - Retry policy chạy được cho message lỗi tạm thời.
 
-## 5) Acceptance baseline (Definition of Done cấp hệ thống)
+## 4.12 FR-12 Administration
 
-- Tất cả luồng UC chính (Guest discovery -> Patient booking -> Doctor consultation -> Outcome/Prescription -> Rating/Notification -> Admin reporting) chạy end-to-end.
-- 100% endpoint protected có auth + role check + ownership check.
-- Có migration + seed + rollback strategy nhất quán với 1 hệ CSDL duy nhất.
-- Có automated test tối thiểu cho luồng quan trọng (auth, booking conflict, ownership/security).
-- Có observability cơ bản: structured logs, error tracking hooks, audit trail cho thao tác nhạy cảm.
+- Requirement:
+  - Admin quản lý user, specialty, appointment, moderation.
+- Acceptance:
+  - Tất cả endpoint quản trị yêu cầu role admin.
+  - Hành động quản trị có audit trail.
+
+## 4.13 FR-13 Reporting
+
+- Requirement:
+  - Dashboard số lượt tư vấn, active user, xu hướng theo thời gian.
+- Acceptance:
+  - API reporting trả đủ KPI tối thiểu.
+  - Có filter theo khoảng thời gian.
+
+## 5. NFR Baseline with Acceptance
+
+| NFR | Baseline acceptance criteria |
+|---|---|
+| Security | 100% protected endpoint có auth + RBAC + ownership; password hash; audit log hành động nhạy cảm |
+| Privacy | Mask PII trong log; dữ liệu y tế chỉ truy cập đúng quyền |
+| Performance | P95 API thường < 3s ở môi trường MVP load profile |
+| Scalability | Module boundary rõ ràng; service stateless-ready |
+| Reliability | Flow booking không gây inconsistency; lỗi trả về format nhất quán |
+| Usability | API error message rõ; contract ổn định |
+| Maintainability | Code module hóa; API docs cập nhật; config đa môi trường |
+| Compatibility | API client web hiện đại hoạt động ổn định |
+
+## 6. Release Gate (DoD cấp hệ thống)
+
+- FR-01..FR-13 đều có trạng thái `DONE` trong checklist + evidence test.
+- NFR critical (`Security`, `Reliability`, `Maintainability`) đạt gate.
+- End-to-end chạy đủ 4 luồng chính trong SRS mục 4.
+- Tài liệu kiến trúc, DB, API contract, test traceability, vận hành đều hoàn chỉnh.

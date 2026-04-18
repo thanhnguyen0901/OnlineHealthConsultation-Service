@@ -16,6 +16,10 @@ const envSchema = z.object({
     .union([z.literal('true'), z.literal('false')])
     .default('false')
     .transform((v) => v === 'true'),
+  NOTIFICATION_OUTBOX_CRON: z.string().optional(),
+  NOTIFICATION_REMINDER_CRON: z.string().optional(),
+  NOTIFICATION_OUTBOX_BATCH_LIMIT: z.coerce.number().int().min(1).max(500).default(100),
+  NOTIFICATION_REMINDER_WINDOW_MINUTES: z.coerce.number().int().min(1).max(1440).default(60),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

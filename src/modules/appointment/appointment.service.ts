@@ -114,27 +114,6 @@ export class AppointmentService {
         },
       });
 
-      await tx.notificationLog.createMany({
-        data: [
-          {
-            id: uuidv7(),
-            userId: patient.userId,
-            type: NotificationType.EMAIL,
-            content: `Appointment booked successfully for ${start.toISOString()}.`,
-            status: NotificationStatus.SENT,
-            provider: 'IN_APP',
-          },
-          {
-            id: uuidv7(),
-            userId: doctor.userId,
-            type: NotificationType.EMAIL,
-            content: `New appointment request at ${start.toISOString()}.`,
-            status: NotificationStatus.SENT,
-            provider: 'IN_APP',
-          },
-        ],
-      });
-
       return appointment;
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
@@ -252,14 +231,18 @@ export class AppointmentService {
         data: { status: AppointmentStatus.CONFIRMED },
       });
 
-      await tx.notificationLog.create({
+      await tx.outboxEvent.create({
         data: {
           id: uuidv7(),
-          userId: appointment.patient.userId,
-          type: NotificationType.EMAIL,
-          content: `Your appointment on ${appointment.scheduledAt.toISOString()} has been confirmed.`,
-          status: NotificationStatus.SENT,
-          provider: 'IN_APP',
+          aggregateType: 'APPOINTMENT',
+          aggregateId: appointment.id,
+          eventType: 'APPOINTMENT_CONFIRMED',
+          payload: {
+            appointmentId: appointment.id,
+            patientId: appointment.patientId,
+            doctorId: appointment.doctorId,
+            scheduledAt: appointment.scheduledAt.toISOString(),
+          },
         },
       });
 

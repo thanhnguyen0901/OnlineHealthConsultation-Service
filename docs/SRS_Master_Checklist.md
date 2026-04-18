@@ -62,7 +62,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [ ] FR-08 Consultation session (`IN_PROGRESS`)
 - [x] FR-09 Consultation outcome and prescription (`DONE`)
 - [x] FR-10 Rating and feedback (`DONE`)
-- [ ] FR-11 Notifications (`IN_PROGRESS`)
+- [x] FR-11 Notifications (`DONE`)
 - [ ] FR-12 Administration (`IN_PROGRESS`)
 - [x] FR-13 Reporting and statistics (`DONE`)
 
@@ -113,7 +113,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 - [ ] Close FR-03 admin user lifecycle gaps (`NOT_STARTED`)
 - [x] Close FR-08 consultation real-time/time-window gaps (`DONE`)
-- [ ] Close FR-11 outbox retry/scheduling/idempotency gaps (`NOT_STARTED`)
+- [x] Close FR-11 outbox retry/scheduling/idempotency gaps (`DONE`)
 - [ ] Close FR-12 moderation/audit coverage gaps (`NOT_STARTED`)
 - [ ] Re-validate SRS coverage evidence after fixes (`NOT_STARTED`)
 
@@ -191,3 +191,8 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
     - Added persisted consultation messages (`consultation_messages`) and REST APIs to list/send messages.
     - Added consultation time-window validation for `start/join` using configurable early/late join windows.
     - Verified `npm run prisma:generate`, `npm run type-check`, and `npm run build`.
+  - Implemented FR-11 gap closure:
+    - Refactored notification flow to avoid duplicate sends by using outbox worker idempotent dispatch (`externalRef` unique key).
+    - Added outbox retry processing for `FAILED` events with `nextRetryAt` gating.
+    - Added cron-based scheduler for automatic outbox processing and appointment reminder dispatch.
+    - Removed direct notification writes from appointment/question core flows where outbox already exists.

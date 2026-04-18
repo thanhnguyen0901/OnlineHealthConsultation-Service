@@ -386,6 +386,7 @@ model NotificationLog {
   userId     String             @db.Uuid
   type       NotificationType
   content    String
+  externalRef String?           @unique
   status     NotificationStatus @default(PENDING)
   provider   String?
   errorCode  String?

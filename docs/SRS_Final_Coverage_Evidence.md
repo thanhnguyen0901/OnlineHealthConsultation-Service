@@ -5,7 +5,7 @@ Source SRS: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 
 ## 1. Verification Summary
 
-- Code implementation has broad FR coverage, but re-review found reopened compliance gaps for FR-03, FR-11, FR-12.
+- Code implementation has broad FR coverage, but re-review found reopened compliance gaps for FR-03 and FR-12.
 - Build gates executed and passed:
   - `npm run type-check`
   - `npm run build`
@@ -55,8 +55,6 @@ Source SRS: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 - FR-08:
   - Closed on 2026-04-18: added realtime chat gateway + persisted consultation messages + time-window validation for start/join.
 - FR-11:
-  - Retry policy outbox chưa hoàn chỉnh cho `FAILED` + `nextRetryAt`.
-  - Chưa có scheduler tự động xử lý outbox/reminder.
-  - Có nguy cơ duplicate notification do xử lý song song direct domain write và outbox consumption.
+  - Closed on 2026-04-18: added idempotent outbox dispatch (`externalRef`), retry from `FAILED` with `nextRetryAt`, and cron scheduler for outbox/reminder automation.
 - NFR-01 (audit coverage):
   - Chưa phủ audit đầy đủ cho doctor answer và toàn bộ appointment lifecycle updates quan trọng.

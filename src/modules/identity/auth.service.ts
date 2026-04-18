@@ -15,10 +15,10 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { maskIp, sanitizeAuditMetadata } from '../../common/privacy/privacy.util';
 
 type JwtPayload = {
   sub: string;
-  email?: string;
   role?: Role;
   sid?: string;
   type?: 'refresh';
@@ -141,7 +141,6 @@ export class AuthService {
 
     return {
       message: 'If the email exists, reset instructions have been generated',
-      devResetToken: process.env.NODE_ENV === 'production' ? undefined : plainToken,
     };
   }
 
@@ -190,7 +189,6 @@ export class AuthService {
 
     const accessPayload: JwtPayload = {
       sub: user.id,
-      email: user.email,
       role: user.role,
     };
 
@@ -253,7 +251,8 @@ export class AuthService {
         action,
         resource,
         resourceId,
-        metadata: metadata ?? undefined,
+        ipAddress: maskIp((metadata as any)?.ipAddress ?? null) ?? undefined,
+        metadata: sanitizeAuditMetadata(metadata),
       },
     });
   }

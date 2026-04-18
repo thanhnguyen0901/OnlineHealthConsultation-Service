@@ -36,7 +36,7 @@ async function bootstrap() {
 
     res.on('finish', () => {
       logger.log(
-        `[${requestId}] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${Date.now() - startedAt}ms)`,
+        `[${requestId}] ${req.method} ${req.path} -> ${res.statusCode} (${Date.now() - startedAt}ms)`,
       );
     });
 

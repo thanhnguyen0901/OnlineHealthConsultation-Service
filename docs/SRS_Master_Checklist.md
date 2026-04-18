@@ -69,7 +69,7 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 ## 4.3 NFR Completion
 
 - [x] NFR-01 Security (`DONE`)
-- [ ] NFR-02 Privacy (`NOT_STARTED`)
+- [ ] NFR-02 Privacy (`IN_PROGRESS`)
 - [ ] NFR-03 Performance (`NOT_STARTED`)
 - [ ] NFR-04 Scalability (`NOT_STARTED`)
 - [ ] NFR-05 Reliability (`NOT_STARTED`)
@@ -201,3 +201,9 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
     - Added audit logs and session revoke on deactivation/delete paths.
   - Added audit logging coverage for doctor answer and key appointment lifecycle transitions (create/cancel/confirm/complete).
   - Closed Phase 6 gap-closure items and revalidated SRS coverage evidence status.
+  - Started NFR-02 privacy hardening:
+    - Added shared privacy sanitizer utilities for masking email/phone/ip and redacting sensitive metadata keys.
+    - Added Prisma middleware to sanitize audit log metadata and IP automatically at persistence layer.
+    - Reduced sensitive exposure surface: removed `devResetToken` response, removed email from JWT context payload, minimized exception details in production/server errors.
+    - Request logging now uses sanitized route path (`req.path`) to avoid leaking query data.
+    - Re-verified `npm run type-check` and `npm run build` after privacy refactor.

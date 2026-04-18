@@ -47,6 +47,7 @@ Source SRS: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 - Add automated unit/integration/e2e suites per `docs/Test_Strategy_and_Traceability.md`.
 - Add scheduled background worker for outbox/reminder automation (currently admin-triggered API).
 - Add performance/load benchmark evidence for p95 targets.
+- Complete NFR-02 privacy hardening closure evidence (PII masking policy verification + retention/display policy notes).
 
 ## 5. Reopened SRS Gaps (2026-04-18 Re-Review)
 

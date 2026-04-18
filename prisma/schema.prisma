@@ -1,0 +1,418 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum QuestionStatus {
+  PENDING
+  ANSWERED
+  CLOSED
+  MODERATED
+}
+
+enum AppointmentStatus {
+  PENDING_CONFIRMATION
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ConsultationStatus {
+  SCHEDULED
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum NotificationType {
+  EMAIL
+  SMS
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum RatingStatus {
+  VISIBLE
+  HIDDEN
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+}
+
+model User {
+  id           String   @id @db.Uuid
+  email        String   @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         Role
+  isActive     Boolean  @default(true)
+  deletedAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  patientProfile      PatientProfile?
+  doctorProfile       DoctorProfile?
+  sessions            UserSession[]
+  resetTokens         PasswordResetToken[]
+  auditLogs           AuditLog[]
+  notifications       NotificationLog[]
+  questionModerations QuestionModeration[]
+  uploadedAttachments FileAttachment[] @relation("AttachmentUploadedBy")
+
+  @@index([role, isActive])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+model UserSession {
+  id               String    @id @db.Uuid
+  userId           String    @db.Uuid
+  refreshTokenHash String    @unique
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  rotatedAt        DateTime?
+  lastUsedAt       DateTime  @default(now())
+  createdAt        DateTime  @default(now())
+  userAgent        String?
+  ipAddress        String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, revokedAt, expiresAt])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+model PasswordResetToken {
+  id         String   @id @db.Uuid
+  userId     String   @db.Uuid
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model AuditLog {
+  id         String   @id @db.Uuid
+  actorUserId String? @db.Uuid
+  action     String
+  resource   String
+  resourceId String?
+  ipAddress  String?
+  userAgent  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([actorUserId, createdAt])
+  @@index([resource, resourceId])
+  @@map("audit_logs")
+}
+
+model PatientProfile {
+  id             String    @id @db.Uuid
+  userId         String    @unique @db.Uuid
+  dateOfBirth    DateTime?
+  gender         Gender?
+  phone          String?
+  address        String?
+  medicalHistory String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questions    Question[]
+  appointments Appointment[]
+  ratings      Rating[]
+
+  @@map("patient_profiles")
+}
+
+model DoctorProfile {
+  id                String         @id @db.Uuid
+  userId            String         @unique @db.Uuid
+  bio               String?
+  yearsOfExperience Int            @default(0)
+  approvalStatus    ApprovalStatus @default(PENDING)
+  isActive          Boolean        @default(false)
+  schedule          Json?
+  scheduleUpdatedAt DateTime?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  user          User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  specialties   DoctorSpecialty[]
+  questions     Question[]
+  answers       Answer[]
+  appointments  Appointment[]
+  ratings       Rating[]
+
+  @@index([approvalStatus, isActive])
+  @@map("doctor_profiles")
+}
+
+model Specialty {
+  id          String   @id @db.Uuid
+  nameEn      String   @unique
+  nameVi      String
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  doctorLinks DoctorSpecialty[]
+
+  @@index([isActive])
+  @@map("specialties")
+}
+
+model DoctorSpecialty {
+  id          String   @id @db.Uuid
+  doctorId    String   @db.Uuid
+  specialtyId String   @db.Uuid
+  createdAt   DateTime @default(now())
+
+  doctor    DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  specialty Specialty     @relation(fields: [specialtyId], references: [id], onDelete: Restrict)
+
+  @@unique([doctorId, specialtyId])
+  @@index([specialtyId])
+  @@map("doctor_specialties")
+}
+
+model Question {
+  id         String         @id @db.Uuid
+  patientId  String         @db.Uuid
+  doctorId   String?        @db.Uuid
+  title      String
+  content    String
+  status     QuestionStatus @default(PENDING)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  patient     PatientProfile       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor      DoctorProfile?       @relation(fields: [doctorId], references: [id], onDelete: SetNull)
+  answers     Answer[]
+  moderations QuestionModeration[]
+
+  @@index([patientId, createdAt])
+  @@index([doctorId, status, createdAt])
+  @@map("questions")
+}
+
+model Answer {
+  id         String   @id @db.Uuid
+  questionId String   @db.Uuid
+  doctorId   String   @db.Uuid
+  content    String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  question Question      @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  doctor   DoctorProfile @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+
+  @@index([questionId])
+  @@index([doctorId])
+  @@map("answers")
+}
+
+model QuestionModeration {
+  id          String   @id @db.Uuid
+  questionId  String   @db.Uuid
+  adminUserId String   @db.Uuid
+  action      String
+  reason      String?
+  createdAt   DateTime @default(now())
+
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  admin    User     @relation(fields: [adminUserId], references: [id], onDelete: Restrict)
+
+  @@index([questionId, createdAt])
+  @@map("question_moderations")
+}
+
+model Appointment {
+  id              String            @id @db.Uuid
+  patientId       String            @db.Uuid
+  doctorId        String            @db.Uuid
+  scheduledAt     DateTime
+  durationMinutes Int               @default(60)
+  status          AppointmentStatus @default(PENDING_CONFIRMATION)
+  reason          String
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  patient PatientProfile       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor  DoctorProfile        @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  session ConsultationSession?
+  rating  Rating?
+
+  @@index([doctorId, scheduledAt])
+  @@index([patientId, scheduledAt])
+  @@index([status, scheduledAt])
+  @@map("appointments")
+}
+
+model ConsultationSession {
+  id            String             @id @db.Uuid
+  appointmentId String             @unique @db.Uuid
+  status        ConsultationStatus @default(SCHEDULED)
+  startedAt     DateTime?
+  endedAt       DateTime?
+  summary       String?
+  channel       String?            // CHAT | VIDEO
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  appointment  Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  prescription Prescription?
+  attachments  FileAttachment[]
+
+  @@index([status])
+  @@map("consultation_sessions")
+}
+
+model Prescription {
+  id          String   @id @db.Uuid
+  sessionId   String   @unique @db.Uuid
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  session ConsultationSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  items   PrescriptionItem[]
+
+  @@map("prescriptions")
+}
+
+model PrescriptionItem {
+  id             String   @id @db.Uuid
+  prescriptionId String   @db.Uuid
+  medicationName String
+  dosage         String
+  frequency      String
+  duration       String
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  prescription Prescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+
+  @@index([prescriptionId])
+  @@map("prescription_items")
+}
+
+model Rating {
+  id            String       @id @db.Uuid
+  patientId     String       @db.Uuid
+  doctorId      String       @db.Uuid
+  appointmentId String       @unique @db.Uuid
+  score         Int
+  comment       String?
+  status        RatingStatus @default(VISIBLE)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  patient     PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctor      DoctorProfile  @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  appointment Appointment    @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  @@index([doctorId, createdAt])
+  @@index([status])
+  @@map("ratings")
+}
+
+model NotificationLog {
+  id         String             @id @db.Uuid
+  userId     String             @db.Uuid
+  type       NotificationType
+  content    String
+  status     NotificationStatus @default(PENDING)
+  provider   String?
+  errorCode  String?
+  errorMsg   String?
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@map("notification_logs")
+}
+
+model OutboxEvent {
+  id            String      @id @db.Uuid
+  aggregateType String
+  aggregateId   String
+  eventType     String
+  payload       Json
+  status        OutboxStatus @default(PENDING)
+  retryCount    Int          @default(0)
+  nextRetryAt   DateTime?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@index([status, nextRetryAt])
+  @@index([aggregateType, aggregateId])
+  @@map("outbox_events")
+}
+
+model FileAttachment {
+  id                    String   @id @db.Uuid
+  ownerType             String
+  ownerId               String
+  consultationSessionId String?  @db.Uuid
+  storageKey            String
+  mimeType              String
+  sizeBytes             Int
+  uploadedByUserId      String?  @db.Uuid
+  createdAt             DateTime @default(now())
+
+  uploadedBy         User?               @relation("AttachmentUploadedBy", fields: [uploadedByUserId], references: [id], onDelete: SetNull)
+  consultationSession ConsultationSession? @relation(fields: [consultationSessionId], references: [id], onDelete: Cascade)
+
+  @@index([ownerType, ownerId])
+  @@index([consultationSessionId])
+  @@map("file_attachments")
+}

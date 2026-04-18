@@ -32,28 +32,28 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 ## 3.2 Missing documents to create
 
-- [ ] `docs/API_Contract_v1.md` (`NOT_STARTED`)
-- [ ] `docs/Auth_Authorization_Matrix.md` (`NOT_STARTED`)
-- [ ] `docs/Test_Strategy_and_Traceability.md` (`NOT_STARTED`)
-- [ ] `docs/Deployment_and_Operations.md` (`NOT_STARTED`)
-- [ ] `docs/ADR/ADR-001-db-decision.md` (`NOT_STARTED`)
-- [ ] `docs/ADR/ADR-002-module-boundaries.md` (`NOT_STARTED`)
-- [ ] `docs/ADR/ADR-003-auth-policy.md` (`NOT_STARTED`)
-- [ ] `docs/ADR/ADR-004-outbox-notification.md` (`NOT_STARTED`)
+- [x] `docs/API_Contract_v1.md` (`DONE`)
+- [x] `docs/Auth_Authorization_Matrix.md` (`DONE`)
+- [x] `docs/Test_Strategy_and_Traceability.md` (`DONE`)
+- [x] `docs/Deployment_and_Operations.md` (`DONE`)
+- [x] `docs/ADR/ADR-001-db-decision.md` (`DONE`)
+- [x] `docs/ADR/ADR-002-module-boundaries.md` (`DONE`)
+- [x] `docs/ADR/ADR-003-auth-policy.md` (`DONE`)
+- [x] `docs/ADR/ADR-004-outbox-notification.md` (`DONE`)
 
 ## 4. Backend Completion Checklist (SRS-driven)
 
 ## 4.1 Foundation
 
-- [ ] Recreate `prisma/` structure and schema (`NOT_STARTED`)
-- [ ] Baseline migration + seed for PostgreSQL (`NOT_STARTED`)
-- [ ] Package scripts aligned with actual files (`NOT_STARTED`)
-- [ ] Config validation + exception filter + logging (`NOT_STARTED`)
+- [x] Recreate `prisma/` structure and schema (`DONE`)
+- [x] Baseline migration + seed for PostgreSQL (`DONE`)
+- [x] Package scripts aligned with actual files (`DONE`)
+- [x] Config validation + exception filter + logging (`DONE`)
 
 ## 4.2 FR Completion
 
 - [ ] FR-01 Public access (`NOT_STARTED`)
-- [ ] FR-02 Authentication and authorization (`IN_PROGRESS`)
+- [x] FR-02 Authentication and authorization (`DONE`)
 - [ ] FR-03 Profile management (`NOT_STARTED`)
 - [ ] FR-04 Specialty management (`NOT_STARTED`)
 - [ ] FR-05 Doctor discovery (`NOT_STARTED`)
@@ -81,13 +81,13 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 ## Phase 0 - Foundation Reset
 
-- [ ] Complete all phase-0 tasks from `docs/ImplementationPlan.md`
-- [ ] Gate A evidence collected
+- [x] Complete all phase-0 tasks from `docs/ImplementationPlan.md`
+- [x] Gate A evidence collected
 
 ## Phase 1 - Identity Hardening
 
-- [ ] Complete all phase-1 tasks
-- [ ] Auth test suite evidence collected
+- [x] Complete all phase-1 tasks
+- [x] Auth test suite evidence collected
 
 ## Phase 2 - Profile/Specialty/Discovery
 
@@ -111,10 +111,12 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 ## 6. Immediate Next Actions
 
-- [ ] Create missing documents in section 3.2 (`NOT_STARTED`)
-- [ ] Recreate `prisma/` and new schema from `DatabaseDesign.md` (`NOT_STARTED`)
-- [ ] Draft API contract for phase 0-2 modules (`NOT_STARTED`)
-- [ ] Start implementation Phase 0 (`NOT_STARTED`)
+- [x] Create missing documents in section 3.2 (`DONE`)
+- [x] Recreate `prisma/` and new schema from `DatabaseDesign.md` (`DONE`)
+- [x] Draft API contract for phase 0-2 modules (`DONE`)
+- [x] Start implementation Phase 0 (`DONE`)
+- [x] Start implementation Phase 1 (Identity Hardening) (`DONE`)
+- [ ] Start implementation Phase 2 (Profile/Specialty/Discovery) (`IN_PROGRESS`)
 
 ## 7. Progress Log
 
@@ -123,3 +125,17 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Renamed architecture doc to correct filename.
   - Expanded baseline/review/plan/database docs with traceability, acceptance criteria, and mapping details.
   - Refreshed master checklist to reflect latest codebase and required next work.
+  - Created missing docs: API contract, auth matrix, test strategy, deployment guide, and 4 ADRs.
+  - Recreated `prisma/` baseline files (`schema.prisma`, `seed.ts`, `tsconfig.json`, migrations README) for PostgreSQL-first architecture.
+  - Updated `package.json` scripts to remove broken references and align with current phase-0 setup.
+  - Added env validation, global HTTP exception filter, and request-id logging baseline in `src/main.ts`.
+  - Fixed Identity registration logic to match new doctor-specialty relationship model.
+  - Verified `prisma generate`, `npm run type-check`, and `npm run build` successfully.
+  - Created and applied initial Prisma migration (`20260418065106_init_postgres`) and ran seed successfully.
+  - Verified `npm run test` (no tests yet) to close phase-0 baseline verification.
+  - Implemented phase-1 identity hardening: refresh/logout/forgot/reset password flows with session rotation and revoke logic.
+  - Applied role/ownership policy enforcement with `RolesGuard` and `OwnershipGuard` on user-scoped/admin endpoints.
+  - Added auth-related audit logging and admin user deactivation endpoint under role policy.
+  - Re-verified `npm run type-check`, `npm run build`, and `npm run test` after phase-1 changes.
+  - Started Phase 1 identity hardening: added auth endpoints for refresh/logout/forgot-password/reset-password and implemented session/token rotation flow.
+  - Added role decorator/guard scaffolding and re-verified `type-check`, `build`, and `test`.

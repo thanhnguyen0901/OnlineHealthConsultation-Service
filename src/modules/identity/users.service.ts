@@ -46,10 +46,16 @@ export class UsersService {
         if (!dto.specialtyId) {
           throw new BadRequestException('Specialty is required for doctors');
         }
-        await tx.doctorProfile.create({
+        const doctorProfile = await tx.doctorProfile.create({
           data: {
             id: uuidv7(),
             userId: user.id,
+          },
+        });
+        await tx.doctorSpecialty.create({
+          data: {
+            id: uuidv7(),
+            doctorId: doctorProfile.id,
             specialtyId: dto.specialtyId,
           },
         });
@@ -66,5 +72,35 @@ export class UsersService {
 
   async findById(id: string) {
     return this.prisma.user.findUnique({ where: { id } });
+  }
+
+  async deactivateUser(adminUserId: string, targetUserId: string, reason?: string) {
+    if (adminUserId === targetUserId) {
+      throw new BadRequestException('Admin cannot deactivate their own account');
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: targetUserId },
+      data: {
+        isActive: false,
+        deletedAt: new Date(),
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        id: uuidv7(),
+        actorUserId: adminUserId,
+        action: 'USER_DEACTIVATED',
+        resource: 'USER',
+        resourceId: targetUserId,
+        metadata: {
+          reason: reason ?? null,
+        },
+      },
+    });
+
+    const { passwordHash, ...safeUser } = updated;
+    return safeUser;
   }
 }

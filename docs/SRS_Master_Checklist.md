@@ -54,9 +54,9 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 - [ ] FR-01 Public access (`NOT_STARTED`)
 - [x] FR-02 Authentication and authorization (`DONE`)
-- [ ] FR-03 Profile management (`NOT_STARTED`)
-- [ ] FR-04 Specialty management (`NOT_STARTED`)
-- [ ] FR-05 Doctor discovery (`NOT_STARTED`)
+- [x] FR-03 Profile management (`DONE`)
+- [x] FR-04 Specialty management (`DONE`)
+- [x] FR-05 Doctor discovery (`DONE`)
 - [ ] FR-06 Health Q&A (`NOT_STARTED`)
 - [ ] FR-07 Appointment management (`NOT_STARTED`)
 - [ ] FR-08 Consultation session (`NOT_STARTED`)
@@ -91,8 +91,8 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 ## Phase 2 - Profile/Specialty/Discovery
 
-- [ ] Complete all phase-2 tasks
-- [ ] Access control tests evidence collected
+- [x] Complete all phase-2 tasks (`DONE`)
+- [x] Access control tests evidence collected (`DONE - skipped by user request`)
 
 ## Phase 3 - Q&A/Appointment
 
@@ -137,5 +137,9 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Applied role/ownership policy enforcement with `RolesGuard` and `OwnershipGuard` on user-scoped/admin endpoints.
   - Added auth-related audit logging and admin user deactivation endpoint under role policy.
   - Re-verified `npm run type-check`, `npm run build`, and `npm run test` after phase-1 changes.
+  - Started Phase 2 implementation: added patient profile APIs, doctor profile/schedule/specialty APIs, admin doctor approval update, admin specialty CRUD, and public discovery APIs.
+  - Added new modules `Patient`, `Doctor`, `Specialty`, and `Discovery` with role-based guards applied.
+  - Verified `npm run type-check`, `npm run build`, and `npm run test` after Phase 2 code integration.
+  - Phase 2 marked complete; detailed access-control testing evidence was skipped based on user request.
   - Started Phase 1 identity hardening: added auth endpoints for refresh/logout/forgot-password/reset-password and implemented session/token rotation flow.
   - Added role decorator/guard scaffolding and re-verified `type-check`, `build`, and `test`.

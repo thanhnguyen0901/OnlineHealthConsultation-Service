@@ -9,6 +9,8 @@ import { QuestionModule } from './modules/question/question.module';
 import { ConsultationModule } from './modules/consultation/consultation.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { ReportingModule } from './modules/reporting/reporting.module';
+import { SpecialtyModule } from './modules/specialty/specialty.module';
+import { DiscoveryModule } from './modules/discovery/discovery.module';
 
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -23,7 +25,9 @@ import { PrismaModule } from './prisma/prisma.module';
     QuestionModule,
     ConsultationModule,
     NotificationModule,
-    ReportingModule
+    ReportingModule,
+    SpecialtyModule,
+    DiscoveryModule,
   ],
   controllers: [],
   providers: [],

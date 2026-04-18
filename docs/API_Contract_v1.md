@@ -91,6 +91,8 @@ Base URL: `/api/v1`
 
 - `GET /notifications/mine`
 - `GET /admin/notifications/logs`
+- `POST /admin/notifications/outbox/process?limit=`
+- `POST /admin/notifications/reminders/appointments?withinMinutes=`
 
 ## 11. Reporting APIs
 

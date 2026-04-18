@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { NotificationStatus, Role } from '@prisma/client';
 
@@ -35,5 +35,19 @@ export class AdminNotificationController {
   @ApiOperation({ summary: 'Admin lists notification logs' })
   listNotificationLogs(@Query('status') status?: NotificationStatus) {
     return this.notificationService.listAllNotificationLogs(status);
+  }
+
+  @Post('outbox/process')
+  @ApiOperation({ summary: 'Admin triggers outbox processing batch' })
+  processOutbox(@Query('limit') limit?: string) {
+    const parsedLimit = limit ? Number(limit) : undefined;
+    return this.notificationService.processOutboxBatch(parsedLimit);
+  }
+
+  @Post('reminders/appointments')
+  @ApiOperation({ summary: 'Admin triggers appointment reminder notifications' })
+  sendAppointmentReminders(@Query('withinMinutes') withinMinutes?: string) {
+    const parsedWithinMinutes = withinMinutes ? Number(withinMinutes) : undefined;
+    return this.notificationService.sendAppointmentReminders(parsedWithinMinutes);
   }
 }

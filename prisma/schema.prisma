@@ -90,6 +90,7 @@ model User {
   notifications       NotificationLog[]
   questionModerations QuestionModeration[]
   uploadedAttachments FileAttachment[] @relation("AttachmentUploadedBy")
+  consultationMessages ConsultationMessage[]
 
   @@index([role, isActive])
   @@index([deletedAt])
@@ -307,9 +308,27 @@ model ConsultationSession {
   appointment  Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
   prescription Prescription?
   attachments  FileAttachment[]
+  messages     ConsultationMessage[]
 
   @@index([status])
   @@map("consultation_sessions")
+}
+
+model ConsultationMessage {
+  id                  String   @id @db.Uuid
+  consultationSessionId String @db.Uuid
+  senderUserId        String   @db.Uuid
+  content             String
+  messageType         String   @default("TEXT")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  session ConsultationSession @relation(fields: [consultationSessionId], references: [id], onDelete: Cascade)
+  sender  User                @relation(fields: [senderUserId], references: [id], onDelete: Cascade)
+
+  @@index([consultationSessionId, createdAt])
+  @@index([senderUserId, createdAt])
+  @@map("consultation_messages")
 }
 
 model Prescription {

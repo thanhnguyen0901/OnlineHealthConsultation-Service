@@ -10,6 +10,12 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRE: z.string().min(2).default('7d'),
   CORS_ORIGIN: z.string().optional(),
   BCRYPT_ROUNDS: z.coerce.number().int().min(8).max(15).default(10),
+  CONSULTATION_EARLY_JOIN_MINUTES: z.coerce.number().int().min(0).max(120).default(15),
+  CONSULTATION_LATE_JOIN_MINUTES: z.coerce.number().int().min(0).max(240).default(30),
+  VIDEO_PROVIDER_ENABLED: z
+    .union([z.literal('true'), z.literal('false')])
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

@@ -54,16 +54,16 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 
 - [x] FR-01 Public access (`DONE`)
 - [x] FR-02 Authentication and authorization (`DONE`)
-- [x] FR-03 Profile management (`DONE`)
+- [ ] FR-03 Profile management (`IN_PROGRESS`)
 - [x] FR-04 Specialty management (`DONE`)
 - [x] FR-05 Doctor discovery (`DONE`)
 - [x] FR-06 Health Q&A (`DONE`)
 - [x] FR-07 Appointment management (`DONE`)
-- [x] FR-08 Consultation session (`DONE`)
+- [ ] FR-08 Consultation session (`IN_PROGRESS`)
 - [x] FR-09 Consultation outcome and prescription (`DONE`)
 - [x] FR-10 Rating and feedback (`DONE`)
-- [x] FR-11 Notifications (`DONE`)
-- [x] FR-12 Administration (`DONE`)
+- [ ] FR-11 Notifications (`IN_PROGRESS`)
+- [ ] FR-12 Administration (`IN_PROGRESS`)
 - [x] FR-13 Reporting and statistics (`DONE`)
 
 ## 4.3 NFR Completion
@@ -107,7 +107,15 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 ## Phase 5 - Admin/Reporting/Ops
 
 - [x] Complete all phase-5 tasks (`DONE`)
-- [x] Final SRS coverage evidence collected (`DONE`)
+- [ ] Final SRS coverage evidence collected (`IN_PROGRESS`)
+
+## Phase 6 - Gap Closure (Post Re-Review)
+
+- [ ] Close FR-03 admin user lifecycle gaps (`NOT_STARTED`)
+- [x] Close FR-08 consultation real-time/time-window gaps (`DONE`)
+- [ ] Close FR-11 outbox retry/scheduling/idempotency gaps (`NOT_STARTED`)
+- [ ] Close FR-12 moderation/audit coverage gaps (`NOT_STARTED`)
+- [ ] Re-validate SRS coverage evidence after fixes (`NOT_STARTED`)
 
 ## 6. Immediate Next Actions
 
@@ -124,6 +132,8 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
 - [x] Continue implementation Phase 5 modules and closure (`DONE`)
 - [x] Close implementation Phase 5 modules (`DONE`)
 - [x] Publish final SRS coverage evidence (`DONE`)
+- [x] Re-review full codebase against SRS and reopen unresolved items (`DONE`)
+- [ ] Start Phase 6 gap-closure implementation (`IN_PROGRESS`)
 
 ## 7. Progress Log
 
@@ -170,3 +180,14 @@ Mỗi item cần cập nhật: `Status`, `Last Updated`, `Evidence`.
   - Added operations module with `/health` and `/admin/ops/metrics` for observability baseline.
   - Marked FR-01 and FR-08..FR-13 as `DONE` based on implemented APIs and service-level business rules.
   - Added `docs/SRS_Final_Coverage_Evidence.md` to close end-to-end traceability and final verification summary.
+  - Re-reviewed SRS vs codebase and identified reopened gaps:
+    - FR-03/FR-12: Admin user lifecycle chưa đủ (thiếu create/update/detail/delete chuẩn quản trị).
+    - FR-08: Chưa có chat realtime implementation; chưa có ràng buộc thời gian hẹn khi start/join session.
+    - FR-11: Outbox retry policy chưa hoàn chỉnh (không tự động retry theo `nextRetryAt` và chưa có scheduler).
+    - FR-11: Có nguy cơ duplicate notification vì vừa ghi trực tiếp trong domain service vừa xử lý lại qua outbox.
+    - NFR Security/Audit: thiếu audit cho một số hành động doctor response và appointment lifecycle update.
+  - Implemented FR-08 gap closure:
+    - Added consultation chat realtime baseline via WebSocket gateway (`/consultations` namespace) with JWT handshake.
+    - Added persisted consultation messages (`consultation_messages`) and REST APIs to list/send messages.
+    - Added consultation time-window validation for `start/join` using configurable early/late join windows.
+    - Verified `npm run prisma:generate`, `npm run type-check`, and `npm run build`.

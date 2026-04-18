@@ -18,6 +18,7 @@ import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { ModerateRatingDto } from './dto/moderate-rating.dto';
 import { StartSessionDto } from './dto/start-session.dto';
+import { SendConsultationMessageDto } from './dto/send-consultation-message.dto';
 
 const STARTABLE_APPOINTMENT_STATUSES: AppointmentStatus[] = [
   AppointmentStatus.CONFIRMED,
@@ -27,6 +28,37 @@ const STARTABLE_APPOINTMENT_STATUSES: AppointmentStatus[] = [
 @Injectable()
 export class ConsultationService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private getConsultationWindow(appointment: {
+    scheduledAt: Date;
+    durationMinutes: number;
+  }) {
+    const earlyJoinMinutes = parseInt(process.env.CONSULTATION_EARLY_JOIN_MINUTES ?? '15', 10);
+    const lateJoinMinutes = parseInt(process.env.CONSULTATION_LATE_JOIN_MINUTES ?? '30', 10);
+
+    const windowStart = new Date(
+      appointment.scheduledAt.getTime() - Math.max(earlyJoinMinutes, 0) * 60 * 1000,
+    );
+    const windowEnd = new Date(
+      appointment.scheduledAt.getTime() +
+        Math.max(appointment.durationMinutes, 0) * 60 * 1000 +
+        Math.max(lateJoinMinutes, 0) * 60 * 1000,
+    );
+
+    return { windowStart, windowEnd };
+  }
+
+  private assertConsultationTimeWindow(appointment: {
+    scheduledAt: Date;
+    durationMinutes: number;
+  }) {
+    const now = new Date();
+    const { windowStart, windowEnd } = this.getConsultationWindow(appointment);
+
+    if (now < windowStart || now > windowEnd) {
+      throw new BadRequestException('Consultation session is outside allowed time window');
+    }
+  }
 
   private async getAppointmentOrThrow(appointmentId: string) {
     const appointment = await this.prisma.appointment.findUnique({
@@ -60,6 +92,7 @@ export class ConsultationService {
     if (!STARTABLE_APPOINTMENT_STATUSES.includes(appointment.status)) {
       throw new BadRequestException('Appointment is not in a startable status');
     }
+    this.assertConsultationTimeWindow(appointment);
 
     const requestedChannel = dto?.channel ?? 'CHAT';
     const videoProviderEnabled = process.env.VIDEO_PROVIDER_ENABLED === 'true';
@@ -112,6 +145,7 @@ export class ConsultationService {
 
   async joinSession(userId: string, role: Role, appointmentId: string) {
     const appointment = await this.getAppointmentOrThrow(appointmentId);
+    this.assertConsultationTimeWindow(appointment);
 
     if (!appointment.session) {
       throw new BadRequestException('Consultation session has not been started');
@@ -138,6 +172,55 @@ export class ConsultationService {
       channel: appointment.session.channel ?? 'CHAT',
       message: 'Joined consultation session',
     };
+  }
+
+  async listSessionMessages(userId: string, role: Role, appointmentId: string) {
+    const joined = await this.joinSession(userId, role, appointmentId);
+    return this.prisma.consultationMessage.findMany({
+      where: { consultationSessionId: joined.sessionId },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+          },
+        },
+      },
+    });
+  }
+
+  async sendSessionMessage(
+    userId: string,
+    role: Role,
+    appointmentId: string,
+    dto: SendConsultationMessageDto,
+  ) {
+    const joined = await this.joinSession(userId, role, appointmentId);
+    if (joined.status !== ConsultationStatus.ONGOING) {
+      throw new BadRequestException('Consultation session is not ongoing');
+    }
+
+    return this.prisma.consultationMessage.create({
+      data: {
+        id: uuidv7(),
+        consultationSessionId: joined.sessionId,
+        senderUserId: userId,
+        content: dto.content,
+      },
+      include: {
+        sender: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+          },
+        },
+      },
+    });
   }
 
   async endSession(userId: string, appointmentId: string) {

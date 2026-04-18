@@ -10,6 +10,8 @@ Execution model: document-first -> contract-first -> implementation-first by pha
 
 ## 2. Phase Breakdown
 
+Note: sau re-review SRS/codebase (2026-04-18), một số FR đã được reopen để khắc phục gap trước khi chốt release gate.
+
 ## Phase 0 - Foundation Reset
 
 Goal: làm sạch nền tảng để bắt đầu code đúng kiến trúc mới.
@@ -107,6 +109,27 @@ DoD:
 - [ ] Runbook vận hành đầy đủ.
 
 Dependencies: Phase 4.
+
+## Phase 6 - SRS Gap Closure (Reopened Items)
+
+Goal: đóng toàn bộ gap còn lại để xác nhận full compliance với SRS.
+
+Tasks:
+- [ ] FR-03/FR-12: bổ sung admin user lifecycle đầy đủ (create/update/detail/delete theo policy).
+- [x] FR-08: triển khai chat realtime baseline (WebSocket/Gateway + message persistence tối thiểu) cho consultation session.
+- [x] FR-08: thêm time-window validation khi start/join consultation theo lịch hẹn và grace window cấu hình.
+- [ ] FR-11: chuẩn hóa notification pipeline để tránh duplicate (single source of truth qua outbox hoặc direct dispatch có idempotency key).
+- [ ] FR-11: hoàn thiện retry policy (consume `FAILED` theo `nextRetryAt`) + scheduler/worker tự động.
+- [ ] NFR-01: bổ sung audit log cho doctor answer và các appointment status updates còn thiếu.
+- [ ] Cập nhật lại `SRS_Final_Coverage_Evidence.md` và checklist sau khi đóng gap.
+
+DoD:
+- [ ] FR-03, FR-08, FR-11, FR-12 chuyển `DONE` với evidence rõ.
+- [ ] Không còn duplicate notification trong các flow chính.
+- [ ] Có evidence retry tự động cho outbox failover path.
+- [ ] Gate C được xác nhận lại với trạng thái `DONE`.
+
+Dependencies: Phase 5.
 
 ## 3. Cross-phase Required Deliverables
 

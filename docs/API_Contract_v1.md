@@ -75,11 +75,19 @@ Base URL: `/api/v1`
 
 - `POST /consultations/:appointmentId/start`
 - `POST /consultations/:appointmentId/join`
+- `GET /consultations/:appointmentId/messages`
+- `POST /consultations/:appointmentId/messages`
 - `PATCH /consultations/:appointmentId/end`
 - `PATCH /consultations/:appointmentId/summary`
 - `POST /consultations/:appointmentId/prescriptions`
 - `GET /consultations/mine`
 - `GET /consultations/doctor/me`
+
+Realtime channel:
+- WebSocket namespace: `/consultations`
+- Events:
+  - client -> server: `consultation:join`, `consultation:message`
+  - server -> client: `consultation:joined`, `consultation:message`
 
 ## 9. Rating APIs
 

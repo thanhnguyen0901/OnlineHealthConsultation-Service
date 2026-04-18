@@ -5,7 +5,7 @@ Source SRS: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 
 ## 1. Verification Summary
 
-- Code implementation for FR-01..FR-13 has been completed in module endpoints/services.
+- Code implementation has broad FR coverage, but re-review found reopened compliance gaps for FR-03, FR-11, FR-12.
 - Build gates executed and passed:
   - `npm run type-check`
   - `npm run build`
@@ -47,3 +47,16 @@ Source SRS: `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
 - Add automated unit/integration/e2e suites per `docs/Test_Strategy_and_Traceability.md`.
 - Add scheduled background worker for outbox/reminder automation (currently admin-triggered API).
 - Add performance/load benchmark evidence for p95 targets.
+
+## 5. Reopened SRS Gaps (2026-04-18 Re-Review)
+
+- FR-03/FR-12:
+  - Admin user lifecycle chưa đầy đủ theo yêu cầu quản trị tài khoản (thiếu create/update/detail/delete admin endpoints chuẩn hóa).
+- FR-08:
+  - Closed on 2026-04-18: added realtime chat gateway + persisted consultation messages + time-window validation for start/join.
+- FR-11:
+  - Retry policy outbox chưa hoàn chỉnh cho `FAILED` + `nextRetryAt`.
+  - Chưa có scheduler tự động xử lý outbox/reminder.
+  - Có nguy cơ duplicate notification do xử lý song song direct domain write và outbox consumption.
+- NFR-01 (audit coverage):
+  - Chưa phủ audit đầy đủ cho doctor answer và toàn bộ appointment lifecycle updates quan trọng.

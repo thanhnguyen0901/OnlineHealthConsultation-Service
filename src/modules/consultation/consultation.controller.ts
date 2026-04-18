@@ -10,6 +10,7 @@ import { ConsultationService } from './consultation.service';
 import { CreatePrescriptionDto } from './dto/create-prescription.dto';
 import { CreateRatingDto } from './dto/create-rating.dto';
 import { ModerateRatingDto } from './dto/moderate-rating.dto';
+import { SendConsultationMessageDto } from './dto/send-consultation-message.dto';
 import { StartSessionDto } from './dto/start-session.dto';
 import { UpdateConsultationSummaryDto } from './dto/update-consultation-summary.dto';
 
@@ -39,6 +40,27 @@ export class ConsultationController {
     @Param('appointmentId') appointmentId: string,
   ) {
     return this.consultationService.joinSession(user.sub, user.role, appointmentId);
+  }
+
+  @Roles(Role.PATIENT, Role.DOCTOR, Role.ADMIN)
+  @Get(':appointmentId/messages')
+  @ApiOperation({ summary: 'Participant lists persisted consultation chat messages' })
+  listSessionMessages(
+    @CurrentUser() user: { sub: string; role: Role },
+    @Param('appointmentId') appointmentId: string,
+  ) {
+    return this.consultationService.listSessionMessages(user.sub, user.role, appointmentId);
+  }
+
+  @Roles(Role.PATIENT, Role.DOCTOR, Role.ADMIN)
+  @Post(':appointmentId/messages')
+  @ApiOperation({ summary: 'Participant sends a persisted consultation chat message' })
+  sendSessionMessage(
+    @CurrentUser() user: { sub: string; role: Role },
+    @Param('appointmentId') appointmentId: string,
+    @Body() dto: SendConsultationMessageDto,
+  ) {
+    return this.consultationService.sendSessionMessage(user.sub, user.role, appointmentId, dto);
   }
 
   @Roles(Role.DOCTOR)

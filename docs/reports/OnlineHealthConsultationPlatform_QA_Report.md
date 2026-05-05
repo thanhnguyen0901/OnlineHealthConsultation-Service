@@ -75,7 +75,8 @@ Xin trân trọng cảm ơn.
 2. Cài đặt hệ thống
 3. Chiến lược kiểm thử
 4. Đặc tả test case theo actor/use case
-5. Hiện thực automation test và ghi nhận lỗi
+5. Hiện thực automation test, kết quả kiểm thử và ghi nhận lỗi
+6. Checklist rà soát chất lượng
 
 **CHƯƠNG IV. KẾT LUẬN**
 
@@ -151,12 +152,20 @@ Xin trân trọng cảm ơn.
 | Bảng 15 | Test case nhóm Doctor |
 | Bảng 16 | Test case nhóm Administrator |
 | Bảng 17 | Test case nhóm External Services/Notification |
-| Bảng 18 | Checklist rà soát yêu cầu |
-| Bảng 19 | Checklist rà soát thiết kế |
-| Bảng 20 | Checklist rà soát API |
-| Bảng 21 | Checklist rà soát bảo mật |
-| Bảng 22 | Bảng tổng hợp kết quả kiểm thử |
-| Bảng 23 | Bảng ghi nhận lỗi |
+| Bảng 18 | Test case nhóm Consultation Session |
+| Bảng 19 | Test case nhóm Consultation Result & Prescription |
+| Bảng 20 | Test case nhóm Rating & Feedback |
+| Bảng 21 | Test case nhóm Notification |
+| Bảng 22 | Test case nhóm Administration |
+| Bảng 23 | Test case nhóm Reporting/Dashboard |
+| Bảng 24 | Test case nhóm External Services/File Storage |
+| Bảng 25 | Bảng tổng hợp kết quả kiểm thử |
+| Bảng 26 | Bảng ghi nhận lỗi |
+| Bảng 27 | Checklist rà soát yêu cầu |
+| Bảng 28 | Checklist rà soát thiết kế |
+| Bảng 29 | Checklist rà soát API |
+| Bảng 30 | Checklist rà soát bảo mật và privacy |
+| Bảng 31 | Checklist rà soát kiểm thử |
 
 ---
 
@@ -222,7 +231,7 @@ Nhóm nghiên cứu các công nghệ phù hợp với hệ thống web tư vấ
 
 **3. Phân tích và thiết kế hệ thống**
 
-Từ yêu cầu đã thu thập, nhóm xây dựng user story, use case, mô tả actor, thiết kế wireframe/UI, API, database và kiến trúc hệ thống. Các thiết kế được trình bày theo hướng có thể kiểm thử, nghĩa là mỗi luồng nghiệp vụ cần có tiền điều kiện, dữ liệu đầu vào, kết quả mong đợi và các trường hợp ngoại lệ rõ ràng.
+Từ yêu cầu đã thu thập, nhóm xây dựng user story, use case, mô tả actor, thiết kế wireframe/UI, API, database và kiến trúc hệ thống. Các thiết kế được trình bày theo hướng có thể kiểm thử, nghĩa là mỗi luồng nghiệp vụ cần có tiền điều kiện, dữ liệu đầu vào, expected result và các trường hợp ngoại lệ rõ ràng.
 
 **4. Triển khai chức năng**
 
@@ -279,7 +288,7 @@ Các quy tắc quản lý là cơ sở để thiết kế hệ thống và xây 
 - Chỉ Patient và Doctor liên quan đến appointment hợp lệ mới được tham gia phiên tư vấn tương ứng.
 - Patient chỉ được đánh giá sau khi phiên tư vấn hoặc lịch hẹn đã hoàn tất.
 - Dữ liệu sức khỏe, lịch sử tư vấn, đơn thuốc, thông tin cá nhân và nội dung câu hỏi cần được bảo mật.
-- Password, token, secret và thông tin xác thực không được hiển thị hoặc ghi log dưới dạng có thể lộ dữ liệu nhạy cảm.
+- Mật khẩu, token, secret và thông tin xác thực không được hiển thị hoặc ghi log dưới dạng có thể lộ dữ liệu nhạy cảm.
 - Form và API phải có validation đối với dữ liệu bắt buộc, định dạng email, độ dài nội dung, ngày giờ đặt lịch và các trường nghiệp vụ quan trọng.
 - Thông báo lỗi cần rõ ràng cho người dùng nhưng không làm lộ thông tin nội bộ của hệ thống.
 - Notification có thể thất bại mà không được làm sai nghiệp vụ chính nếu thiết kế cho phép lưu nghiệp vụ trước và xử lý thông báo sau.
@@ -978,7 +987,7 @@ TODO: Cần insert Activity diagram dashboard/reporting nếu cần.
 
 Việc định nghĩa yêu cầu chất lượng phần mềm nhằm bảo đảm nền tảng tư vấn sức khỏe trực tuyến hoạt động đúng theo SRS, an toàn, bảo mật, dễ sử dụng và có thể kiểm thử. Các yêu cầu chất lượng được xác định từ góc nhìn nghiệp vụ, vận hành và phát triển để làm cơ sở thiết kế test case ở Chương III.
 
-Do hệ thống xử lý dữ liệu sức khỏe, hồ sơ cá nhân, lịch hẹn, phiên tư vấn và đơn thuốc, báo cáo đặc biệt chú trọng các yêu cầu về bảo mật, quyền riêng tư, phân quyền theo vai trò, quyền sở hữu dữ liệu, kiểm soát trạng thái lịch hẹn và tính đúng đắn của phiên tư vấn trực tuyến. Những yêu cầu này cần được mô tả theo hướng có thể kiểm thử, có điều kiện đầu vào rõ ràng và có kết quả mong đợi cụ thể.
+Do hệ thống xử lý dữ liệu sức khỏe, hồ sơ cá nhân, lịch hẹn, phiên tư vấn và đơn thuốc, báo cáo đặc biệt chú trọng các yêu cầu về bảo mật, quyền riêng tư, phân quyền theo vai trò, quyền sở hữu dữ liệu, kiểm soát trạng thái lịch hẹn và tính đúng đắn của phiên tư vấn trực tuyến. Những yêu cầu này cần được mô tả theo hướng có thể kiểm thử, có điều kiện đầu vào rõ ràng và có expected result cụ thể.
 
 ### 4.2. Yêu cầu từ môi trường nghiệp vụ
 
@@ -1279,45 +1288,45 @@ TODO: Cần insert hình giao diện dashboard thống kê.
 | Public API | `/public/doctors/:doctorId` | GET | Guest, Patient | `doctorId` | Hồ sơ công khai bác sĩ | Theo thiết kế API trong báo cáo |
 | Auth API | `/auth/register` | POST | Guest | Email, mật khẩu, thông tin đăng ký | Tài khoản Patient được tạo | Theo thiết kế MVP |
 | Auth API | `/auth/login` | POST | Patient, Doctor, Admin | Email, mật khẩu | Token và thông tin vai trò | Theo thiết kế MVP |
-| Auth API | `/auth/logout` | POST | User đã đăng nhập | Token hiện tại | Kết thúc phiên | Dự kiến theo thiết kế MVP |
-| Auth API | `/auth/refresh` | POST | User đã đăng nhập | Refresh token nếu có | Access token mới | Dự kiến theo thiết kế MVP |
-| Auth API | `/auth/forgot-password` | POST | Guest/User | Email | Yêu cầu khôi phục mật khẩu | Dự kiến theo thiết kế MVP |
+| Auth API | `/auth/logout` | POST | User đã đăng nhập | Token hiện tại | Kết thúc phiên | Theo thiết kế MVP |
+| Auth API | `/auth/refresh` | POST | User đã đăng nhập | Refresh token nếu có | Access token mới | Theo thiết kế MVP |
+| Auth API | `/auth/forgot-password` | POST | Guest/User | Email | Yêu cầu khôi phục mật khẩu | Theo thiết kế MVP |
 | Profile API | `/patients/me` | GET/PATCH | Patient | Token, dữ liệu hồ sơ | Hồ sơ Patient | Theo thiết kế MVP |
 | Profile API | `/doctors/me` | GET/PATCH | Doctor | Token, dữ liệu chuyên môn | Hồ sơ Doctor | Theo thiết kế MVP |
 | Profile API | `/doctors/:id` | GET | Guest, Patient, Admin | `id` | Hồ sơ bác sĩ theo phạm vi quyền | Public/private cần tách dữ liệu trả về |
 | Specialty API | `/specialties` | GET | Guest, Patient, Doctor | Bộ lọc nếu có | Danh sách chuyên khoa | Theo thiết kế MVP |
-| Specialty API | `/admin/specialties` | POST/PATCH/DELETE | Administrator | Dữ liệu chuyên khoa | Chuyên khoa được tạo/cập nhật | Dự kiến theo route admin |
+| Specialty API | `/admin/specialties` | POST/PATCH/DELETE | Administrator | Dữ liệu chuyên khoa | Chuyên khoa được tạo/cập nhật | Theo route admin |
 | Question API | `/questions` | POST | Patient | `title`, `content`, `doctorId` nếu có | Câu hỏi được tạo | Theo thiết kế MVP |
 | Question API | `/questions/mine` | GET | Patient | Token | Câu hỏi của Patient | Theo thiết kế MVP |
 | Question API | `/questions/assigned` | GET | Doctor | Token | Câu hỏi được phân công/có thể xử lý | Theo thiết kế MVP |
 | Question API | `/questions/:id/answers` | POST | Doctor | `id`, `content` | Phản hồi được tạo | Theo thiết kế MVP |
-| Question API | `/admin/questions/:id/moderation` | PATCH | Administrator | `id`, trạng thái moderation | Nội dung được kiểm duyệt | Dự kiến theo thiết kế MVP |
+| Question API | `/admin/questions/:id/moderation` | PATCH | Administrator | `id`, trạng thái moderation | Nội dung được kiểm duyệt | Theo thiết kế MVP |
 | Appointment API | `/appointments` | POST | Patient | `doctorId`, `scheduledAt`, `durationMinutes`, `reason` | Appointment được tạo | Theo thiết kế MVP |
 | Appointment API | `/appointments/mine` | GET | Patient | Token | Lịch hẹn của Patient | Theo thiết kế MVP |
 | Appointment API | `/appointments/doctor/me` | GET | Doctor | Token | Lịch hẹn của Doctor | Theo thiết kế MVP |
 | Appointment API | `/appointments/:id/cancel` | PATCH | Patient/Admin | `id`, lý do nếu có | Appointment bị hủy nếu hợp lệ | Theo thiết kế MVP |
-| Appointment API | `/appointments/:id/confirm` | PATCH | Doctor/Admin | `id` | Appointment được xác nhận | Dự kiến theo thiết kế MVP |
+| Appointment API | `/appointments/:id/confirm` | PATCH | Doctor/Admin | `id` | Appointment được xác nhận | Theo thiết kế MVP |
 | Consultation API | `/consultations/:appointmentId/start` | POST | Doctor | `appointmentId`, channel nếu có | Session được khởi tạo | Theo thiết kế MVP |
 | Consultation API | `/consultations/:appointmentId/join` | POST | Patient, Doctor | `appointmentId` | Thông tin join session | Theo thiết kế MVP |
 | Consultation API | `/consultations/:appointmentId/messages` | GET/POST | Patient, Doctor | `appointmentId`, message nếu POST | Danh sách/tin nhắn mới | Theo thiết kế MVP |
 | Consultation API | `/consultations/:appointmentId/summary` | PATCH | Doctor | `summary` | Summary được lưu | Theo thiết kế MVP |
 | Consultation API | `/consultations/:appointmentId/end` | PATCH | Doctor | `appointmentId` | Session kết thúc | Theo thiết kế MVP |
-| Consultation API | `/consultations/:appointmentId/prescriptions` | POST/GET | Doctor, Patient | Prescription data nếu POST | Đơn thuốc | Dự kiến theo thiết kế MVP |
+| Consultation API | `/consultations/:appointmentId/prescriptions` | POST/GET | Doctor, Patient | Prescription data nếu POST | Đơn thuốc | Theo thiết kế MVP |
 | Consultation API | `/consultations/mine` | GET | Patient | Token | Lịch sử tư vấn của Patient | Theo thiết kế MVP |
 | Consultation API | `/consultations/doctor/me` | GET | Doctor | Token | Lịch sử tư vấn của Doctor | Theo thiết kế MVP |
 | Rating API | `/ratings` | POST | Patient | `appointmentId`, score, comment | Rating được tạo | Theo thiết kế MVP |
-| Rating API | `/ratings/mine` | GET | Patient | Token | Rating của Patient | Dự kiến theo thiết kế MVP |
-| Rating API | `/ratings/doctor/:id` | GET | Guest, Patient, Admin | Doctor id | Rating public/tổng hợp | Dự kiến theo thiết kế MVP |
+| Rating API | `/ratings/mine` | GET | Patient | Token | Rating của Patient | Theo thiết kế MVP |
+| Rating API | `/ratings/doctor/:id` | GET | Guest, Patient, Admin | Doctor id | Rating public/tổng hợp | Theo thiết kế MVP |
 | Notification API | `/notifications/mine` | GET | Patient, Doctor | Token | Danh sách thông báo | Theo thiết kế MVP |
-| Notification API | `/notifications/:id/read` | PATCH | Patient, Doctor | Notification id | Thông báo đã đọc | Dự kiến theo thiết kế MVP |
+| Notification API | `/notifications/:id/read` | PATCH | Patient, Doctor | Notification id | Thông báo đã đọc | Theo thiết kế MVP |
 | Admin API | `/admin/users` | GET/PATCH | Administrator | Bộ lọc, dữ liệu cập nhật | Danh sách/cập nhật user | Theo thiết kế MVP |
 | Admin API | `/admin/doctors` | GET/PATCH | Administrator | Bộ lọc, trạng thái doctor | Danh sách/cập nhật doctor | Theo thiết kế MVP |
 | Admin API | `/admin/patients` | GET/PATCH | Administrator | Bộ lọc, trạng thái patient | Danh sách/cập nhật patient | Theo thiết kế MVP |
 | Admin API | `/admin/appointments` | GET/PATCH | Administrator | Bộ lọc, trạng thái lịch | Danh sách/cập nhật lịch hẹn | Theo thiết kế MVP |
 | Admin API | `/admin/reports` | GET | Administrator | Khoảng thời gian, bộ lọc | Báo cáo hệ thống | Theo thiết kế MVP |
 | Admin API | `/admin/dashboard` | GET | Administrator | Khoảng thời gian nếu có | Số liệu dashboard | Theo thiết kế MVP |
-| External/File API | `/files/upload` | POST | Patient, Doctor, Admin | File, metadata | FileAttachment metadata | Dự kiến theo thiết kế MVP |
-| External/File API | `/files/:id` | GET | Người có quyền | File id | File hoặc URL tải file | Dự kiến theo thiết kế MVP |
+| External/File API | `/files/upload` | POST | Patient, Doctor, Admin | File, metadata | FileAttachment metadata | Theo thiết kế MVP |
+| External/File API | `/files/:id` | GET | Người có quyền | File id | File hoặc URL tải file | Theo thiết kế MVP |
 
 ### 5.4. Cơ sở dữ liệu
 
@@ -1556,7 +1565,7 @@ TODO: Cần insert hình ERD/database diagram.
 | 6 | createdAt | DateTime | Not null | Thời điểm tạo. |
 | 7 | processedAt | DateTime | Nullable | Thời điểm xử lý xong. |
 
-# CHƯƠNG III. TRIỂN KHAI HỆ THỐNG
+# CHƯƠNG III. TRIỂN KHAI HỆ THỐNG VÀ KIỂM THỬ
 
 ## 1. Phần mềm ứng dụng
 
@@ -1981,13 +1990,13 @@ Các kỹ thuật thiết kế test case được sử dụng gồm:
 
 Nguyên tắc ghi nhận kết quả kiểm thử:
 
-- Không ghi pass/fail nếu test case chưa được thực thi.
-- Trạng thái `Pass` chỉ được ghi khi actual result khớp expected result.
-- Trạng thái `Fail` được ghi khi actual result khác expected result và cần có bug report hoặc mô tả lỗi đi kèm.
-- Trạng thái `Blocked` được dùng khi không thể chạy test do thiếu môi trường, thiếu dữ liệu, thiếu quyền hoặc chức năng phụ thuộc chưa sẵn sàng.
-- Trạng thái `Not Run` được dùng cho test case đã thiết kế nhưng chưa chạy.
-- Evidence của kiểm thử có thể gồm screenshot, log terminal, API response, Playwright HTML report, trace, video hoặc ghi chú tái hiện lỗi.
-- Với dữ liệu sức khỏe, evidence cần che hoặc loại bỏ thông tin nhạy cảm trước khi đưa vào báo cáo.
+- Không ghi `Passed`/`Failed` nếu test case chưa được thực thi.
+- Status `Passed` chỉ được ghi khi actual result khớp expected result.
+- Status `Failed` được ghi khi actual result khác expected result và cần có bug report hoặc mô tả lỗi đi kèm.
+- Status `Blocked` được dùng khi không thể chạy test do thiếu môi trường, thiếu dữ liệu, thiếu quyền hoặc chức năng phụ thuộc chưa sẵn sàng.
+- Trạng thái `Chưa thực hiện` được dùng cho test case đã thiết kế nhưng chưa chạy.
+- Minh chứng của kiểm thử có thể gồm screenshot, log terminal, API response, Playwright HTML report, trace, video hoặc ghi chú tái hiện lỗi.
+- Với dữ liệu sức khỏe, minh chứng cần che hoặc loại bỏ thông tin nhạy cảm trước khi đưa vào báo cáo.
 
 ## 4. Đặc tả test case theo actor/use case
 
@@ -1997,7 +2006,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng tổng hợp test case**
 
-| Mã test case | Tên test case | Use case liên quan | Mức ưu tiên |
+| Test case ID | Tên test case | Use case liên quan | Priority |
 |---|---|---|---|
 | TC-G-001 | Guest xem trang chủ | UC-G-01 | Cao |
 | TC-G-002 | Guest xem danh sách chuyên khoa | UC-G-02 | Cao |
@@ -2024,7 +2033,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | G001-01 | Guest truy cập trang chủ | Không có token đăng nhập | Trang chủ hiển thị nội dung public, không yêu cầu đăng nhập | TODO: Cập nhật sau khi chạy test |
 
@@ -2044,7 +2053,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | G002-01 | Có chuyên khoa active | Specialty active | Danh sách hiển thị chuyên khoa active | TODO: Cập nhật sau khi chạy test |
 | G002-02 | Có chuyên khoa inactive | Specialty inactive | Chuyên khoa inactive không hiển thị ở public area | TODO: Cập nhật sau khi chạy test |
@@ -2066,7 +2075,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | G003-01 | Keyword khớp bác sĩ | Tên bác sĩ tồn tại | Hiển thị bác sĩ phù hợp keyword | TODO: Cập nhật sau khi chạy test |
 | G003-02 | Keyword không tồn tại | `doctor-not-found` | Hiển thị danh sách rỗng hoặc thông báo không tìm thấy | TODO: Cập nhật sau khi chạy test |
@@ -2089,7 +2098,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | G004-01 | Chuyên khoa có bác sĩ active/approved | `specialtyId` hợp lệ | Chỉ hiển thị bác sĩ thuộc chuyên khoa đã chọn | TODO: Cập nhật sau khi chạy test |
 | G004-02 | Chuyên khoa không có bác sĩ | `specialtyId` hợp lệ nhưng không có bác sĩ | Hiển thị danh sách rỗng hoặc thông báo phù hợp | TODO: Cập nhật sau khi chạy test |
@@ -2111,7 +2120,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | G005-01 | Doctor active/approved | `doctorId` hợp lệ | Hiển thị hồ sơ công khai của bác sĩ | TODO: Cập nhật sau khi chạy test |
 | G005-02 | Doctor không tồn tại | `doctorId` không hợp lệ | Hiển thị lỗi phù hợp hoặc thông báo không tìm thấy | TODO: Cập nhật sau khi chạy test |
@@ -2133,7 +2142,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | G006-01 | Doctor active/approved | `status=active`, `approved=true` | Bác sĩ được hiển thị | TODO: Cập nhật sau khi chạy test |
 | G006-02 | Doctor inactive | `status=inactive` | Bác sĩ không hiển thị ở public area | TODO: Cập nhật sau khi chạy test |
@@ -2155,7 +2164,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | G007-01 | Guest chọn đặt lịch trên UI | Không có token | Chuyển đến trang đăng nhập/đăng ký, không tạo appointment | TODO: Cập nhật sau khi chạy test |
 | G007-02 | Guest gọi API đặt lịch | Request không có token | Từ chối xác thực, không tạo appointment | TODO: Cập nhật sau khi chạy test |
@@ -2176,7 +2185,7 @@ Nhóm test case này kiểm tra các chức năng public dành cho Guest User, g
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | G008-01 | Guest chọn gửi câu hỏi trên UI | Không có token | Chuyển đến trang đăng nhập/đăng ký | TODO: Cập nhật sau khi chạy test |
 | G008-02 | Guest gọi API gửi câu hỏi | Request không có token | Từ chối xác thực, không tạo câu hỏi | TODO: Cập nhật sau khi chạy test |
@@ -2187,7 +2196,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng tổng hợp test case**
 
-| Mã test case | Tên test case | Actor | Mức ưu tiên |
+| Test case ID | Tên test case | Actor | Priority |
 |---|---|---|---|
 | TC-AUTH-001 | Patient đăng ký hợp lệ | Patient | Cao |
 | TC-AUTH-002 | Đăng ký thiếu thông tin hoặc sai email | Patient | Cao |
@@ -2216,7 +2225,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | AUTH001-01 | Dữ liệu hợp lệ | Email mới, mật khẩu hợp lệ | Tạo tài khoản Patient thành công hoặc chuyển sang bước đăng nhập theo thiết kế | TODO: Cập nhật sau khi chạy test |
 
@@ -2237,7 +2246,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | AUTH002-01 | Thiếu email | Email rỗng | Hiển thị lỗi validation, không tạo tài khoản | TODO: Cập nhật sau khi chạy test |
 | AUTH002-02 | Email sai định dạng | `abc-email` | Hiển thị lỗi email không hợp lệ | TODO: Cập nhật sau khi chạy test |
@@ -2260,7 +2269,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | AUTH003-01 | Patient đăng nhập | Tài khoản Patient hợp lệ | Đăng nhập thành công, vào khu vực Patient | TODO: Cập nhật sau khi chạy test |
 | AUTH003-02 | Doctor đăng nhập | Tài khoản Doctor hợp lệ | Đăng nhập thành công, vào khu vực Doctor | TODO: Cập nhật sau khi chạy test |
@@ -2284,9 +2293,9 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
-| AUTH004-01 | Sai mật khẩu | Email tồn tại, password sai | Đăng nhập thất bại, không cấp token/session | TODO: Cập nhật sau khi chạy test |
+| AUTH004-01 | Sai mật khẩu | Email tồn tại, mật khẩu sai | Đăng nhập thất bại, không cấp token/session | TODO: Cập nhật sau khi chạy test |
 | AUTH004-02 | Email không tồn tại | Email chưa đăng ký | Đăng nhập thất bại, không tiết lộ thông tin nội bộ | TODO: Cập nhật sau khi chạy test |
 
 #### TC-AUTH-005: Đăng xuất
@@ -2306,7 +2315,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | AUTH005-01 | User đăng xuất | Session/token đang hoạt động | Đăng xuất thành công, không truy cập được trang protected nếu chưa đăng nhập lại | TODO: Cập nhật sau khi chạy test |
 
@@ -2326,7 +2335,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | AUTH006-01 | Truy cập không token | Protected endpoint/page | Bị từ chối truy cập hoặc chuyển về đăng nhập | TODO: Cập nhật sau khi chạy test |
 | AUTH006-02 | Token sai định dạng | Token không hợp lệ | Bị từ chối xác thực | TODO: Cập nhật sau khi chạy test |
@@ -2347,7 +2356,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | AUTH007-01 | Patient truy cập Doctor module | Token Patient | Từ chối truy cập | TODO: Cập nhật sau khi chạy test |
 | AUTH007-02 | Patient truy cập Admin module | Token Patient | Từ chối truy cập | TODO: Cập nhật sau khi chạy test |
@@ -2368,7 +2377,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | AUTH008-01 | Doctor truy cập Patient ngoài phạm vi | Token Doctor, `patientId` không thuộc phạm vi | Từ chối truy cập hoặc không trả dữ liệu nhạy cảm | TODO: Cập nhật sau khi chạy test |
 | AUTH008-02 | Doctor truy cập Patient thuộc lịch/câu hỏi phụ trách | Token Doctor, `patientId` hợp lệ theo phạm vi | Cho phép xem phần dữ liệu cần thiết theo nghiệp vụ | TODO: Cập nhật sau khi chạy test |
@@ -2389,7 +2398,7 @@ Nhóm test case này kiểm tra đăng ký, đăng nhập, đăng xuất, truy c
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | AUTH009-01 | Admin truy cập dashboard quản trị | Token Admin | Cho phép truy cập admin module | TODO: Cập nhật sau khi chạy test |
 | AUTH009-02 | User không phải Admin truy cập admin module | Token Patient/Doctor | Từ chối truy cập | TODO: Cập nhật sau khi chạy test |
@@ -2400,7 +2409,7 @@ Nhóm test case này kiểm tra hồ sơ bệnh nhân, hồ sơ bác sĩ và cá
 
 **Bảng tổng hợp test case**
 
-| Mã test case | Tên test case | Actor | Mức ưu tiên |
+| Test case ID | Tên test case | Actor | Priority |
 |---|---|---|---|
 | TC-PRO-001 | Patient xem hồ sơ cá nhân | Patient | Cao |
 | TC-PRO-002 | Patient cập nhật hồ sơ hợp lệ | Patient | Cao |
@@ -2426,7 +2435,7 @@ Nhóm test case này kiểm tra hồ sơ bệnh nhân, hồ sơ bác sĩ và cá
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | PRO001-01 | Patient xem hồ sơ của mình | Token Patient | Hiển thị hồ sơ cá nhân của Patient đang đăng nhập | TODO: Cập nhật sau khi chạy test |
 
@@ -2447,7 +2456,7 @@ Nhóm test case này kiểm tra hồ sơ bệnh nhân, hồ sơ bác sĩ và cá
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | PRO002-01 | Dữ liệu hồ sơ hợp lệ | Họ tên, ngày sinh, số điện thoại, tiền sử bệnh hợp lệ | Cập nhật hồ sơ thành công | TODO: Cập nhật sau khi chạy test |
 | PRO002-02 | Số điện thoại sai định dạng | Số điện thoại không hợp lệ | Hiển thị lỗi validation, không lưu dữ liệu sai | TODO: Cập nhật sau khi chạy test |
@@ -2468,7 +2477,7 @@ Nhóm test case này kiểm tra hồ sơ bệnh nhân, hồ sơ bác sĩ và cá
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | PRO003-01 | Patient A truy cập hồ sơ Patient B | Token Patient A, `patientId` của Patient B | Từ chối truy cập hoặc không trả dữ liệu | TODO: Cập nhật sau khi chạy test |
 | PRO003-02 | Patient A truy cập hồ sơ của mình | Token Patient A | Cho phép xem hồ sơ | TODO: Cập nhật sau khi chạy test |
@@ -2489,7 +2498,7 @@ Nhóm test case này kiểm tra hồ sơ bệnh nhân, hồ sơ bác sĩ và cá
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | PRO004-01 | Doctor xem hồ sơ của mình | Token Doctor | Hiển thị hồ sơ chuyên môn của Doctor đang đăng nhập | TODO: Cập nhật sau khi chạy test |
 
@@ -2510,7 +2519,7 @@ Nhóm test case này kiểm tra hồ sơ bệnh nhân, hồ sơ bác sĩ và cá
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | PRO005-01 | Thông tin chuyên môn hợp lệ | Chuyên môn, kinh nghiệm, mô tả hợp lệ | Cập nhật hồ sơ bác sĩ thành công | TODO: Cập nhật sau khi chạy test |
 | PRO005-02 | Dữ liệu bắt buộc bị bỏ trống | Tên hiển thị/chuyên môn rỗng nếu bắt buộc | Hiển thị lỗi validation | TODO: Cập nhật sau khi chạy test |
@@ -2532,7 +2541,7 @@ Nhóm test case này kiểm tra hồ sơ bệnh nhân, hồ sơ bác sĩ và cá
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | PRO006-01 | Guest xem doctor public | `doctorId` active/approved | Hiển thị thông tin công khai | TODO: Cập nhật sau khi chạy test |
 | PRO006-02 | Trường private | Email nội bộ, dữ liệu hệ thống, token | Không hiển thị hoặc trả về trường private | TODO: Cập nhật sau khi chạy test |
@@ -2555,7 +2564,7 @@ Nhóm test case này kiểm tra hồ sơ bệnh nhân, hồ sơ bác sĩ và cá
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | PRO007-01 | Admin duyệt bác sĩ | `approved=true`, `active=true` | Bác sĩ có thể hiển thị ở public nếu đủ điều kiện | TODO: Cập nhật sau khi chạy test |
 | PRO007-02 | Admin vô hiệu hóa bác sĩ | `active=false` | Bác sĩ không hiển thị ở public area | TODO: Cập nhật sau khi chạy test |
@@ -2566,7 +2575,7 @@ Nhóm test case này kiểm tra quản lý chuyên khoa và khả năng tra cứ
 
 **Bảng tổng hợp test case**
 
-| Mã test case | Tên test case | Actor | Mức ưu tiên |
+| Test case ID | Tên test case | Actor | Priority |
 |---|---|---|---|
 | TC-SPE-001 | Admin tạo chuyên khoa | Administrator | Cao |
 | TC-SPE-002 | Admin cập nhật chuyên khoa | Administrator | Trung bình |
@@ -2593,7 +2602,7 @@ Nhóm test case này kiểm tra quản lý chuyên khoa và khả năng tra cứ
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | SPE001-01 | Dữ liệu hợp lệ | Tên chuyên khoa mới, mô tả hợp lệ | Tạo chuyên khoa thành công | TODO: Cập nhật sau khi chạy test |
 | SPE001-02 | Thiếu tên chuyên khoa | Tên rỗng | Hiển thị lỗi validation, không tạo chuyên khoa | TODO: Cập nhật sau khi chạy test |
@@ -2616,7 +2625,7 @@ Nhóm test case này kiểm tra quản lý chuyên khoa và khả năng tra cứ
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | SPE002-01 | Cập nhật dữ liệu hợp lệ | Tên/mô tả mới | Chuyên khoa được cập nhật thành công | TODO: Cập nhật sau khi chạy test |
 | SPE002-02 | Chuyên khoa không tồn tại | `specialtyId` không hợp lệ | Trả lỗi phù hợp, không cập nhật dữ liệu | TODO: Cập nhật sau khi chạy test |
@@ -2638,7 +2647,7 @@ Nhóm test case này kiểm tra quản lý chuyên khoa và khả năng tra cứ
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | SPE003-01 | Chuyên khoa active chuyển inactive | `active=false` | Chuyên khoa không hiển thị ở public area | TODO: Cập nhật sau khi chạy test |
 | SPE003-02 | Chuyên khoa inactive được kích hoạt lại | `active=true` | Chuyên khoa hiển thị lại nếu đủ điều kiện | TODO: Cập nhật sau khi chạy test |
@@ -2659,7 +2668,7 @@ Nhóm test case này kiểm tra quản lý chuyên khoa và khả năng tra cứ
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | SPE004-01 | Chuyên khoa active | `active=true` | Hiển thị trong danh sách public | TODO: Cập nhật sau khi chạy test |
 | SPE004-02 | Chuyên khoa inactive | `active=false` | Không hiển thị trong danh sách public | TODO: Cập nhật sau khi chạy test |
@@ -2681,7 +2690,7 @@ Nhóm test case này kiểm tra quản lý chuyên khoa và khả năng tra cứ
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | SPE005-01 | Gắn chuyên khoa hợp lệ | Doctor active/approved, Specialty active | Bác sĩ được liên kết với chuyên khoa | TODO: Cập nhật sau khi chạy test |
 | SPE005-02 | Gắn chuyên khoa không tồn tại | `specialtyId` không hợp lệ | Từ chối cập nhật, không tạo liên kết sai | TODO: Cập nhật sau khi chạy test |
@@ -2703,7 +2712,7 @@ Nhóm test case này kiểm tra quản lý chuyên khoa và khả năng tra cứ
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | SPE006-01 | Chuyên khoa có bác sĩ phù hợp | `specialtyId` active | Hiển thị bác sĩ thuộc chuyên khoa | TODO: Cập nhật sau khi chạy test |
 | SPE006-02 | Chuyên khoa không có bác sĩ phù hợp | `specialtyId` active nhưng không có doctor | Hiển thị danh sách rỗng hoặc thông báo phù hợp | TODO: Cập nhật sau khi chạy test |
@@ -2725,7 +2734,7 @@ Nhóm test case này kiểm tra quản lý chuyên khoa và khả năng tra cứ
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | SPE007-01 | Doctor active/approved thuộc chuyên khoa | `active=true`, `approved=true` | Bác sĩ hiển thị trong kết quả | TODO: Cập nhật sau khi chạy test |
 | SPE007-02 | Doctor inactive thuộc chuyên khoa | `active=false` | Bác sĩ không hiển thị | TODO: Cập nhật sau khi chạy test |
@@ -2770,7 +2779,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ001-01 | Câu hỏi hợp lệ, không chọn bác sĩ cụ thể | `title`, `content` hợp lệ, `doctorId` rỗng | Câu hỏi được tạo và gắn với Patient hiện tại | TODO: Cập nhật sau khi chạy test |
 | HQ001-02 | Câu hỏi hợp lệ, chọn bác sĩ | `title`, `content`, `doctorId` hợp lệ | Câu hỏi được tạo và gắn phạm vi xử lý phù hợp | TODO: Cập nhật sau khi chạy test |
@@ -2791,7 +2800,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ002-01 | Guest gửi câu hỏi từ UI | Không có token | Chuyển đến đăng nhập/đăng ký, không tạo câu hỏi | TODO: Cập nhật sau khi chạy test |
 | HQ002-02 | Guest gọi API tạo câu hỏi | Request không có token | Từ chối xác thực, không tạo câu hỏi | TODO: Cập nhật sau khi chạy test |
@@ -2813,7 +2822,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ003-01 | Thiếu tiêu đề | `title=""` | Hiển thị lỗi validation, không tạo câu hỏi | TODO: Cập nhật sau khi chạy test |
 | HQ003-02 | Thiếu nội dung | `content=""` | Hiển thị lỗi validation, không tạo câu hỏi | TODO: Cập nhật sau khi chạy test |
@@ -2835,7 +2844,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ004-01 | Câu hỏi mới tạo | Question hợp lệ | Trạng thái ban đầu là `PENDING` hoặc trạng thái chờ xử lý tương ứng theo thiết kế | TODO: Cập nhật sau khi chạy test |
 
@@ -2856,7 +2865,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ005-01 | Patient có câu hỏi | Token Patient A | Chỉ hiển thị câu hỏi của Patient A | TODO: Cập nhật sau khi chạy test |
 | HQ005-02 | Patient chưa có câu hỏi | Token Patient không có dữ liệu | Hiển thị danh sách rỗng hoặc thông báo phù hợp | TODO: Cập nhật sau khi chạy test |
@@ -2877,7 +2886,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ006-01 | Patient A truy cập câu hỏi Patient B | Token Patient A, questionId của Patient B | Từ chối truy cập hoặc không trả dữ liệu | TODO: Cập nhật sau khi chạy test |
 | HQ006-02 | Patient B truy cập câu hỏi của mình | Token Patient B, questionId của Patient B | Cho phép xem câu hỏi | TODO: Cập nhật sau khi chạy test |
@@ -2898,7 +2907,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ007-01 | Câu hỏi gán cho Doctor hiện tại | `doctorId=Doctor A` | Hiển thị trong danh sách Doctor A | TODO: Cập nhật sau khi chạy test |
 | HQ007-02 | Câu hỏi mở có thể xử lý | `doctorId=null`, status phù hợp | Hiển thị nếu rule cho phép Doctor xử lý | TODO: Cập nhật sau khi chạy test |
@@ -2922,7 +2931,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ008-01 | Phản hồi hợp lệ | Nội dung phản hồi hợp lệ | Lưu phản hồi và gắn với Doctor hiện tại | TODO: Cập nhật sau khi chạy test |
 | HQ008-02 | Phản hồi rỗng | `content=""` | Hiển thị lỗi validation, không lưu phản hồi | TODO: Cập nhật sau khi chạy test |
@@ -2944,10 +2953,10 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ009-01 | Doctor A phản hồi câu hỏi của Doctor B | Token Doctor A, questionId gán Doctor B | Từ chối thao tác, không lưu phản hồi | TODO: Cập nhật sau khi chạy test |
-| HQ009-02 | Doctor A phản hồi câu hỏi đã đóng | Status `CLOSED` nếu có | Từ chối nếu trạng thái không cho phép phản hồi | TODO: Cập nhật sau khi chạy test |
+| HQ009-02 | Doctor A phản hồi câu hỏi đã đóng | Trạng thái `CLOSED` nếu có | Từ chối nếu trạng thái không cho phép phản hồi | TODO: Cập nhật sau khi chạy test |
 
 #### TC-HQ-010: Câu hỏi chuyển PENDING sang ANSWERED
 
@@ -2965,7 +2974,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ010-01 | Doctor phản hồi câu hỏi PENDING | From `PENDING`, action trả lời | Trạng thái chuyển sang `ANSWERED` hoặc trạng thái đã phản hồi theo thiết kế | TODO: Cập nhật sau khi chạy test |
 
@@ -2986,7 +2995,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ011-01 | Patient xem phản hồi câu hỏi của mình | Token Patient, question đã ANSWERED | Hiển thị phản hồi của bác sĩ | TODO: Cập nhật sau khi chạy test |
 | HQ011-02 | Patient xem câu hỏi chưa có phản hồi | Question `PENDING` | Hiển thị trạng thái chờ phản hồi | TODO: Cập nhật sau khi chạy test |
@@ -3009,7 +3018,7 @@ Nhóm test case này kiểm tra luồng Patient gửi câu hỏi sức khỏe, D
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | HQ012-01 | Admin duyệt nội dung | Nội dung đang chờ kiểm duyệt | Nội dung chuyển sang trạng thái được duyệt nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
 | HQ012-02 | Admin ẩn nội dung | Nội dung có dấu hiệu vi phạm | Nội dung không hiển thị cho người dùng thường nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
@@ -3055,7 +3064,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT001-01 | Slot trống, dữ liệu hợp lệ | `doctorId`, `scheduledAt`, `reason` hợp lệ | Tạo appointment thành công | TODO: Cập nhật sau khi chạy test |
 
@@ -3076,7 +3085,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT002-01 | Guest đặt lịch trên UI | Không có token | Chuyển đến đăng nhập/đăng ký, không tạo appointment | TODO: Cập nhật sau khi chạy test |
 | APT002-02 | Guest gọi API đặt lịch | Request không có token | Từ chối xác thực | TODO: Cập nhật sau khi chạy test |
@@ -3098,7 +3107,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT003-01 | Thiếu bác sĩ | Không có `doctorId` | Từ chối tạo lịch, hiển thị lỗi validation | TODO: Cập nhật sau khi chạy test |
 | APT003-02 | Thiếu thời gian | Không có `scheduledAt` | Từ chối tạo lịch, hiển thị lỗi validation | TODO: Cập nhật sau khi chạy test |
@@ -3120,7 +3129,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT004-01 | Doctor inactive | `doctorId` inactive | Từ chối đặt lịch | TODO: Cập nhật sau khi chạy test |
 | APT004-02 | Doctor chưa duyệt | `doctorId` unapproved | Từ chối đặt lịch | TODO: Cập nhật sau khi chạy test |
@@ -3141,7 +3150,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT005-01 | Trùng giờ bắt đầu | Same `doctorId`, same `scheduledAt` | Từ chối đặt lịch trùng | TODO: Cập nhật sau khi chạy test |
 | APT005-02 | Chồng lấn thời lượng | Lịch mới nằm trong khoảng lịch đã có | Từ chối đặt lịch chồng lấn | TODO: Cập nhật sau khi chạy test |
@@ -3163,7 +3172,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT006-01 | Patient đặt lịch trùng giờ với lịch đang có | Same patient, same `scheduledAt` | Từ chối nếu rule không cho Patient đặt trùng | TODO: Cập nhật sau khi chạy test |
 | APT006-02 | Patient đặt lịch khác giờ | Same patient, different time slot | Cho phép nếu dữ liệu hợp lệ | TODO: Cập nhật sau khi chạy test |
@@ -3184,7 +3193,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT007-01 | Appointment mới tạo | Appointment hợp lệ | Trạng thái thuộc nhóm trạng thái ban đầu hợp lệ như `PENDING`/`PENDING_CONFIRMATION` theo thiết kế | TODO: Cập nhật sau khi chạy test |
 
@@ -3204,7 +3213,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT008-01 | Patient A có lịch hẹn | Token Patient A | Chỉ hiển thị appointment của Patient A | TODO: Cập nhật sau khi chạy test |
 | APT008-02 | Patient A không có lịch | Token Patient không có appointment | Hiển thị danh sách rỗng hoặc thông báo phù hợp | TODO: Cập nhật sau khi chạy test |
@@ -3226,10 +3235,10 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT009-01 | Appointment còn được hủy | Appointment thuộc Patient, trạng thái hợp lệ | Hủy lịch thành công, trạng thái chuyển sang `CANCELLED` hoặc tương ứng | TODO: Cập nhật sau khi chạy test |
-| APT009-02 | Appointment đã hoàn tất | Status `COMPLETED` | Không cho hủy lịch đã hoàn tất | TODO: Cập nhật sau khi chạy test |
+| APT009-02 | Appointment đã hoàn tất | Trạng thái `COMPLETED` | Không cho hủy lịch đã hoàn tất | TODO: Cập nhật sau khi chạy test |
 | APT009-03 | Appointment thuộc Patient khác | Token Patient A, appointment Patient B | Từ chối hủy | TODO: Cập nhật sau khi chạy test |
 
 #### TC-APT-010: Doctor xem lịch hẹn được đặt với mình
@@ -3248,7 +3257,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT010-01 | Appointment thuộc Doctor A | Token Doctor A | Hiển thị trong lịch của Doctor A | TODO: Cập nhật sau khi chạy test |
 | APT010-02 | Appointment thuộc Doctor B | Token Doctor A | Không hiển thị trong lịch của Doctor A | TODO: Cập nhật sau khi chạy test |
@@ -3270,9 +3279,9 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
-| APT011-01 | Lịch chờ xác nhận thuộc Doctor | Status chờ xác nhận | Trạng thái chuyển sang `CONFIRMED` hoặc tương ứng | TODO: Cập nhật sau khi chạy test |
+| APT011-01 | Lịch chờ xác nhận thuộc Doctor | Trạng thái chờ xác nhận | Trạng thái chuyển sang `CONFIRMED` hoặc tương ứng | TODO: Cập nhật sau khi chạy test |
 | APT011-02 | Doctor xác nhận lịch của Doctor khác | Token Doctor A, appointment Doctor B | Từ chối thao tác | TODO: Cập nhật sau khi chạy test |
 
 #### TC-APT-012: Admin xem/quản lý lịch hẹn
@@ -3292,7 +3301,7 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT012-01 | Admin xem danh sách lịch hẹn | Token Admin | Hiển thị danh sách appointment theo quyền quản trị | TODO: Cập nhật sau khi chạy test |
 | APT012-02 | Admin lọc lịch hẹn | Filter theo bác sĩ/trạng thái | Trả về dữ liệu phù hợp filter | TODO: Cập nhật sau khi chạy test |
@@ -3314,327 +3323,1776 @@ Nhóm test case này kiểm tra luồng đặt lịch, xem lịch, hủy lịch,
 
 **Bảng test data:**
 
-| ID | Điều kiện | Test value | Expected result | Kết quả |
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
 | APT013-01 | Notification được cấu hình | Đặt lịch thành công | Tạo/gửi thông báo nhắc lịch hoặc thông báo lịch mới theo thiết kế | TODO: Cập nhật sau khi chạy test |
 | APT013-02 | Notification Service lỗi hoặc chưa bật | Đặt lịch thành công, notification unavailable | Nghiệp vụ đặt lịch không bị ghi sai; lỗi thông báo được xử lý theo thiết kế | TODO: Cập nhật sau khi chạy test |
 
-### 4.7. Checklist rà soát
+### 4.7. Test case nhóm Consultation Session
 
-Checklist rà soát được xây dựng dựa trên SRS_Master_Checklist.md, Test_Strategy_and_Traceability.md, API_Contract_v1.md, Auth_Authorization_Matrix.md và Privacy_and_Data_Handling.md. Mục tiêu của phần này là hỗ trợ nhóm kiểm tra lại mức độ đầy đủ của yêu cầu, thiết kế, API và bảo mật trước khi hoàn thiện báo cáo cuối. Cột "Kết quả" sử dụng các giá trị placeholder `Pass`, `Fail`, `N/A`; khi chưa có biên bản rà soát chính thức hoặc bằng chứng thực thi, báo cáo để ở trạng thái `N/A` hoặc ghi chú cần kiểm tra thêm.
+Nhóm test case này kiểm tra luồng Doctor bắt đầu phiên tư vấn, Patient tham gia phiên tư vấn, trao đổi chat/video trong consultation, kiểm soát quyền truy cập theo appointment và trạng thái phiên tư vấn. Trọng tâm là bảo đảm chỉ đúng Doctor phụ trách và Patient của appointment hợp lệ được start/join, hệ thống xử lý trạng thái appointment, thời gian tham gia, chat realtime/basic và fallback từ video sang chat nếu video không khả dụng.
 
-#### 4.7.1. Checklist rà soát yêu cầu
+**Bảng tổng hợp test case**
 
-| ID | Nội dung rà soát | Mục tiêu | Kết quả | Ghi chú |
+| Test case ID | Tên test case | Loại test | Actor | Công cụ kiểm thử | Priority | Result |
+|---|---|---|---|---|---|---|
+| TC-CS-001 | Doctor bắt đầu phiên tư vấn hợp lệ | Positive | Doctor | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-002 | Patient tham gia phiên tư vấn hợp lệ | Positive | Patient | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-003 | Guest không được tham gia consultation | Negative | Guest User | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-004 | Patient không thuộc appointment không được join | Negative | Patient | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-005 | Doctor không phụ trách appointment không start/join được | Negative | Doctor | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-006 | Không cho start/join appointment đã `CANCELLED` | Negative | Patient, Doctor | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-007 | Không cho start/join appointment đã `COMPLETED` nếu rule không cho | Negative | Patient, Doctor | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-008 | Không cho join ngoài thời gian cho phép nếu hệ thống có rule | Negative | Patient, Doctor | Playwright, API testing | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-CS-009 | Gửi tin nhắn chat hợp lệ trong consultation | Positive | Patient, Doctor | Playwright, API testing, WebSocket testing | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-010 | Lấy danh sách tin nhắn consultation hợp lệ | Positive | Patient, Doctor | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CS-011 | Video mock/basic khởi tạo được hoặc fallback sang chat khi video lỗi | Positive/Fallback | Patient, Doctor | Playwright, API testing | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-CS-012 | Doctor kết thúc phiên tư vấn | Positive | Doctor | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CS-001: Doctor bắt đầu phiên tư vấn hợp lệ
+
+**Mô tả:** Kiểm tra Doctor phụ trách appointment có thể bắt đầu phiên tư vấn khi appointment hợp lệ.
+
+**Tiền điều kiện:** Doctor đã đăng nhập. Appointment thuộc Doctor, có Patient đúng, trạng thái `CONFIRMED` và nằm trong thời gian cho phép.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Doctor phụ trách appointment.
+2. Mở chi tiết appointment.
+3. Chọn bắt đầu tư vấn hoặc gọi `POST /consultations/{appointmentId}/start`.
+4. Quan sát phản hồi và trạng thái phiên tư vấn.
+
+**Kỹ thuật, công cụ:** Functional testing, State transition testing, Authorization testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
-| REQ-01 | Actor của hệ thống được định nghĩa rõ ràng | Bảo đảm Guest User, Patient, Doctor, Administrator và người vận hành hệ thống có vai trò phân biệt | Pass | Đã mô tả trong Chương I và Chương II theo SRS/auth matrix. |
-| REQ-02 | Use case có tiền điều kiện và hậu điều kiện | Bảo đảm UC01-UC04 có điều kiện bắt đầu/kết thúc rõ để thiết kế testcase | Pass | Đã bổ sung trong phần phân tích use case. |
-| REQ-03 | Luồng chính và luồng phụ rõ ràng | Bảo đảm luồng Guest discovery, booking, Q&A, consultation có thể kiểm thử được | Pass | Cần rà soát lại lần cuối khi chốt báo cáo. |
-| REQ-04 | Input/output nghiệp vụ được mô tả rõ | Bảo đảm các trường như `doctorId`, `scheduledAt`, `reason`, `title`, `content`, `summary` có kỳ vọng rõ | Pass | Đã đối chiếu với API contract và source code hiện tại trong các testcase. |
-| REQ-05 | Trạng thái nghiệp vụ quan trọng được xác định | Làm rõ appointment status, question status và consultation session status | Pass | Bao gồm `PENDING_CONFIRMATION`, `PENDING`, `ANSWERED`, `ONGOING`, `COMPLETED`. |
-| REQ-06 | Appointment duplicate slot được kiểm soát | Bảo đảm không cho bác sĩ/bệnh nhân đặt lịch trùng hoặc chồng lấn | Pass | SRS checklist và source code hiện tại có conflict prevention; cần test evidence ở giai đoạn thực thi. |
-| REQ-07 | Question status transition rõ ràng | Bảo đảm câu hỏi chuyển từ `PENDING` sang `ANSWERED` khi Doctor phản hồi | Pass | Đã đưa vào UC03 và testcase 2.3.7. |
-| REQ-08 | Error messages rõ ràng cho người dùng | Bảo đảm lỗi validation, unauthorized, forbidden, conflict, not found được phản hồi dễ hiểu | N/A | Cần rà soát UI/API response thực tế khi chạy kiểm thử. |
+| CS001-01 | Appointment hợp lệ | Doctor đúng, Patient đúng, status `CONFIRMED` | Hệ thống khởi tạo consultation session thành công | TODO: Cập nhật sau khi chạy test |
 
-#### 4.7.2. Checklist rà soát thiết kế
+#### TC-CS-002: Patient tham gia phiên tư vấn hợp lệ
 
-| ID | Nội dung rà soát | Mục tiêu | Kết quả | Ghi chú |
+**Mô tả:** Kiểm tra Patient thuộc appointment có thể tham gia phiên tư vấn hợp lệ.
+
+**Tiền điều kiện:** Patient đã đăng nhập. Appointment thuộc Patient, trạng thái `CONFIRMED`, phiên đã được khởi tạo hoặc hệ thống cho phép Patient join theo rule.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient thuộc appointment.
+2. Mở lịch hẹn cần tư vấn.
+3. Chọn tham gia tư vấn hoặc gọi `POST /consultations/{appointmentId}/join`.
+4. Kiểm tra thông tin phiên trả về.
+
+**Kỹ thuật, công cụ:** Functional testing, Authorization testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
-| DES-01 | Thiết kế có phân tách actor và vai trò truy cập | Bảo đảm nghiệp vụ và giao diện không trộn quyền Patient/Doctor/Admin | Pass | Đã dựa trên Auth_Authorization_Matrix.md. |
-| DES-02 | Thiết kế kiến trúc có phân lớp rõ | Bảo đảm client, server, database và tích hợp ngoài được trình bày nhất quán | Pass | Đã mô tả ở Chương II - 3.1. |
-| DES-03 | Form/UI có input và output rõ | Bảo đảm các màn hình tra cứu, đặt lịch, gửi câu hỏi, tư vấn có dữ liệu vào/ra kiểm thử được | Pass | Ảnh giao diện còn là TODO placeholder, chưa có screenshot thật. |
-| DES-04 | Luồng đặt lịch có xử lý duplicate slot | Bảo đảm thiết kế không cho lịch hẹn trùng bác sĩ hoặc bệnh nhân | Pass | Cần xác nhận bằng testcase execution sau. |
-| DES-05 | Luồng Q&A có trạng thái và phạm vi xử lý | Bảo đảm Doctor chỉ phản hồi câu hỏi được gán hoặc câu hỏi mở theo rule | Pass | Source code hiện tại có rule từ chối câu hỏi gán cho bác sĩ khác. |
-| DES-06 | Consultation session giới hạn đúng Patient/Doctor | Bảo đảm chỉ đúng Patient và Doctor của appointment được join/start/end/view result | Pass | Đã mô tả trong UC04 và testcase 2.4. |
-| DES-07 | Fallback chat/video được thể hiện trong thiết kế | Bảo đảm hệ thống có hướng xử lý khi video mock/provider không khả dụng | Pass | Source code hiện tại hỗ trợ fallback `VIDEO` sang `CHAT`. |
-| DES-08 | Thiết kế ghi nhận dữ liệu sức khỏe theo nguyên tắc tối thiểu | Hạn chế hiển thị/log dữ liệu nhạy cảm không cần thiết | N/A | Cần rà soát log thực tế và response trong giai đoạn kiểm thử. |
+| CS002-01 | Patient thuộc appointment | Token Patient đúng, appointment hợp lệ | Patient join đúng consultation session của mình | TODO: Cập nhật sau khi chạy test |
 
-#### 4.7.3. Checklist rà soát API
+#### TC-CS-003: Guest không được tham gia consultation
 
-| ID | Nội dung rà soát | Mục tiêu | Kết quả | Ghi chú |
+**Mô tả:** Kiểm tra hệ thống từ chối Guest User khi truy cập chức năng tham gia phiên tư vấn.
+
+**Tiền điều kiện:** Người dùng chưa đăng nhập. Có appointment hợp lệ trong hệ thống.
+
+**Bước thực hiện:**
+
+1. Mở đường dẫn tham gia consultation từ trình duyệt chưa đăng nhập.
+2. Nếu kiểm thử API, gọi `POST /consultations/{appointmentId}/join` không có token.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Authorization testing, Negative testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
-| API-01 | API public discovery không yêu cầu authentication | Bảo đảm Guest User xem home, chuyên khoa, danh sách/chi tiết bác sĩ công khai | Pass | Theo API contract: `/public/home`, `/public/specialties`, `/public/doctors`. |
-| API-02 | Protected API yêu cầu authentication | Bảo đảm booking, questions, appointments, consultations không cho Guest truy cập | Pass | Theo Auth_Authorization_Matrix.md và controllers hiện tại. |
-| API-03 | Role-based access được định nghĩa cho API | Bảo đảm endpoint Patient/Doctor/Admin có role phù hợp | Pass | Auth matrix quy định RBAC; source code sử dụng `RolesGuard` ở các controller chính. |
-| API-04 | API validate required fields | Bảo đảm `doctorId`, `scheduledAt`, `reason`, `title`, `content`, `summary` không rỗng/sai định dạng | Pass | DTO hiện tại có class-validator; cần test execution để xác nhận runtime. |
-| API-05 | Patient không xem dữ liệu của Patient khác | Bảo đảm `/appointments/mine`, `/questions/mine`, `/consultations/mine` chỉ trả dữ liệu chủ sở hữu | Pass | Theo policy và source code hiện tại; cần privacy regression test sau. |
-| API-06 | Doctor không truy cập appointment/question trái phạm vi | Bảo đảm Doctor chỉ quản lý lịch và câu hỏi thuộc phạm vi xử lý | Pass | Đã đưa vào testcase UC02, UC03, UC04. |
-| API-07 | API trả lỗi nhất quán | Bảo đảm lỗi validation/unauthorized/forbidden/not found/conflict có format rõ | N/A | API_Contract_v1.md có convention; cần kiểm tra response thực tế. |
-| API-08 | API consultation hỗ trợ REST và realtime channel | Bảo đảm REST messages và WebSocket `/consultations` có thể kiểm thử tích hợp | Pass | Theo API contract và source gateway hiện tại. |
+| CS003-01 | Guest join từ UI | Không có session đăng nhập | Chuyển đến đăng nhập/đăng ký hoặc chặn truy cập | TODO: Cập nhật sau khi chạy test |
+| CS003-02 | Guest gọi API join | Request không có token | Từ chối xác thực, không cho tham gia consultation | TODO: Cập nhật sau khi chạy test |
 
-#### 4.7.4. Checklist rà soát bảo mật
+#### TC-CS-004: Patient không thuộc appointment không được join
 
-| ID | Nội dung rà soát | Mục tiêu | Kết quả | Ghi chú |
+**Mô tả:** Kiểm tra Patient không thể tham gia consultation của Patient khác.
+
+**Tiền điều kiện:** Patient A đã đăng nhập. Appointment thuộc Patient B.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient A.
+2. Gọi `POST /consultations/{appointmentId}/join` với appointment của Patient B.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Authorization testing, Data privacy testing, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
 |---|---|---|---|---|
-| SEC-01 | Password không được lưu dạng plain text | Bảo đảm mật khẩu được hash trước khi lưu | Pass | Source/doc hiện tại dùng bcryptjs; không ghi secret thật trong báo cáo. |
-| SEC-02 | Token/secret không xuất hiện trong response hoặc báo cáo | Tránh lộ JWT secret, refresh token, reset token hoặc cấu hình nhạy cảm | Pass | Báo cáo chỉ liệt kê tên biến env, không ghi secret thật. |
-| SEC-03 | Protected API yêu cầu JWT hợp lệ | Ngăn Guest gọi booking, question, consultation, rating, admin APIs | Pass | Theo auth matrix và controllers hiện tại. |
-| SEC-04 | RBAC được áp dụng theo vai trò | Bảo đảm Patient, Doctor, Admin không dùng chức năng ngoài quyền | Pass | Dựa trên RolesGuard và role matrix. |
-| SEC-05 | Patient không truy cập dữ liệu sức khỏe của Patient khác | Bảo vệ privacy của appointment, question, consultation result, prescription | Pass | Đã đưa vào testcase; cần execution evidence trước khi ghi kết quả test. |
-| SEC-06 | Doctor không truy cập appointment/question không được phép | Bảo đảm Doctor chỉ xử lý dữ liệu thuộc phạm vi hoặc câu hỏi mở theo rule | Pass | Đã đưa vào UC02-UC04 và checklist API. |
-| SEC-07 | Sensitive health data không bị log thô | Tránh log medical history, consultation summary, prescription content không cần thiết | N/A | Privacy guide có nguyên tắc và sanitizer; cần kiểm tra log thực tế ở final phase. |
-| SEC-08 | Audit được áp dụng cho hành động nhạy cảm | Ghi nhận thay đổi appointment, trả lời câu hỏi, cập nhật summary/prescription, admin actions | Pass | SRS checklist và coverage evidence có audit coverage; cần bằng chứng execution nếu báo cáo kết quả. |
+| CS004-01 | Patient join appointment của người khác | Token Patient A, appointmentId của Patient B | Từ chối truy cập, không join consultation | TODO: Cập nhật sau khi chạy test |
 
-## 5. Hiện thực automation test và ghi nhận lỗi
+#### TC-CS-005: Doctor không phụ trách appointment không start/join được
 
-Theo Test_Strategy_and_Traceability.md, hoạt động kiểm thử của hệ thống được định hướng theo test pyramid gồm unit test, integration test và API/E2E test theo các use case trong SRS. Trong phạm vi báo cáo cuối, nhóm định hướng minh họa kiểm thử tự động bằng Playwright E2E trên frontend repository `OnlineHealthConsultation-Web`, dựa trên các testcase thủ công đã đặc tả ở mục 2.1 đến 2.4. Vì báo cáo hiện đang được viết từ backend repository, phần này chỉ trình bày kế hoạch hiện thực, cấu trúc, cách chạy và cách ghi nhận bằng chứng; chưa tạo Playwright config, chưa thêm test file và chưa chạy test trong repository backend.
+**Mô tả:** Kiểm tra Doctor không phụ trách appointment không thể bắt đầu hoặc tham gia phiên tư vấn.
 
-Các hình minh họa kết quả kiểm thử tự động sẽ được bổ sung sau khi nhóm triển khai và chạy bộ kiểm thử Playwright trên frontend repository.
+**Tiền điều kiện:** Doctor A đã đăng nhập. Appointment thuộc Doctor B.
 
-### 5.1. Mục tiêu kiểm thử tự động
+**Bước thực hiện:**
 
-Mục tiêu của kiểm thử tự động là chuyển một số testcase quan trọng thành các kịch bản E2E có thể chạy lặp lại trên giao diện người dùng. Bộ kiểm thử dự kiến tập trung vào các thao tác đại diện cho người dùng thật: Guest User tìm kiếm bác sĩ, Patient đặt lịch tư vấn và gửi câu hỏi sức khỏe, Doctor phản hồi câu hỏi, Doctor bắt đầu và hoàn tất phiên tư vấn. Thông qua đó, nhóm có thể kiểm tra sự liên kết giữa frontend, API backend, xác thực/phân quyền, trạng thái nghiệp vụ và thông báo lỗi trên giao diện.
+1. Đăng nhập bằng Doctor A.
+2. Gọi `POST /consultations/{appointmentId}/start` với appointment của Doctor B.
+3. Gọi `POST /consultations/{appointmentId}/join` với appointment của Doctor B.
+4. Quan sát phản hồi.
 
-Kiểm thử tự động không thay thế toàn bộ kiểm thử thủ công, mà đóng vai trò minh họa và hồi quy cho các luồng quan trọng trong báo cáo. Những testcase có dữ liệu phức tạp, cần kiểm tra sâu về database hoặc race condition vẫn có thể được bổ sung bằng API/integration test ở giai đoạn sau nếu có điều kiện.
+**Kỹ thuật, công cụ:** Authorization testing, Negative testing. Công cụ: API testing, Postman.
 
-### 5.2. Phạm vi kiểm thử tự động
+**Bảng test data:**
 
-Phạm vi tự động hóa dự kiến bao gồm bốn use case chính đã được phân tích trong báo cáo:
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CS005-01 | Doctor không phụ trách start consultation | Token Doctor A, appointment của Doctor B | Từ chối start consultation | TODO: Cập nhật sau khi chạy test |
+| CS005-02 | Doctor không phụ trách join consultation | Token Doctor A, appointment của Doctor B | Từ chối join consultation | TODO: Cập nhật sau khi chạy test |
 
-- UC01: Guest User tra cứu bác sĩ và chuyển đổi sang đăng nhập/đăng ký.
-- UC02: Patient đặt lịch hẹn tư vấn.
-- UC03: Patient gửi câu hỏi sức khỏe và Doctor phản hồi câu hỏi.
-- UC04: Doctor thực hiện phiên tư vấn trực tuyến và hoàn tất appointment.
+#### TC-CS-006: Không cho start/join appointment đã CANCELLED
 
-Các testcase được chọn ưu tiên là các testcase có khả năng thể hiện rõ hành vi giao diện, điều hướng, xác thực, phân quyền và thay đổi trạng thái nghiệp vụ. Các testcase cần dữ liệu backend ổn định như bác sĩ đã được duyệt, tài khoản Patient/Doctor, khung giờ còn trống và dữ liệu appointment/question sẽ được chuẩn bị trước khi chạy Playwright.
+**Mô tả:** Kiểm tra hệ thống không cho bắt đầu hoặc tham gia consultation với appointment đã hủy.
 
-### 5.3. Kỹ thuật kiểm thử
+**Tiền điều kiện:** Appointment thuộc đúng Doctor/Patient nhưng trạng thái `CANCELLED`.
 
-Các kỹ thuật kiểm thử dự kiến sử dụng gồm:
+**Bước thực hiện:**
 
-- Black-box testing: kiểm tra hành vi hệ thống qua giao diện và kết quả hiển thị, không phụ thuộc vào mã nguồn frontend.
-- Equivalence Partitioning: chia dữ liệu kiểm thử thành nhóm hợp lệ và không hợp lệ, ví dụ keyword tìm kiếm, khung giờ đặt lịch, nội dung câu hỏi.
-- Boundary Value Analysis: áp dụng cho thời gian đặt lịch, trạng thái slot, độ dài nội dung câu hỏi và thời điểm tham gia tư vấn nếu có điều kiện kiểm thử.
-- Decision Table Testing: áp dụng cho tổ hợp trạng thái đăng nhập, vai trò người dùng, quyền truy cập và trạng thái nghiệp vụ.
-- End-to-End testing: kiểm tra luồng hoàn chỉnh từ thao tác UI đến phản hồi của hệ thống.
-- API testing: chỉ dùng như bằng chứng hỗ trợ nếu frontend cần chuẩn bị dữ liệu hoặc xác nhận trạng thái sau khi thao tác UI.
+1. Doctor gọi `POST /consultations/{appointmentId}/start`.
+2. Patient gọi `POST /consultations/{appointmentId}/join`.
+3. Quan sát phản hồi.
 
-### 5.4. Công cụ sử dụng
+**Kỹ thuật, công cụ:** State transition testing, Negative testing. Công cụ: API testing, Postman.
 
-| Công cụ | Trạng thái | Mục đích sử dụng | Ghi chú |
-|---|---|---|---|
-| Playwright | Dự kiến triển khai ở frontend repository | E2E automation cho các luồng người dùng chính | Công cụ chính của phần minh họa kiểm thử tự động; không sử dụng Cypress cho báo cáo này. |
-| Playwright HTML Report | Dự kiến | Lưu bằng chứng kết quả chạy test dưới dạng HTML report | Sẽ bổ sung hình minh họa sau khi chạy test thật. |
-| Playwright Trace/Screenshot | Dự kiến | Ghi nhận ảnh màn hình và trace khi test pass/fail | Dùng làm bằng chứng cho các luồng đặt lịch và phản hồi câu hỏi. |
-| API backend | Hỗ trợ | Cung cấp dữ liệu và xử lý nghiệp vụ cho frontend E2E | Dùng API thật theo backend hiện có; API testing riêng chỉ là bằng chứng bổ trợ nếu cần. |
-| Postman hoặc API script | Dự kiến nếu cần | Chuẩn bị dữ liệu hoặc xác nhận trạng thái sau E2E | Không phải hướng chính của báo cáo. |
+**Bảng test data:**
 
-### 5.5. Cấu trúc kiểm thử tự động dự kiến trên frontend
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CS006-01 | Doctor start appointment cancelled | Trạng thái `CANCELLED` | Từ chối start consultation | TODO: Cập nhật sau khi chạy test |
+| CS006-02 | Patient join appointment cancelled | Trạng thái `CANCELLED` | Từ chối join consultation | TODO: Cập nhật sau khi chạy test |
 
-Khi triển khai trong frontend repository, nhóm dự kiến tổ chức Playwright theo cấu trúc dễ truy vết với các use case trong báo cáo:
+#### TC-CS-007: Không cho start/join appointment đã COMPLETED nếu rule không cho
+
+**Mô tả:** Kiểm tra hệ thống không cho bắt đầu hoặc tham gia lại appointment đã hoàn tất nếu quy tắc nghiệp vụ không cho phép.
+
+**Tiền điều kiện:** Appointment thuộc đúng Doctor/Patient nhưng trạng thái `COMPLETED`.
+
+**Bước thực hiện:**
+
+1. Doctor gọi `POST /consultations/{appointmentId}/start`.
+2. Patient hoặc Doctor gọi `POST /consultations/{appointmentId}/join`.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** State transition testing, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CS007-01 | Start appointment completed | Trạng thái `COMPLETED` | Từ chối start nếu rule không cho start lại | TODO: Cập nhật sau khi chạy test |
+| CS007-02 | Join appointment completed | Trạng thái `COMPLETED` | Từ chối join nếu rule không cho join lại | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CS-008: Không cho join ngoài thời gian cho phép nếu hệ thống có rule
+
+**Mô tả:** Kiểm tra rule thời gian khi Doctor/Patient bắt đầu hoặc tham gia consultation.
+
+**Tiền điều kiện:** Appointment `CONFIRMED`, đúng Doctor/Patient nhưng chưa tới hoặc đã quá khoảng thời gian cho phép theo cấu hình hệ thống.
+
+**Bước thực hiện:**
+
+1. Chuẩn bị appointment nằm ngoài thời gian cho phép.
+2. Doctor gọi start consultation.
+3. Patient gọi join consultation.
+4. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Boundary Value Analysis, State transition testing, Negative testing. Công cụ: Playwright, API testing.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CS008-01 | Join quá sớm | Appointment chưa nằm trong window cho phép | Từ chối start/join nếu rule thời gian được áp dụng | TODO: Cập nhật sau khi chạy test |
+| CS008-02 | Join quá muộn | Appointment đã quá window cho phép | Từ chối start/join nếu rule thời gian được áp dụng | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CS-009: Gửi tin nhắn chat hợp lệ trong consultation
+
+**Mô tả:** Kiểm tra Doctor/Patient gửi được tin nhắn chat trong consultation hợp lệ.
+
+**Tiền điều kiện:** Consultation hợp lệ đã được start/join. User là Doctor hoặc Patient thuộc appointment.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Doctor hoặc Patient thuộc consultation.
+2. Vào phiên tư vấn.
+3. Gửi tin nhắn hợp lệ qua UI, REST API hoặc WebSocket event `consultation:message`.
+4. Kiểm tra tin nhắn hiển thị hoặc response trả về.
+
+**Kỹ thuật, công cụ:** Functional testing, Integration testing, WebSocket testing. Công cụ: Playwright, API testing, WebSocket testing.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CS009-01 | Gửi tin nhắn text hợp lệ | Nội dung chat không rỗng | Tin nhắn được lưu/gửi trong đúng consultation | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CS-010: Lấy danh sách tin nhắn consultation hợp lệ
+
+**Mô tả:** Kiểm tra Doctor/Patient lấy được danh sách tin nhắn của consultation thuộc phạm vi.
+
+**Tiền điều kiện:** Consultation có tin nhắn. User là Doctor hoặc Patient thuộc appointment.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng user thuộc appointment.
+2. Gọi `GET /consultations/{appointmentId}/messages`.
+3. Kiểm tra danh sách tin nhắn trả về.
+
+**Kỹ thuật, công cụ:** Functional testing, Authorization testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CS010-01 | User thuộc consultation xem messages | Token Doctor/Patient đúng | Trả về danh sách tin nhắn của đúng consultation | TODO: Cập nhật sau khi chạy test |
+| CS010-02 | User ngoài appointment xem messages | Token Patient/Doctor không thuộc appointment | Từ chối truy cập danh sách tin nhắn | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CS-011: Video mock/basic khởi tạo được hoặc fallback sang chat khi video lỗi
+
+**Mô tả:** Kiểm tra hệ thống khởi tạo video mock/basic nếu có hỗ trợ và fallback sang chat khi video không khả dụng.
+
+**Tiền điều kiện:** Appointment hợp lệ, Doctor/Patient có quyền truy cập. Video service hoặc video mock được cấu hình theo môi trường kiểm thử.
+
+**Bước thực hiện:**
+
+1. Doctor start consultation với cấu hình video khả dụng nếu có.
+2. Kiểm tra thông tin video session hoặc video mock.
+3. Giả lập video service không khả dụng nếu môi trường cho phép.
+4. Start/join consultation và kiểm tra fallback sang chat.
+
+**Kỹ thuật, công cụ:** Integration testing, Fallback testing. Công cụ: Playwright, API testing.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CS011-01 | Video mock/basic khả dụng | Video service/mock enabled | Khởi tạo được video session hoặc thông tin video mock | TODO: Cập nhật sau khi chạy test |
+| CS011-02 | Video không khả dụng | Video service unavailable | Hệ thống fallback sang chat, không làm gián đoạn consultation | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CS-012: Doctor kết thúc phiên tư vấn
+
+**Mô tả:** Kiểm tra Doctor phụ trách có thể kết thúc phiên tư vấn.
+
+**Tiền điều kiện:** Doctor phụ trách đã đăng nhập. Consultation đang diễn ra.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Doctor phụ trách.
+2. Mở consultation đang diễn ra.
+3. Chọn kết thúc tư vấn hoặc gọi `PATCH /consultations/{appointmentId}/end`.
+4. Kiểm tra trạng thái phiên tư vấn và appointment theo rule.
+
+**Kỹ thuật, công cụ:** Functional testing, State transition testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CS012-01 | Doctor phụ trách end consultation | Consultation đang diễn ra | Kết thúc phiên tư vấn thành công | TODO: Cập nhật sau khi chạy test |
+
+### 4.8. Test case nhóm Consultation Result & Prescription
+
+Nhóm test case này kiểm tra việc Doctor ghi nhận kết quả tư vấn, tạo đơn thuốc điện tử cơ bản, Patient xem kết quả tư vấn/đơn thuốc của chính mình và kiểm soát quyền xem lịch sử tư vấn. Trọng tâm là validation summary, validation prescription item, quyền cập nhật theo Doctor phụ trách và quyền xem dữ liệu theo phạm vi Patient/Doctor.
+
+**Bảng tổng hợp test case**
+
+| Test case ID | Tên test case | Loại test | Actor | Công cụ kiểm thử | Priority | Result |
+|---|---|---|---|---|---|---|
+| TC-CRP-001 | Doctor ghi kết luận tư vấn hợp lệ | Positive | Doctor | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-002 | Summary rỗng bị từ chối | Negative | Doctor | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-003 | Doctor không phụ trách không cập nhật summary được | Negative | Doctor | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-004 | Doctor tạo prescription hợp lệ | Positive | Doctor | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-005 | Prescription thiếu tên thuốc bị từ chối | Negative | Doctor | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-006 | Prescription thiếu liều/tần suất/thời lượng bị từ chối | Negative | Doctor | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-007 | Patient xem kết quả tư vấn của chính mình | Positive | Patient | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-008 | Patient không xem kết quả của Patient khác | Negative | Patient | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-009 | Doctor xem lịch sử tư vấn của bệnh nhân thuộc phạm vi | Positive | Doctor | Playwright, API testing | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-CRP-010 | Appointment/session chuyển `COMPLETED` sau khi kết thúc nếu rule có | Positive | Doctor, System | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-001: Doctor ghi kết luận tư vấn hợp lệ
+
+**Mô tả:** Kiểm tra Doctor phụ trách ghi nhận kết quả tư vấn và hướng dẫn điều trị cơ bản cho appointment hợp lệ.
+
+**Tiền điều kiện:** Doctor phụ trách đã đăng nhập. Consultation thuộc appointment hợp lệ.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Doctor phụ trách.
+2. Mở consultation cần ghi kết quả.
+3. Nhập summary/kết luận/hướng dẫn điều trị hợp lệ.
+4. Lưu kết quả hoặc gọi `PATCH /consultations/{appointmentId}/summary`.
+
+**Kỹ thuật, công cụ:** Functional testing, Authorization testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP001-01 | Summary hợp lệ | Nội dung kết luận không rỗng | Lưu kết quả tư vấn thành công, gắn đúng appointment/session | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-002: Summary rỗng bị từ chối
+
+**Mô tả:** Kiểm tra hệ thống không lưu summary rỗng hoặc chỉ có khoảng trắng.
+
+**Tiền điều kiện:** Doctor phụ trách đã đăng nhập. Consultation hợp lệ.
+
+**Bước thực hiện:**
+
+1. Gửi request cập nhật summary với nội dung rỗng.
+2. Gửi request cập nhật summary chỉ gồm khoảng trắng.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Equivalence Partitioning, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP002-01 | Summary rỗng | `summary=""` | Từ chối lưu, trả lỗi validation | TODO: Cập nhật sau khi chạy test |
+| CRP002-02 | Summary chỉ khoảng trắng | `summary="   "` | Từ chối lưu, trả lỗi validation | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-003: Doctor không phụ trách không cập nhật summary được
+
+**Mô tả:** Kiểm tra Doctor không phụ trách appointment không thể cập nhật kết quả tư vấn.
+
+**Tiền điều kiện:** Doctor A đã đăng nhập. Appointment/consultation thuộc Doctor B.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Doctor A.
+2. Gọi `PATCH /consultations/{appointmentId}/summary` với appointment của Doctor B.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Authorization testing, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP003-01 | Doctor ngoài phạm vi cập nhật summary | Token Doctor A, appointment của Doctor B | Từ chối cập nhật summary | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-004: Doctor tạo prescription hợp lệ
+
+**Mô tả:** Kiểm tra Doctor tạo đơn thuốc điện tử cơ bản với dữ liệu hợp lệ.
+
+**Tiền điều kiện:** Doctor phụ trách đã đăng nhập. Consultation/appointment đủ điều kiện tạo prescription theo rule hệ thống.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Doctor phụ trách.
+2. Mở consultation cần tạo đơn thuốc.
+3. Nhập tên thuốc, liều dùng, tần suất dùng, thời lượng dùng và ghi chú nếu có.
+4. Lưu prescription hoặc gọi `POST /consultations/{appointmentId}/prescriptions`.
+
+**Kỹ thuật, công cụ:** Functional testing, Data validation testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP004-01 | Prescription hợp lệ | Tên thuốc, liều, tần suất, thời lượng hợp lệ | Tạo prescription thành công, gắn đúng consultation/appointment | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-005: Prescription thiếu tên thuốc bị từ chối
+
+**Mô tả:** Kiểm tra hệ thống từ chối prescription item không có tên thuốc.
+
+**Tiền điều kiện:** Doctor phụ trách đã đăng nhập. Consultation/appointment đủ điều kiện tạo prescription.
+
+**Bước thực hiện:**
+
+1. Gửi request tạo prescription với item thiếu tên thuốc.
+2. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Data validation testing, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP005-01 | Thiếu tên thuốc | Tên thuốc rỗng hoặc không truyền | Từ chối tạo prescription, trả lỗi validation | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-006: Prescription thiếu liều/tần suất/thời lượng bị từ chối
+
+**Mô tả:** Kiểm tra hệ thống từ chối prescription item thiếu các trường bắt buộc về liều dùng, tần suất hoặc thời lượng.
+
+**Tiền điều kiện:** Doctor phụ trách đã đăng nhập. Consultation/appointment đủ điều kiện tạo prescription.
+
+**Bước thực hiện:**
+
+1. Gửi prescription thiếu liều dùng.
+2. Gửi prescription thiếu tần suất dùng.
+3. Gửi prescription thiếu thời lượng dùng.
+4. Quan sát phản hồi từng trường hợp.
+
+**Kỹ thuật, công cụ:** Equivalence Partitioning, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP006-01 | Thiếu liều dùng | Không có dosage/liều dùng | Từ chối tạo prescription | TODO: Cập nhật sau khi chạy test |
+| CRP006-02 | Thiếu tần suất | Không có frequency/tần suất | Từ chối tạo prescription | TODO: Cập nhật sau khi chạy test |
+| CRP006-03 | Thiếu thời lượng | Không có duration/thời lượng | Từ chối tạo prescription | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-007: Patient xem kết quả tư vấn của chính mình
+
+**Mô tả:** Kiểm tra Patient xem được kết quả tư vấn và đơn thuốc gắn với consultation của chính mình.
+
+**Tiền điều kiện:** Patient đã đăng nhập. Patient có consultation đã có summary/prescription.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient.
+2. Mở lịch sử tư vấn hoặc gọi `GET /consultations/mine`.
+3. Xem chi tiết kết quả tư vấn và prescription nếu có.
+
+**Kỹ thuật, công cụ:** Functional testing, Data privacy testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP007-01 | Patient xem consultation của mình | Token Patient đúng | Hiển thị/trả về summary và prescription thuộc chính Patient | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-008: Patient không xem kết quả của Patient khác
+
+**Mô tả:** Kiểm tra Patient không thể xem kết quả tư vấn hoặc đơn thuốc của Patient khác.
+
+**Tiền điều kiện:** Patient A đã đăng nhập. Có consultation/prescription thuộc Patient B.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient A.
+2. Truy cập kết quả consultation của Patient B hoặc gọi API với appointmentId của Patient B.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Authorization testing, Data privacy testing, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP008-01 | Patient xem kết quả của người khác | Token Patient A, appointment của Patient B | Từ chối truy cập dữ liệu consultation result/prescription | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-009: Doctor xem lịch sử tư vấn của bệnh nhân thuộc phạm vi
+
+**Mô tả:** Kiểm tra Doctor xem được lịch sử tư vấn thuộc phạm vi phụ trách và không lộ dữ liệu ngoài phạm vi.
+
+**Tiền điều kiện:** Doctor đã đăng nhập. Có consultation thuộc Doctor và có consultation không thuộc Doctor.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Doctor.
+2. Mở lịch sử tư vấn hoặc gọi `GET /consultations/doctor/me`.
+3. Kiểm tra danh sách consultation trả về.
+
+**Kỹ thuật, công cụ:** Authorization testing, Functional testing. Công cụ: Playwright, API testing.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP009-01 | Consultation thuộc Doctor | Token Doctor đúng | Hiển thị consultation trong phạm vi phụ trách | TODO: Cập nhật sau khi chạy test |
+| CRP009-02 | Consultation thuộc Doctor khác | Token Doctor A, dữ liệu Doctor B | Không hiển thị dữ liệu ngoài phạm vi | TODO: Cập nhật sau khi chạy test |
+
+#### TC-CRP-010: Appointment/session chuyển COMPLETED sau khi kết thúc nếu rule có
+
+**Mô tả:** Kiểm tra trạng thái appointment/session sau khi Doctor kết thúc phiên tư vấn.
+
+**Tiền điều kiện:** Consultation đang diễn ra và đủ điều kiện kết thúc.
+
+**Bước thực hiện:**
+
+1. Doctor phụ trách gọi `PATCH /consultations/{appointmentId}/end`.
+2. Kiểm tra trạng thái appointment/session sau khi kết thúc.
+3. Kiểm tra khả năng Patient xem lại kết quả tư vấn sau khi completed nếu có dữ liệu.
+
+**Kỹ thuật, công cụ:** State transition testing, Functional testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| CRP010-01 | End consultation hợp lệ | Consultation đang diễn ra | Appointment/session chuyển `COMPLETED` nếu rule hoàn tất được áp dụng | TODO: Cập nhật sau khi chạy test |
+
+### 4.9. Test case nhóm Rating & Feedback
+
+Nhóm test case này kiểm tra việc Patient gửi đánh giá sau khi consultation hoàn tất, validation điểm đánh giá và bình luận, kiểm soát quyền đánh giá theo ownership appointment, chống đánh giá sai trạng thái hoặc trùng lặp nếu rule áp dụng, và chức năng Admin xem/kiểm duyệt rating nếu hệ thống hỗ trợ.
+
+**Bảng tổng hợp test case**
+
+| Test case ID | Tên test case | Loại test | Actor | Công cụ kiểm thử | Priority | Result |
+|---|---|---|---|---|---|---|
+| TC-RF-001 | Patient đánh giá sau consultation completed | Positive | Patient | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RF-002 | Không cho đánh giá khi appointment chưa completed | Negative | Patient | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RF-003 | Không cho Guest đánh giá | Negative | Guest User | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RF-004 | Không cho Patient đánh giá appointment của người khác | Negative | Patient | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RF-005 | Score ngoài range bị từ chối | Negative | Patient | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RF-006 | Comment quá dài/sai định dạng bị từ chối nếu có rule | Negative | Patient | API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-RF-007 | Không cho đánh giá trùng nếu hệ thống có rule | Negative | Patient | API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-RF-008 | Admin xem/kiểm duyệt rating nếu có | Positive | Administrator | Playwright, API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RF-001: Patient đánh giá sau consultation completed
+
+**Mô tả:** Kiểm tra Patient gửi rating và comment sau khi consultation/appointment đã hoàn tất.
+
+**Tiền điều kiện:** Patient đã đăng nhập. Appointment thuộc Patient và trạng thái `COMPLETED`.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient.
+2. Mở consultation/appointment đã hoàn tất.
+3. Nhập score hợp lệ và comment hợp lệ.
+4. Gửi đánh giá hoặc gọi `POST /ratings`.
+
+**Kỹ thuật, công cụ:** Functional testing, State transition testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RF001-01 | Appointment completed | appointmentId thuộc Patient, score hợp lệ, comment hợp lệ | Tạo rating thành công | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RF-002: Không cho đánh giá khi appointment chưa completed
+
+**Mô tả:** Kiểm tra hệ thống từ chối rating cho appointment chưa hoàn tất.
+
+**Tiền điều kiện:** Patient đã đăng nhập. Appointment thuộc Patient nhưng trạng thái chưa `COMPLETED`.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient.
+2. Gửi rating cho appointment chưa completed.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** State transition testing, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RF002-01 | Appointment `CONFIRMED` | appointmentId thuộc Patient, status `CONFIRMED` | Từ chối rating vì consultation chưa completed | TODO: Cập nhật sau khi chạy test |
+| RF002-02 | Appointment `CANCELLED` | appointmentId thuộc Patient, status `CANCELLED` | Từ chối rating vì appointment không completed | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RF-003: Không cho Guest đánh giá
+
+**Mô tả:** Kiểm tra Guest User không thể gửi rating.
+
+**Tiền điều kiện:** Người dùng chưa đăng nhập.
+
+**Bước thực hiện:**
+
+1. Mở chức năng đánh giá khi chưa đăng nhập.
+2. Nếu kiểm thử API, gọi `POST /ratings` không có token.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Authorization testing, Negative testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RF003-01 | Guest đánh giá từ UI | Không có session đăng nhập | Chuyển đến đăng nhập/đăng ký hoặc chặn gửi rating | TODO: Cập nhật sau khi chạy test |
+| RF003-02 | Guest gọi API rating | Request không có token | Từ chối xác thực, không tạo rating | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RF-004: Không cho Patient đánh giá appointment của người khác
+
+**Mô tả:** Kiểm tra Patient không được gửi rating cho appointment không thuộc mình.
+
+**Tiền điều kiện:** Patient A đã đăng nhập. Appointment thuộc Patient B và đã completed.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient A.
+2. Gửi `POST /ratings` với appointmentId của Patient B.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Authorization testing, Data privacy testing, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RF004-01 | Patient đánh giá appointment của người khác | Token Patient A, appointmentId của Patient B | Từ chối tạo rating | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RF-005: Score ngoài range bị từ chối
+
+**Mô tả:** Kiểm tra validation điểm đánh giá.
+
+**Tiền điều kiện:** Patient đã đăng nhập và có appointment completed.
+
+**Bước thực hiện:**
+
+1. Gửi rating với score nhỏ hơn mức tối thiểu.
+2. Gửi rating với score lớn hơn mức tối đa.
+3. Gửi rating với score sai kiểu dữ liệu.
+4. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Boundary Value Analysis, Equivalence Partitioning, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RF005-01 | Score nhỏ hơn range | `score=0` nếu range áp dụng là 1-5 | Từ chối score không hợp lệ | TODO: Cập nhật sau khi chạy test |
+| RF005-02 | Score lớn hơn range | `score=6` nếu range áp dụng là 1-5 | Từ chối score không hợp lệ | TODO: Cập nhật sau khi chạy test |
+| RF005-03 | Score sai kiểu | `score="five"` | Từ chối score sai định dạng | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RF-006: Comment quá dài/sai định dạng bị từ chối nếu có rule
+
+**Mô tả:** Kiểm tra validation comment đi kèm rating khi hệ thống có rule độ dài hoặc định dạng.
+
+**Tiền điều kiện:** Patient đã đăng nhập và có appointment completed.
+
+**Bước thực hiện:**
+
+1. Gửi rating với comment vượt độ dài tối đa nếu có rule.
+2. Gửi rating với comment sai định dạng nếu có rule định dạng.
+3. Quan sát phản hồi.
+
+**Kỹ thuật, công cụ:** Boundary Value Analysis, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RF006-01 | Comment quá dài | Comment vượt giới hạn cấu hình nếu có | Từ chối comment vi phạm rule nếu rule được áp dụng | TODO: Cập nhật sau khi chạy test |
+| RF006-02 | Comment sai định dạng | Comment chứa định dạng/ký tự không được phép nếu có rule | Từ chối comment vi phạm rule nếu rule được áp dụng | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RF-007: Không cho đánh giá trùng nếu hệ thống có rule
+
+**Mô tả:** Kiểm tra hệ thống không cho Patient gửi nhiều rating cho cùng một appointment nếu rule một rating cho một appointment được áp dụng.
+
+**Tiền điều kiện:** Patient đã đăng nhập. Appointment completed đã có rating trước đó.
+
+**Bước thực hiện:**
+
+1. Gửi rating lần đầu cho appointment completed.
+2. Gửi rating lần thứ hai cho cùng appointment.
+3. Quan sát phản hồi lần thứ hai.
+
+**Kỹ thuật, công cụ:** Decision Table, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RF007-01 | Rating trùng appointment | Cùng Patient, cùng appointmentId | Từ chối rating trùng nếu rule được áp dụng | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RF-008: Admin xem/kiểm duyệt rating nếu có
+
+**Mô tả:** Kiểm tra Administrator xem xét và kiểm duyệt rating/comment nếu hệ thống hỗ trợ chức năng này.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Hệ thống có rating/comment cần kiểm duyệt.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Administrator.
+2. Mở trang quản lý rating hoặc gọi API admin tương ứng.
+3. Cập nhật trạng thái kiểm duyệt rating/comment hoặc gọi `PATCH /admin/ratings/{ratingId}/moderation`.
+4. Kiểm tra trạng thái rating/comment sau thao tác.
+
+**Kỹ thuật, công cụ:** Functional testing, Authorization testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RF008-01 | Admin kiểm duyệt rating | Token Admin, ratingId hợp lệ | Cập nhật trạng thái kiểm duyệt rating/comment thành công nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
+| RF008-02 | User không phải Admin kiểm duyệt rating | Token Patient/Doctor, ratingId hợp lệ | Từ chối truy cập chức năng kiểm duyệt | TODO: Cập nhật sau khi chạy test |
+
+### 4.10. Test case nhóm Notification
+
+Nhóm test case này kiểm tra việc hệ thống tạo và gửi thông báo liên quan đến lịch hẹn, nhắc lịch, phản hồi câu hỏi sức khỏe và danh sách thông báo của Patient. Trong phạm vi MVP, notification có thể được triển khai bằng email, notification trong hệ thống hoặc mock provider; nếu SMS chưa tích hợp production thì chỉ kiểm tra theo mô tả optional/mock. Các test case không ghi kết quả thực thi thật khi chưa chạy test.
+
+**Bảng tổng hợp test case**
+
+| Test case ID | Tên test case | Loại test | Actor | Công cụ kiểm thử | Priority | Result |
+|---|---|---|---|---|---|---|
+| TC-NOTI-001 | Gửi thông báo xác nhận lịch hẹn | Positive | Patient, Doctor, System | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-NOTI-002 | Gửi nhắc lịch trước giờ tư vấn | Positive | Patient, Doctor, System | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-NOTI-003 | Thông báo khi bác sĩ phản hồi câu hỏi | Positive | Patient, Doctor, System | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-NOTI-004 | Patient xem danh sách thông báo của mình | Positive | Patient | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-NOTI-005 | Đánh dấu thông báo đã đọc nếu có | Positive | Patient | Playwright, API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-NOTI-006 | Lỗi notification được ghi nhận log/retry nếu có | Negative/Fallback | System, Administrator | API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-NOTI-007 | Notification không gửi dữ liệu sức khỏe nhạy cảm không cần thiết | Negative/Security | Patient, System | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+
+#### TC-NOTI-001: Gửi thông báo xác nhận lịch hẹn
+
+**Mô tả:** Kiểm tra hệ thống tạo/gửi thông báo xác nhận sau khi appointment được tạo hoặc được xác nhận. Nếu notification provider ở mức MVP/mock, kiểm tra bản ghi notification/log thay vì email thật.
+
+**Tiền điều kiện:** Patient đã đăng nhập. Doctor và khung giờ hợp lệ. Notification service hoặc mock notification được cấu hình.
+
+**Bước thực hiện:**
+
+1. Patient tạo appointment hợp lệ.
+2. Nếu appointment cần Doctor xác nhận, Doctor xác nhận lịch theo rule.
+3. Kiểm tra danh sách notification của Patient và/hoặc log notification.
+4. Kiểm tra nội dung thông báo ở mức cần thiết.
+
+**Kỹ thuật, công cụ:** Integration testing, Functional testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| NOTI001-01 | Appointment được tạo thành công | Appointment hợp lệ | Tạo/gửi notification xác nhận lịch hẹn theo thiết kế | TODO: Cập nhật sau khi chạy test |
+| NOTI001-02 | Appointment được Doctor xác nhận nếu có rule | Trạng thái chuyển sang `CONFIRMED` | Tạo/gửi notification xác nhận lịch đã được duyệt theo thiết kế | TODO: Cập nhật sau khi chạy test |
+
+#### TC-NOTI-002: Gửi nhắc lịch trước giờ tư vấn
+
+**Mô tả:** Kiểm tra hệ thống gửi nhắc lịch trước thời gian hẹn qua email, notification nội bộ hoặc mock provider. SMS chỉ kiểm tra nếu môi trường có tích hợp hoặc mock tương ứng.
+
+**Tiền điều kiện:** Appointment thuộc Patient/Doctor, trạng thái hợp lệ, thời gian hẹn nằm trong khoảng nhắc lịch.
+
+**Bước thực hiện:**
+
+1. Chuẩn bị appointment sắp tới trong khoảng nhắc lịch.
+2. Kích hoạt job/process nhắc lịch hoặc gọi API xử lý reminder nếu có.
+3. Kiểm tra notification/log gửi nhắc lịch.
+4. Kiểm tra appointment không bị thay đổi sai trạng thái do thao tác gửi nhắc lịch.
+
+**Kỹ thuật, công cụ:** Scheduled job testing, Integration testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| NOTI002-01 | Appointment sắp tới | Appointment `CONFIRMED`, trong reminder window | Tạo/gửi notification nhắc lịch cho người nhận phù hợp | TODO: Cập nhật sau khi chạy test |
+| NOTI002-02 | Appointment ngoài khoảng nhắc lịch | Appointment chưa tới reminder window | Không gửi nhắc lịch sớm ngoài rule nếu hệ thống có rule thời gian | TODO: Cập nhật sau khi chạy test |
+
+#### TC-NOTI-003: Thông báo khi bác sĩ phản hồi câu hỏi
+
+**Mô tả:** Kiểm tra hệ thống thông báo cho Patient khi Doctor phản hồi câu hỏi sức khỏe.
+
+**Tiền điều kiện:** Patient có câu hỏi hợp lệ. Doctor có quyền phản hồi câu hỏi. Notification service hoặc mock notification được cấu hình.
+
+**Bước thực hiện:**
+
+1. Doctor đăng nhập và mở câu hỏi được phép xử lý.
+2. Doctor gửi phản hồi hợp lệ.
+3. Patient mở danh sách notification hoặc kiểm tra notification log.
+4. Kiểm tra nội dung notification không chứa chi tiết sức khỏe không cần thiết.
+
+**Kỹ thuật, công cụ:** Functional testing, Integration testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| NOTI003-01 | Doctor phản hồi câu hỏi hợp lệ | Question thuộc phạm vi Doctor | Tạo/gửi notification cho Patient rằng câu hỏi đã được phản hồi | TODO: Cập nhật sau khi chạy test |
+
+#### TC-NOTI-004: Patient xem danh sách thông báo của mình
+
+**Mô tả:** Kiểm tra Patient xem được danh sách notification thuộc tài khoản của mình.
+
+**Tiền điều kiện:** Patient đã đăng nhập. Patient có notification trong hệ thống.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient.
+2. Mở màn hình thông báo hoặc gọi `GET /notifications/mine`.
+3. Kiểm tra danh sách thông báo trả về.
+4. Đăng nhập bằng Patient khác và kiểm tra không thấy notification của Patient ban đầu.
+
+**Kỹ thuật, công cụ:** Functional testing, Data privacy testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| NOTI004-01 | Patient có notification | Token Patient A | Chỉ trả notification thuộc Patient A | TODO: Cập nhật sau khi chạy test |
+| NOTI004-02 | Patient khác truy cập | Token Patient B | Không trả notification của Patient A | TODO: Cập nhật sau khi chạy test |
+
+#### TC-NOTI-005: Đánh dấu thông báo đã đọc nếu có
+
+**Mô tả:** Kiểm tra Patient đánh dấu notification đã đọc nếu chức năng này được hỗ trợ trong MVP.
+
+**Tiền điều kiện:** Patient đã đăng nhập. Notification thuộc Patient đang ở trạng thái chưa đọc. Hệ thống có chức năng mark-as-read.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient.
+2. Mở notification chưa đọc.
+3. Chọn đánh dấu đã đọc hoặc gọi API tương ứng nếu có.
+4. Kiểm tra trạng thái notification sau thao tác.
+
+**Kỹ thuật, công cụ:** State transition testing, Functional testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| NOTI005-01 | Notification chưa đọc | Notification thuộc Patient | Chuyển sang trạng thái đã đọc nếu chức năng mark-as-read được hỗ trợ | TODO: Cập nhật sau khi chạy test |
+| NOTI005-02 | Patient đánh dấu notification của người khác | Token Patient A, notification của Patient B | Từ chối thao tác nếu chức năng mark-as-read được hỗ trợ | TODO: Cập nhật sau khi chạy test |
+
+#### TC-NOTI-006: Lỗi notification được ghi nhận log/retry nếu có
+
+**Mô tả:** Kiểm tra khi provider gửi notification lỗi, hệ thống ghi nhận trạng thái lỗi và retry theo thiết kế nếu có. Với MVP/mock, kiểm tra trạng thái log/outbox thay vì gửi thật.
+
+**Tiền điều kiện:** Notification service có thể giả lập lỗi hoặc mock provider trả lỗi.
+
+**Bước thực hiện:**
+
+1. Cấu hình hoặc giả lập notification provider unavailable.
+2. Thực hiện nghiệp vụ tạo notification như đặt lịch hoặc phản hồi câu hỏi.
+3. Kích hoạt process gửi notification nếu có.
+4. Kiểm tra log/outbox và trạng thái retry nếu hệ thống hỗ trợ.
+
+**Kỹ thuật, công cụ:** Fault injection testing, Fallback testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| NOTI006-01 | Provider gửi lỗi | Notification provider/mock unavailable | Ghi nhận trạng thái lỗi/log lỗi theo thiết kế | TODO: Cập nhật sau khi chạy test |
+| NOTI006-02 | Retry notification nếu có | Notification lỗi có thể retry | Retry được thực hiện hoặc ghi nhận trạng thái retry theo thiết kế | TODO: Cập nhật sau khi chạy test |
+
+#### TC-NOTI-007: Notification không gửi dữ liệu sức khỏe nhạy cảm không cần thiết
+
+**Mô tả:** Kiểm tra nội dung notification chỉ chứa thông tin cần thiết, không gửi chi tiết chẩn đoán, đơn thuốc, tiền sử bệnh hoặc nội dung câu hỏi sức khỏe nếu không cần.
+
+**Tiền điều kiện:** Có nghiệp vụ tạo notification liên quan appointment, question hoặc consultation.
+
+**Bước thực hiện:**
+
+1. Tạo dữ liệu nghiệp vụ có nội dung sức khỏe nhạy cảm.
+2. Kích hoạt notification tương ứng.
+3. Kiểm tra payload notification, nội dung email/mock log hoặc danh sách notification.
+4. Xác nhận chỉ có thông tin tối thiểu cần thiết cho người nhận.
+
+**Kỹ thuật, công cụ:** Security testing, Data privacy testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| NOTI007-01 | Notification appointment/question | Nội dung có thông tin sức khỏe nhạy cảm | Notification không chứa dữ liệu sức khỏe chi tiết không cần thiết | TODO: Cập nhật sau khi chạy test |
+
+### 4.11. Test case nhóm Administration
+
+Nhóm test case này kiểm tra các chức năng quản trị hệ thống gồm đăng nhập Admin, quản lý tài khoản Doctor/Patient, kích hoạt hoặc vô hiệu hóa tài khoản, quản lý chuyên khoa, quản lý lịch hẹn, kiểm duyệt nội dung và kiểm soát quyền truy cập admin module. Các hành động nhạy cảm cần được kiểm tra audit/log nếu hệ thống hỗ trợ.
+
+**Bảng tổng hợp test case**
+
+| Test case ID | Tên test case | Loại test | Actor | Công cụ kiểm thử | Priority | Result |
+|---|---|---|---|---|---|---|
+| TC-ADM-001 | Admin đăng nhập thành công | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-ADM-002 | Admin quản lý tài khoản bác sĩ | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-ADM-003 | Admin quản lý tài khoản bệnh nhân | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-ADM-004 | Admin kích hoạt/vô hiệu hóa tài khoản | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-ADM-005 | Admin quản lý chuyên khoa | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-ADM-006 | Admin quản lý lịch hẹn | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-ADM-007 | Admin kiểm duyệt câu hỏi/phản hồi | Positive | Administrator | Playwright, API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-ADM-008 | Non-admin không truy cập được admin module | Negative | Patient, Doctor, Guest User | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-ADM-009 | Admin action nhạy cảm có audit/log nếu hỗ trợ | Positive/Security | Administrator | API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-001: Admin đăng nhập thành công
+
+**Mô tả:** Kiểm tra Administrator đăng nhập bằng thông tin hợp lệ và truy cập được khu vực quản trị.
+
+**Tiền điều kiện:** Tài khoản Administrator đang active.
+
+**Bước thực hiện:**
+
+1. Mở màn hình đăng nhập.
+2. Nhập email và mật khẩu hợp lệ của Administrator.
+3. Gửi yêu cầu đăng nhập.
+4. Kiểm tra hệ thống chuyển đến khu vực quản trị hoặc trả token/session có role Admin.
+
+**Kỹ thuật, công cụ:** Functional testing, Authentication testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM001-01 | Admin active đăng nhập | Email/mật khẩu hợp lệ | Đăng nhập thành công, truy cập được admin module | TODO: Cập nhật sau khi chạy test |
+| ADM001-02 | Admin nhập sai mật khẩu | Mật khẩu sai | Đăng nhập thất bại, không cấp quyền quản trị | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-002: Admin quản lý tài khoản bác sĩ
+
+**Mô tả:** Kiểm tra Administrator xem, tạo/cập nhật hoặc duyệt hồ sơ Doctor theo chức năng được hỗ trợ.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Có dữ liệu Doctor hoặc form quản lý Doctor.
+
+**Bước thực hiện:**
+
+1. Admin mở màn hình quản lý bác sĩ.
+2. Xem danh sách Doctor.
+3. Tạo hoặc cập nhật thông tin Doctor nếu chức năng hỗ trợ.
+4. Duyệt hoặc cập nhật trạng thái Doctor nếu có.
+5. Kiểm tra Doctor public chỉ hiển thị khi active/approved theo rule.
+
+**Kỹ thuật, công cụ:** Functional testing, Authorization testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM002-01 | Admin xem danh sách Doctor | Token Admin | Trả/hiển thị danh sách Doctor theo quyền quản trị | TODO: Cập nhật sau khi chạy test |
+| ADM002-02 | Admin cập nhật Doctor | Thông tin Doctor hợp lệ | Cập nhật tài khoản/hồ sơ Doctor thành công nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
+| ADM002-03 | Admin duyệt Doctor | `approved=true`, `active=true` | Doctor đủ điều kiện hiển thị public theo rule | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-003: Admin quản lý tài khoản bệnh nhân
+
+**Mô tả:** Kiểm tra Administrator xem và cập nhật tài khoản Patient theo quyền quản trị.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Có tài khoản Patient trong hệ thống.
+
+**Bước thực hiện:**
+
+1. Admin mở màn hình quản lý bệnh nhân.
+2. Tìm kiếm hoặc xem danh sách Patient.
+3. Cập nhật thông tin hoặc trạng thái Patient nếu chức năng hỗ trợ.
+4. Kiểm tra dữ liệu sau khi cập nhật.
+
+**Kỹ thuật, công cụ:** Functional testing, Authorization testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM003-01 | Admin xem danh sách Patient | Token Admin | Trả/hiển thị danh sách Patient theo quyền quản trị | TODO: Cập nhật sau khi chạy test |
+| ADM003-02 | Admin cập nhật Patient | Thông tin hợp lệ | Cập nhật tài khoản/hồ sơ Patient thành công nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-004: Admin kích hoạt/vô hiệu hóa tài khoản
+
+**Mô tả:** Kiểm tra Administrator kích hoạt hoặc vô hiệu hóa tài khoản Doctor/Patient.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Có tài khoản Doctor/Patient cần cập nhật trạng thái.
+
+**Bước thực hiện:**
+
+1. Admin chọn tài khoản cần thay đổi trạng thái.
+2. Thực hiện vô hiệu hóa tài khoản.
+3. Kiểm tra tài khoản bị vô hiệu hóa không truy cập hoặc không hiển thị theo rule.
+4. Thực hiện kích hoạt lại tài khoản nếu chức năng hỗ trợ.
+
+**Kỹ thuật, công cụ:** State transition testing, Security testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM004-01 | Vô hiệu hóa Doctor | Doctor active | Doctor chuyển inactive và không hiển thị public nếu rule áp dụng | TODO: Cập nhật sau khi chạy test |
+| ADM004-02 | Vô hiệu hóa Patient | Patient active | Patient bị hạn chế truy cập theo rule hệ thống | TODO: Cập nhật sau khi chạy test |
+| ADM004-03 | Kích hoạt lại tài khoản | Account inactive | Account chuyển active nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-005: Admin quản lý chuyên khoa
+
+**Mô tả:** Kiểm tra Administrator tạo, cập nhật và vô hiệu hóa chuyên khoa.
+
+**Tiền điều kiện:** Administrator đã đăng nhập.
+
+**Bước thực hiện:**
+
+1. Admin mở màn hình quản lý chuyên khoa.
+2. Tạo chuyên khoa với dữ liệu hợp lệ.
+3. Cập nhật tên/mô tả chuyên khoa.
+4. Vô hiệu hóa chuyên khoa nếu chức năng hỗ trợ.
+5. Kiểm tra danh sách public chỉ hiển thị chuyên khoa active.
+
+**Kỹ thuật, công cụ:** Functional testing, Data validation testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM005-01 | Tạo chuyên khoa hợp lệ | Tên/mô tả hợp lệ | Tạo specialty thành công | TODO: Cập nhật sau khi chạy test |
+| ADM005-02 | Cập nhật chuyên khoa | Dữ liệu cập nhật hợp lệ | Specialty được cập nhật thành công | TODO: Cập nhật sau khi chạy test |
+| ADM005-03 | Vô hiệu hóa chuyên khoa | Specialty active | Specialty không hiển thị ở public area nếu rule áp dụng | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-006: Admin quản lý lịch hẹn
+
+**Mô tả:** Kiểm tra Administrator xem, lọc và cập nhật trạng thái lịch hẹn theo quyền quản trị.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Có dữ liệu appointment.
+
+**Bước thực hiện:**
+
+1. Admin mở màn hình quản lý lịch hẹn.
+2. Xem danh sách appointment.
+3. Lọc theo trạng thái, Doctor, Patient hoặc thời gian nếu có.
+4. Cập nhật trạng thái appointment nếu chức năng hỗ trợ.
+5. Kiểm tra trạng thái sau cập nhật.
+
+**Kỹ thuật, công cụ:** Functional testing, State transition testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM006-01 | Admin xem appointment | Token Admin | Trả/hiển thị danh sách appointment theo quyền quản trị | TODO: Cập nhật sau khi chạy test |
+| ADM006-02 | Admin lọc appointment | Filter hợp lệ | Trả dữ liệu phù hợp điều kiện lọc | TODO: Cập nhật sau khi chạy test |
+| ADM006-03 | Admin cập nhật trạng thái appointment | Trạng thái hợp lệ theo rule | Appointment được cập nhật trạng thái đúng rule | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-007: Admin kiểm duyệt câu hỏi/phản hồi
+
+**Mô tả:** Kiểm tra Administrator xem xét và kiểm duyệt câu hỏi hoặc phản hồi nếu chức năng moderation được hỗ trợ trong MVP.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Có câu hỏi/phản hồi cần kiểm duyệt hoặc có dữ liệu phù hợp để kiểm thử.
+
+**Bước thực hiện:**
+
+1. Admin mở màn hình kiểm duyệt nội dung.
+2. Chọn câu hỏi hoặc phản hồi cần xử lý.
+3. Thực hiện duyệt, ẩn hoặc từ chối theo chức năng được hỗ trợ.
+4. Kiểm tra trạng thái và khả năng hiển thị của nội dung.
+
+**Kỹ thuật, công cụ:** Functional testing, Decision Table. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM007-01 | Admin duyệt nội dung | Nội dung chờ kiểm duyệt | Nội dung chuyển trạng thái được duyệt nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
+| ADM007-02 | Admin ẩn nội dung | Nội dung vi phạm rule | Nội dung không hiển thị cho user thường nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-008: Non-admin không truy cập được admin module
+
+**Mô tả:** Kiểm tra Patient, Doctor và Guest User không thể truy cập chức năng quản trị.
+
+**Tiền điều kiện:** Có tài khoản Patient, Doctor và trạng thái chưa đăng nhập cho Guest.
+
+**Bước thực hiện:**
+
+1. Truy cập admin module bằng Guest.
+2. Truy cập admin module bằng Patient.
+3. Truy cập admin module bằng Doctor.
+4. Gọi các API admin bằng token không phải Admin.
+
+**Kỹ thuật, công cụ:** Authorization testing, Negative testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM008-01 | Guest truy cập admin | Không có token | Từ chối truy cập hoặc chuyển đăng nhập | TODO: Cập nhật sau khi chạy test |
+| ADM008-02 | Patient truy cập admin | Token Patient | Từ chối truy cập admin module | TODO: Cập nhật sau khi chạy test |
+| ADM008-03 | Doctor truy cập admin | Token Doctor | Từ chối truy cập admin module | TODO: Cập nhật sau khi chạy test |
+
+#### TC-ADM-009: Admin action nhạy cảm có audit/log nếu hỗ trợ
+
+**Mô tả:** Kiểm tra các hành động quản trị nhạy cảm được ghi audit/log nếu hệ thống hỗ trợ audit trail.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Audit/log cho hành động nhạy cảm được cấu hình.
+
+**Bước thực hiện:**
+
+1. Admin thực hiện hành động nhạy cảm như vô hiệu hóa tài khoản, đổi trạng thái appointment hoặc kiểm duyệt nội dung.
+2. Kiểm tra audit/log tương ứng nếu có API hoặc màn hình quản trị hỗ trợ xem log.
+3. Kiểm tra log không chứa dữ liệu sức khỏe chi tiết không cần thiết.
+
+**Kỹ thuật, công cụ:** Security testing, Audit testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| ADM009-01 | Admin thay đổi trạng thái tài khoản | User active/inactive | Ghi audit/log hành động nếu hệ thống hỗ trợ | TODO: Cập nhật sau khi chạy test |
+| ADM009-02 | Admin thay đổi trạng thái appointment | Trạng thái hợp lệ | Ghi audit/log hành động nếu hệ thống hỗ trợ | TODO: Cập nhật sau khi chạy test |
+| ADM009-03 | Audit/log chứa dữ liệu nhạy cảm | Hành động liên quan dữ liệu sức khỏe | Audit/log không ghi raw dữ liệu sức khỏe không cần thiết | TODO: Cập nhật sau khi chạy test |
+
+### 4.12. Test case nhóm Reporting/Dashboard
+
+Nhóm test case này kiểm tra dashboard và báo cáo thống kê dành cho Administrator. Theo phạm vi SRS, dashboard tối thiểu cần hiển thị các chỉ số hoạt động như tổng số lượt tư vấn, số người dùng hoạt động và thống kê theo thời gian nếu được hỗ trợ. Dữ liệu thống kê phải ở mức tổng hợp, không lộ thông tin sức khỏe chi tiết.
+
+**Bảng tổng hợp test case**
+
+| Test case ID | Tên test case | Loại test | Actor | Công cụ kiểm thử | Priority | Result |
+|---|---|---|---|---|---|---|
+| TC-RPT-001 | Admin xem dashboard | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RPT-002 | Dashboard hiển thị tổng số người dùng | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RPT-003 | Dashboard hiển thị số lượt tư vấn | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RPT-004 | Dashboard hiển thị số người dùng hoạt động | Positive | Administrator | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RPT-005 | Dashboard lọc theo thời gian nếu có | Positive | Administrator | Playwright, API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-RPT-006 | Non-admin không truy cập dashboard | Negative | Patient, Doctor, Guest User | Playwright, API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-RPT-007 | Dữ liệu thống kê không lộ thông tin sức khỏe chi tiết | Negative/Security | Administrator | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RPT-001: Admin xem dashboard
+
+**Mô tả:** Kiểm tra Administrator truy cập được dashboard thống kê hệ thống.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Dashboard/reporting module được bật.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Administrator.
+2. Mở dashboard hoặc gọi `GET /reports/dashboard`.
+3. Kiểm tra dashboard/API trả dữ liệu thống kê ở mức tổng quan.
+
+**Kỹ thuật, công cụ:** Functional testing, Authorization testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RPT001-01 | Admin mở dashboard | Token Admin | Dashboard hiển thị hoặc API trả dữ liệu dashboard thành công | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RPT-002: Dashboard hiển thị tổng số người dùng
+
+**Mô tả:** Kiểm tra dashboard hiển thị chỉ số tổng số người dùng theo phạm vi thống kê.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Hệ thống có dữ liệu user.
+
+**Bước thực hiện:**
+
+1. Admin mở dashboard.
+2. Quan sát chỉ số tổng số người dùng.
+3. Nếu kiểm thử API, gọi `GET /reports/dashboard`.
+4. Kiểm tra response có trường/chỉ số tổng số người dùng theo thiết kế.
+
+**Kỹ thuật, công cụ:** Functional testing, Data consistency testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RPT002-01 | Dashboard có dữ liệu user | Token Admin | Hiển thị/trả về tổng số người dùng ở mức thống kê | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RPT-003: Dashboard hiển thị số lượt tư vấn
+
+**Mô tả:** Kiểm tra dashboard hiển thị tổng số lượt tư vấn hoặc consultation theo thời gian/phạm vi hệ thống.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Hệ thống có appointment/consultation.
+
+**Bước thực hiện:**
+
+1. Admin mở dashboard.
+2. Kiểm tra chỉ số số lượt tư vấn.
+3. Nếu có API trend, gọi `GET /reports/consultations/trend`.
+4. Kiểm tra dữ liệu trả về là thống kê tổng hợp.
+
+**Kỹ thuật, công cụ:** Functional testing, Data consistency testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RPT003-01 | Có dữ liệu consultation | Token Admin | Hiển thị/trả về số lượt tư vấn theo thiết kế | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RPT-004: Dashboard hiển thị số người dùng hoạt động
+
+**Mô tả:** Kiểm tra dashboard hiển thị số người dùng hoạt động nếu chỉ số này được hỗ trợ.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Có dữ liệu user activity hoặc cơ chế tính active users trong MVP.
+
+**Bước thực hiện:**
+
+1. Admin mở dashboard.
+2. Kiểm tra chỉ số người dùng hoạt động.
+3. Nếu kiểm thử API, kiểm tra response dashboard có chỉ số active users.
+
+**Kỹ thuật, công cụ:** Functional testing, Data consistency testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RPT004-01 | Dashboard hỗ trợ active users | Token Admin | Hiển thị/trả về số người dùng hoạt động theo định nghĩa của hệ thống | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RPT-005: Dashboard lọc theo thời gian nếu có
+
+**Mô tả:** Kiểm tra dashboard/reporting lọc dữ liệu theo khoảng thời gian nếu chức năng này được hỗ trợ.
+
+**Tiền điều kiện:** Administrator đã đăng nhập. Reporting API/UI hỗ trợ tham số `from`, `to` hoặc filter thời gian.
+
+**Bước thực hiện:**
+
+1. Admin mở dashboard.
+2. Chọn khoảng thời gian hợp lệ.
+3. Gọi API dashboard/trend với `from` và `to` nếu có.
+4. Kiểm tra dữ liệu thống kê nằm trong phạm vi thời gian đã chọn.
+
+**Kỹ thuật, công cụ:** Boundary Value Analysis, Functional testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RPT005-01 | Filter thời gian hợp lệ | `from`, `to` hợp lệ | Dashboard/trend trả dữ liệu theo khoảng thời gian nếu filter được hỗ trợ | TODO: Cập nhật sau khi chạy test |
+| RPT005-02 | Filter thời gian sai | `from` sau `to` | Từ chối filter không hợp lệ hoặc hiển thị lỗi phù hợp nếu rule được áp dụng | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RPT-006: Non-admin không truy cập dashboard
+
+**Mô tả:** Kiểm tra Patient, Doctor và Guest User không thể truy cập dashboard/reporting dành cho Administrator.
+
+**Tiền điều kiện:** Có tài khoản Patient, Doctor và trạng thái Guest.
+
+**Bước thực hiện:**
+
+1. Guest truy cập dashboard/reporting.
+2. Patient truy cập dashboard/reporting.
+3. Doctor truy cập dashboard/reporting.
+4. Gọi `GET /reports/dashboard` bằng token không phải Admin.
+
+**Kỹ thuật, công cụ:** Authorization testing, Negative testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RPT006-01 | Guest truy cập dashboard | Không có token | Từ chối truy cập hoặc yêu cầu đăng nhập | TODO: Cập nhật sau khi chạy test |
+| RPT006-02 | Patient truy cập dashboard | Token Patient | Từ chối truy cập dashboard | TODO: Cập nhật sau khi chạy test |
+| RPT006-03 | Doctor truy cập dashboard | Token Doctor | Từ chối truy cập dashboard | TODO: Cập nhật sau khi chạy test |
+
+#### TC-RPT-007: Dữ liệu thống kê không lộ thông tin sức khỏe chi tiết
+
+**Mô tả:** Kiểm tra dashboard/reporting chỉ hiển thị dữ liệu tổng hợp, không lộ nội dung câu hỏi sức khỏe, kết luận tư vấn, đơn thuốc hoặc thông tin y tế chi tiết.
+
+**Tiền điều kiện:** Hệ thống có dữ liệu question, consultation summary và prescription.
+
+**Bước thực hiện:**
+
+1. Admin gọi API dashboard hoặc trend.
+2. Kiểm tra response và giao diện dashboard.
+3. Xác nhận dữ liệu hiển thị là số liệu tổng hợp.
+4. Kiểm tra không có nội dung sức khỏe chi tiết trong payload thống kê.
+
+**Kỹ thuật, công cụ:** Security testing, Data privacy testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| RPT007-01 | Dashboard có dữ liệu từ consultation | Token Admin | Dashboard/reporting không trả nội dung sức khỏe chi tiết | TODO: Cập nhật sau khi chạy test |
+
+### 4.13. Test case nhóm External Services/File Storage
+
+Nhóm test case này kiểm tra các tích hợp ngoài và lưu trữ file nếu chức năng được hỗ trợ trong MVP. Với video service, MVP có thể dùng video mock/basic và phải fallback sang chat khi video không khả dụng. Với notification service, lỗi provider không được làm mất dữ liệu nghiệp vụ chính nếu thiết kế cho phép xử lý bất đồng bộ hoặc outbox/log.
+
+**Bảng tổng hợp test case**
+
+| Test case ID | Tên test case | Loại test | Actor | Công cụ kiểm thử | Priority | Result |
+|---|---|---|---|---|---|---|
+| TC-EXT-001 | Upload file tài liệu sức khỏe nếu chức năng có | Positive | Patient, Doctor | Playwright, API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-EXT-002 | Chỉ user có quyền mới xem file liên quan | Negative/Security | Patient, Doctor, Administrator | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-EXT-003 | File sai định dạng/kích thước bị từ chối nếu có rule | Negative | Patient, Doctor | Playwright, API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-EXT-004 | File Storage unavailable có thông báo lỗi rõ | Negative/Fallback | Patient, Doctor, System | API testing, Postman | Trung bình | TODO: Cập nhật sau khi chạy test |
+| TC-EXT-005 | Video service unavailable fallback chat | Positive/Fallback | Patient, Doctor | Playwright, API testing | Cao | TODO: Cập nhật sau khi chạy test |
+| TC-EXT-006 | Notification service unavailable không làm mất dữ liệu nghiệp vụ chính | Positive/Fallback | Patient, Doctor, System | API testing, Postman | Cao | TODO: Cập nhật sau khi chạy test |
+
+#### TC-EXT-001: Upload file tài liệu sức khỏe nếu chức năng có
+
+**Mô tả:** Kiểm tra Patient hoặc Doctor upload tài liệu sức khỏe nếu chức năng file upload được hỗ trợ trong MVP. Nếu file storage chưa nằm trong phạm vi MVP, test case này được đánh dấu để kiểm tra khi chức năng được bật.
+
+**Tiền điều kiện:** User đã đăng nhập với quyền phù hợp. Chức năng upload file được bật. File test hợp lệ về định dạng/kích thước.
+
+**Bước thực hiện:**
+
+1. Đăng nhập bằng Patient hoặc Doctor có quyền.
+2. Mở màn hình upload tài liệu liên quan appointment/question/consultation nếu có.
+3. Chọn file hợp lệ.
+4. Gửi upload.
+5. Kiểm tra file được lưu và gắn đúng ngữ cảnh nghiệp vụ.
+
+**Kỹ thuật, công cụ:** Functional testing, Integration testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| EXT001-01 | Upload file hợp lệ | File đúng định dạng/kích thước | Upload thành công nếu chức năng file storage được hỗ trợ | TODO: Cập nhật sau khi chạy test |
+
+#### TC-EXT-002: Chỉ user có quyền mới xem file liên quan
+
+**Mô tả:** Kiểm tra quyền xem file tài liệu sức khỏe, chỉ Patient sở hữu, Doctor phụ trách hoặc Administrator có quyền mới được truy cập file liên quan.
+
+**Tiền điều kiện:** Có file đã upload và gắn với Patient/appointment/question/consultation. Có user đúng quyền và user ngoài phạm vi.
+
+**Bước thực hiện:**
+
+1. User đúng quyền truy cập file.
+2. Patient khác truy cập file.
+3. Doctor không phụ trách truy cập file.
+4. Admin truy cập file nếu policy cho phép.
+
+**Kỹ thuật, công cụ:** Authorization testing, Data privacy testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| EXT002-01 | Patient sở hữu xem file | Token Patient sở hữu | Cho phép xem/tải file nếu chức năng hỗ trợ | TODO: Cập nhật sau khi chạy test |
+| EXT002-02 | Patient khác xem file | Token Patient không sở hữu | Từ chối truy cập file | TODO: Cập nhật sau khi chạy test |
+| EXT002-03 | Doctor không phụ trách xem file | Token Doctor ngoài phạm vi | Từ chối truy cập file | TODO: Cập nhật sau khi chạy test |
+| EXT002-04 | Admin xem file | Token Admin | Cho phép hoặc kiểm soát theo policy quản trị | TODO: Cập nhật sau khi chạy test |
+
+#### TC-EXT-003: File sai định dạng/kích thước bị từ chối nếu có rule
+
+**Mô tả:** Kiểm tra validation file upload theo định dạng và kích thước nếu hệ thống có rule.
+
+**Tiền điều kiện:** User có quyền upload. Hệ thống có rule giới hạn định dạng/kích thước file.
+
+**Bước thực hiện:**
+
+1. Upload file sai định dạng.
+2. Upload file vượt kích thước tối đa.
+3. Quan sát phản hồi.
+4. Kiểm tra file không được lưu nếu vi phạm rule.
+
+**Kỹ thuật, công cụ:** Boundary Value Analysis, Negative testing. Công cụ: Playwright, API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| EXT003-01 | File sai định dạng | File không thuộc allowlist nếu có | Từ chối upload nếu rule định dạng được áp dụng | TODO: Cập nhật sau khi chạy test |
+| EXT003-02 | File quá lớn | File vượt max size nếu có | Từ chối upload nếu rule kích thước được áp dụng | TODO: Cập nhật sau khi chạy test |
+
+#### TC-EXT-004: File Storage unavailable có thông báo lỗi rõ
+
+**Mô tả:** Kiểm tra hệ thống phản hồi rõ ràng khi file storage không khả dụng, không báo upload thành công sai sự thật.
+
+**Tiền điều kiện:** Chức năng file storage được bật. Có thể giả lập storage unavailable hoặc mock lỗi.
+
+**Bước thực hiện:**
+
+1. Giả lập file storage unavailable.
+2. User có quyền upload file hợp lệ.
+3. Quan sát thông báo lỗi.
+4. Kiểm tra không tạo metadata file ở trạng thái thành công nếu file không lưu được.
+
+**Kỹ thuật, công cụ:** Fault injection testing, Negative testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| EXT004-01 | Storage unavailable | File hợp lệ, storage lỗi | Hiển thị/trả lỗi rõ ràng, không ghi nhận upload thành công sai | TODO: Cập nhật sau khi chạy test |
+
+#### TC-EXT-005: Video service unavailable fallback chat
+
+**Mô tả:** Kiểm tra khi video service hoặc video mock/basic không khả dụng, consultation fallback sang chat theo yêu cầu SRS.
+
+**Tiền điều kiện:** Appointment hợp lệ. Doctor/Patient có quyền truy cập consultation. Video service có thể giả lập unavailable.
+
+**Bước thực hiện:**
+
+1. Giả lập video service unavailable.
+2. Doctor start consultation.
+3. Patient join consultation.
+4. Kiểm tra phiên chat vẫn khởi tạo hoặc sử dụng được.
+
+**Kỹ thuật, công cụ:** Fallback testing, Integration testing. Công cụ: Playwright, API testing.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| EXT005-01 | Video unavailable | Appointment hợp lệ, video provider/mock lỗi | Hệ thống fallback sang chat và người dùng vẫn tư vấn được | TODO: Cập nhật sau khi chạy test |
+
+#### TC-EXT-006: Notification service unavailable không làm mất dữ liệu nghiệp vụ chính
+
+**Mô tả:** Kiểm tra lỗi notification provider không làm mất dữ liệu nghiệp vụ chính như appointment, question answer hoặc consultation result nếu thiết kế cho phép xử lý notification bất đồng bộ/outbox.
+
+**Tiền điều kiện:** Có thể giả lập notification service unavailable. Nghiệp vụ chính như đặt lịch hoặc phản hồi câu hỏi hợp lệ.
+
+**Bước thực hiện:**
+
+1. Giả lập notification service unavailable.
+2. Thực hiện nghiệp vụ chính hợp lệ như tạo appointment hoặc Doctor phản hồi câu hỏi.
+3. Kiểm tra dữ liệu nghiệp vụ chính được lưu đúng theo thiết kế.
+4. Kiểm tra notification được ghi log/outbox ở trạng thái lỗi hoặc chờ xử lý nếu có.
+
+**Kỹ thuật, công cụ:** Fallback testing, Integration testing. Công cụ: API testing, Postman.
+
+**Bảng test data:**
+
+| ID | Điều kiện | Test value | Expected result | Result |
+|---|---|---|---|---|
+| EXT006-01 | Notification provider unavailable khi đặt lịch | Appointment hợp lệ | Appointment vẫn được tạo nếu notification async/outbox; lỗi notification được ghi nhận theo thiết kế | TODO: Cập nhật sau khi chạy test |
+| EXT006-02 | Notification provider unavailable khi Doctor phản hồi | Answer hợp lệ | Phản hồi vẫn được lưu nếu notification async/outbox; lỗi notification được ghi nhận theo thiết kế | TODO: Cập nhật sau khi chạy test |
+
+## 5. Hiện thực automation test, kết quả kiểm thử và ghi nhận lỗi
+
+Phần này mô tả định hướng hiện thực automation test cho các luồng E2E tiêu biểu của hệ thống. Báo cáo vẫn bao phủ đầy đủ phạm vi SRS thông qua hệ thống test case thủ công, API test, checklist phân quyền, checklist bảo mật và các nhóm test case theo chức năng. Tuy nhiên, automation test trong giai đoạn này chỉ ưu tiên những luồng người dùng quan trọng, có tính hồi quy cao và có thể minh chứng rõ bằng Playwright HTML report, screenshot và trace.
+
+Các kết quả thực thi sẽ chỉ được cập nhật sau khi chạy test thật. Báo cáo không ghi đạt/không đạt giả và không suy diễn kết quả nếu chưa có minh chứng.
+
+### 5.1. Mục tiêu automation test
+
+Automation test được xây dựng nhằm kiểm thử hồi quy các luồng E2E quan trọng của nền tảng tư vấn sức khỏe trực tuyến. Các kịch bản được chọn tập trung vào hành trình người dùng có khả năng ảnh hưởng lớn đến chất lượng sản phẩm, gồm tra cứu bác sĩ, đăng nhập, đặt lịch, gửi câu hỏi, phản hồi câu hỏi, tham gia tư vấn, xem kết quả tư vấn, đánh giá và một số thao tác quản trị.
+
+Mục tiêu chính của automation test gồm:
+
+- Kiểm thử hồi quy các luồng E2E quan trọng sau mỗi lần cập nhật hệ thống.
+- Kiểm chứng sự phối hợp giữa UI, API, xác thực/phân quyền và trạng thái nghiệp vụ.
+- Phát hiện sớm lỗi điều hướng, lỗi validation, lỗi phân quyền và lỗi thay đổi trạng thái.
+- Minh chứng chất lượng bằng Playwright HTML report, screenshot và trace.
+- Tạo nền tảng để mở rộng automation test cho các chức năng còn lại trong các giai đoạn sau.
+
+### 5.2. Phạm vi automation test
+
+Automation test không thay thế toàn bộ test case thủ công đã đặc tả trong báo cáo. Bộ automation trong giai đoạn này ưu tiên các luồng E2E chính, có khả năng kiểm tra nhiều lớp hệ thống cùng lúc. Một số chức năng như notification, file storage, performance và security có thể được kiểm thử thủ công, API testing hoặc kiểm thử chuyên biệt trước khi tự động hóa đầy đủ.
+
+| Nhóm chức năng | Có automation trong giai đoạn này? | Ghi chú |
+|---|---|---|
+| Public Discovery | Có | Ưu tiên luồng Guest xem danh sách/tìm kiếm bác sĩ công khai. |
+| Auth | Có | Ưu tiên đăng ký/đăng nhập và điều hướng khi Guest thực hiện hành động cần xác thực. |
+| Appointment | Có | Ưu tiên Patient đặt lịch hợp lệ và kiểm tra trùng slot. |
+| Health Question | Có | Ưu tiên Patient gửi câu hỏi và Doctor phản hồi câu hỏi. |
+| Consultation | Có | Ưu tiên Doctor start consultation, Patient join consultation và Doctor complete consultation. |
+| Prescription | Một phần | Ưu tiên Patient xem kết quả tư vấn/prescription sau consultation; tạo prescription có thể kiểm thử API trước nếu UI chưa đầy đủ. |
+| Rating | Có | Ưu tiên Patient gửi rating sau consultation completed. |
+| Admin | Có | Ưu tiên quản lý specialty và kiểm tra quyền truy cập admin module. |
+| Notification | Chưa ưu tiên automation UI | Có thể kiểm thử thủ công hoặc API trước vì phụ thuộc provider, job nhắc lịch hoặc mock notification. |
+| Dashboard | Có | Ưu tiên Admin xem dashboard và Non-admin bị chặn truy cập. |
+
+### 5.3. Cấu trúc thư mục Playwright đề xuất
+
+Cấu trúc thư mục Playwright đề xuất được tổ chức theo nhóm chức năng để dễ bảo trì và truy vết về test case trong báo cáo:
 
 ```text
-OnlineHealthConsultation-Web/
-├── playwright.config.ts
-├── tests/
-│   ├── e2e/
-│   │   ├── uc01-guest-discovery.spec.ts
-│   │   ├── uc02-patient-appointment.spec.ts
-│   │   ├── uc03-health-question.spec.ts
-│   │   └── uc04-consultation-session.spec.ts
-│   ├── fixtures/
-│   │   └── auth.fixture.ts
-│   └── utils/
-│       ├── test-data.ts
-│       └── api-helper.ts
-└── playwright-report/
+tests/
+├── e2e/
+│   ├── guest-discovery.spec.ts
+│   ├── auth.spec.ts
+│   ├── patient-appointment.spec.ts
+│   ├── health-question.spec.ts
+│   ├── consultation-session.spec.ts
+│   ├── admin-management.spec.ts
+│   └── rating.spec.ts
+├── fixtures/
+├── pages/
+└── utils/
 ```
 
-Các test file sẽ ưu tiên mô phỏng thao tác người dùng trên giao diện: nhập từ khóa, click nút đặt lịch, đăng nhập bằng tài khoản Patient/Doctor, nhập form đặt lịch, gửi câu hỏi, phản hồi câu hỏi và hoàn tất phiên tư vấn. Dữ liệu kiểm thử có thể được chuẩn bị bằng seed backend, tài khoản test cố định hoặc API helper, tùy trạng thái môi trường khi triển khai frontend.
+Vai trò của từng nhóm thư mục:
 
-<!-- TODO: Insert Figure: Playwright test code for selected testcases -->
+- `tests/e2e/`: chứa các test spec E2E theo nhóm chức năng.
+- `tests/fixtures/`: chứa fixture đăng nhập, tài khoản test, dữ liệu nền và trạng thái khởi tạo.
+- `tests/pages/`: chứa Page Object cho các màn hình như login, doctor discovery, appointment, question, consultation và admin.
+- `tests/utils/`: chứa hàm hỗ trợ gọi API chuẩn bị dữ liệu, reset dữ liệu test hoặc đọc biến môi trường.
 
-Hình 55: Playwright test code for selected testcases
+TODO: Cần insert hình cấu trúc thư mục Playwright nếu cần.
 
-### 5.6. Danh sách testcase dự kiến tự động hóa
+### 5.4. Danh sách automation test ưu tiên
 
-| Test ID | Usecase | Nội dung kiểm thử tự động dự kiến | Công cụ | Trạng thái | Ghi chú |
+| Automation ID | Nhóm chức năng | Nội dung kiểm thử | Actor | Trạng thái | Ghi chú |
 |---|---|---|---|---|---|
-| AUTO-UC01-01 | UC01 | Guest User searches doctor by keyword | Playwright E2E | Planned / Evidence Pending | Kiểm tra ô tìm kiếm, danh sách bác sĩ và kết quả hiển thị. |
-| AUTO-UC01-02 | UC01 | Guest User is redirected to login when choosing appointment booking | Playwright E2E | Planned / Evidence Pending | Kiểm tra điều hướng đăng nhập/đăng ký khi Guest chọn đặt lịch. |
-| AUTO-UC02-01 | UC02 | Patient books appointment with available slot | Playwright E2E | Planned / Evidence Pending | Cần tài khoản Patient, bác sĩ active/approved và slot còn trống. |
-| AUTO-UC02-02 | UC02 | Duplicate appointment slot is rejected | Playwright E2E | Planned / Evidence Pending | Có thể cần chuẩn bị dữ liệu slot đã đặt trước khi chạy test. |
-| AUTO-UC03-01 | UC03 | Patient submits health question | Playwright E2E | Planned / Evidence Pending | Kiểm tra form gửi câu hỏi và thông báo thành công. |
-| AUTO-UC03-02 | UC03 | Doctor replies to health question | Playwright E2E | Planned / Evidence Pending | Cần tài khoản Doctor và câu hỏi đang ở trạng thái chờ phản hồi. |
-| AUTO-UC04-01 | UC04 | Doctor starts consultation session | Playwright E2E | Planned / Evidence Pending | Cần appointment hợp lệ trong khung thời gian cho phép. |
-| AUTO-UC04-02 | UC04 | Doctor completes consultation and appointment becomes COMPLETED | Playwright E2E | Planned / Evidence Pending | Kiểm tra thao tác kết thúc phiên và trạng thái hoàn tất trên UI/API. |
+| AUTO-001 | Public Discovery | Guest views public doctors | Guest User | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra danh sách bác sĩ public và dữ liệu hiển thị cơ bản. |
+| AUTO-002 | Public Discovery/Auth | Guest redirected to login when booking | Guest User | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra Guest không đặt lịch trực tiếp khi chưa đăng nhập. |
+| AUTO-003 | Auth | Patient registers/logs in | Patient | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra đăng ký hoặc đăng nhập Patient bằng dữ liệu hợp lệ. |
+| AUTO-004 | Appointment | Patient books appointment | Patient | Chưa thực hiện / Chờ bổ sung minh chứng | Cần Doctor active/approved và slot còn trống. |
+| AUTO-005 | Appointment | Duplicate appointment slot is rejected | Patient | Chưa thực hiện / Chờ bổ sung minh chứng | Cần chuẩn bị slot đã có appointment. |
+| AUTO-006 | Health Question | Patient submits health question | Patient | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra form gửi câu hỏi và trạng thái sau khi gửi. |
+| AUTO-007 | Health Question | Doctor replies to health question | Doctor | Chưa thực hiện / Chờ bổ sung minh chứng | Cần câu hỏi đang chờ phản hồi và Doctor đúng phạm vi. |
+| AUTO-008 | Health Question | Patient views doctor reply | Patient | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra Patient chỉ xem phản hồi câu hỏi của mình. |
+| AUTO-009 | Consultation | Doctor starts consultation | Doctor | Chưa thực hiện / Chờ bổ sung minh chứng | Cần appointment hợp lệ trong thời gian cho phép. |
+| AUTO-010 | Consultation | Patient joins consultation | Patient | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra quyền join đúng Patient của appointment. |
+| AUTO-011 | Consultation | Doctor completes consultation | Doctor | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra kết thúc phiên và trạng thái nghiệp vụ sau khi complete. |
+| AUTO-012 | Prescription | Patient views consultation result/prescription | Patient | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra quyền xem kết quả tư vấn và đơn thuốc của chính mình. |
+| AUTO-013 | Rating | Patient submits rating | Patient | Chưa thực hiện / Chờ bổ sung minh chứng | Chỉ thực hiện sau consultation/appointment completed. |
+| AUTO-014 | Admin | Admin manages specialty | Administrator | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra tạo/cập nhật/vô hiệu hóa specialty nếu UI hỗ trợ. |
+| AUTO-015 | Dashboard | Admin views dashboard | Administrator | Chưa thực hiện / Chờ bổ sung minh chứng | Kiểm tra Admin xem dashboard và số liệu tổng hợp. |
 
-### 5.7. Cách chạy kiểm thử tự động dự kiến
+### 5.5. Cách chạy automation test
 
-Khi frontend repository đã có Playwright config và test file, nhóm dự kiến chạy test bằng lệnh:
+Trước khi chạy automation test, cần bảo đảm các thành phần sau đã hoạt động ổn định:
+
+- Database đã khởi động và có schema/migration phù hợp.
+- Backend API đã khởi động và kết nối được database.
+- Frontend đã khởi động hoặc được Playwright tự khởi động theo cấu hình.
+- Test data đã được chuẩn bị, gồm tài khoản Patient, Doctor, Administrator, specialty, doctor active/approved, slot lịch hẹn và dữ liệu câu hỏi/consultation nếu cần.
+
+Các lệnh cài đặt và chạy Playwright:
 
 ```bash
+npm install
+npx playwright install
 npx playwright test
+npx playwright show-report
 ```
 
-Hoặc nếu frontend `package.json` có script riêng:
+Nếu dự án có script riêng cho E2E test, có thể chạy:
 
 ```bash
 npm run test:e2e
 ```
 
-Để xem báo cáo HTML sau khi chạy:
+Quy trình chạy test đề xuất:
 
-```bash
-npx playwright show-report
-```
+1. Khởi động database.
+2. Khởi động backend API.
+3. Chuẩn bị hoặc seed test data.
+4. Khởi động frontend.
+5. Chạy Playwright E2E test.
+6. Lưu terminal output, Playwright HTML report, screenshot và trace.
+7. Cập nhật bảng kết quả kiểm thử sau khi có minh chứng thật.
 
-Trước khi chạy, cần bảo đảm backend API, database và frontend dev server đã hoạt động đúng môi trường. Ví dụ quy trình dự kiến:
+### 5.6. Minh chứng cần bổ sung
 
-```text
-1. Khởi động database và backend API.
-2. Chuẩn bị dữ liệu test: Patient, Doctor, Specialty, Appointment/Question nếu cần.
-3. Khởi động frontend hoặc cấu hình Playwright tự khởi động frontend.
-4. Chạy Playwright E2E test.
-5. Lưu terminal output, screenshot, trace và HTML report.
-```
+Các minh chứng dưới đây sẽ được bổ sung sau khi chạy automation test:
 
-<!-- TODO: Insert Figure: Playwright test execution result in terminal -->
+- TODO: Cần insert hình terminal sau khi chạy Playwright.
+- TODO: Cần insert hình Playwright HTML report overview.
+- TODO: Cần insert hình minh chứng test đạt luồng Guest search doctor.
+- TODO: Cần insert hình minh chứng test đạt luồng Patient booking.
+- TODO: Cần insert hình minh chứng test đạt luồng Doctor reply question.
+- TODO: Cần insert hình minh chứng test đạt luồng Consultation.
+- TODO: Cần insert hình minh chứng test đạt luồng Admin dashboard nếu có.
+- TODO: Cần insert hình minh chứng test không đạt hoặc lỗi nếu có.
 
-Hình 56: Playwright test execution result in terminal
+### 5.7. Bảng tổng hợp kết quả kiểm thử
 
-<!-- TODO: Insert Figure: Playwright HTML report -->
-
-Hình 57: Playwright HTML report
-
-<!-- TODO: Insert Figure: Screenshot of automated test evidence for appointment booking -->
-
-Hình 58: Screenshot of automated test evidence for appointment booking
-
-<!-- TODO: Insert Figure: Screenshot of automated test evidence for health question reply -->
-
-Hình 59: Screenshot of automated test evidence for health question reply
-
-### 5.8. Cách ghi nhận kết quả kiểm thử
-
-Khi thực thi Playwright, mỗi lần chạy cần ghi nhận tối thiểu các thông tin sau: ngày chạy test, branch/commit nếu có, môi trường chạy, trình duyệt dùng để test, lệnh chạy, số testcase pass/fail/skipped, ảnh terminal output, HTML report, screenshot hoặc trace nếu có. Kết quả chỉ được đưa vào báo cáo khi có bằng chứng kèm theo, chẳng hạn ảnh Playwright terminal, Playwright HTML report hoặc screenshot của test evidence.
-
-Đối với mỗi testcase, nhóm ghi nhận theo trạng thái:
-
-- Pass: kết quả thực tế khớp expected result và có evidence.
-- Fail: kết quả thực tế khác expected result, có bug report tương ứng.
-- Blocked: chưa thể chạy do thiếu dữ liệu, thiếu môi trường hoặc dependency.
-- Not Run: đã đặc tả nhưng chưa thực thi.
-
-Trong báo cáo hiện tại, các testcase tự động hóa đang ở trạng thái `Planned / Evidence Pending`. Nhóm chưa triển khai và chưa chạy Playwright trong backend repository này, do đó không trình bày tỷ lệ pass/fail.
-
-### 5.9. Kết quả kiểm thử dự kiến
-
-Kết quả kiểm thử trong bảng sẽ được cập nhật sau khi nhóm thực hiện chạy kiểm thử thủ công và kiểm thử tự động trên frontend. Tại thời điểm viết báo cáo trong backend repository, nhóm chưa chèn số liệu pass/fail thực tế để tránh ghi nhận kết quả không có minh chứng.
-
-Các chỉ số trong phần này hiện được để ở trạng thái placeholder như `Chưa thực hiện`, `Chờ minh chứng` hoặc `Sẽ cập nhật sau khi chạy Playwright`. Khi có kết quả thực tế, nhóm sẽ cập nhật số lượng testcase đã chạy, số testcase pass/fail/skipped, ảnh chụp terminal, Playwright HTML report và minh chứng UI tương ứng.
-
-### 5.10. Bảng tổng hợp kết quả kiểm thử
-
-| Test Suite | Total Test Cases | Passed | Failed | Skipped | Status | Ghi chú |
+| Nhóm test | Total | Passed | Failed | Skipped | Status | Ghi chú |
 |---|---|---|---|---|---|---|
-| UC01 - Guest User tra cứu bác sĩ | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chờ minh chứng | Sẽ cập nhật sau khi chạy kiểm thử thủ công và Playwright trên frontend. |
-| UC02 - Patient đặt lịch hẹn tư vấn | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chờ minh chứng | Cần minh chứng UI flow đặt lịch và trường hợp trùng slot nếu có. |
-| UC03 - Doctor phản hồi câu hỏi sức khỏe | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chờ minh chứng | Cần minh chứng Patient gửi câu hỏi và Doctor phản hồi. |
-| UC04 - Doctor thực hiện phiên tư vấn trực tuyến | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chờ minh chứng | Cần minh chứng start/end consultation và trạng thái hoàn tất. |
-| Playwright E2E Automation | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Planned / Evidence Pending | Sẽ cập nhật sau khi chạy Playwright trong frontend repository. |
+| Public Discovery | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
+| Auth | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
+| Appointment | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
+| Health Question | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
+| Consultation | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
+| Prescription | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
+| Rating | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
+| Admin | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
+| Dashboard | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện / Chờ bổ sung minh chứng | Sẽ cập nhật sau khi chạy test. |
 
-<!-- TODO: Insert Figure: Tổng hợp kết quả chạy Playwright -->
+### 5.8. Quy trình ghi nhận lỗi
 
-Hình 60: Tổng hợp kết quả chạy Playwright
+Khi phát hiện lỗi trong quá trình kiểm thử thủ công, API testing hoặc Playwright E2E, nhóm ghi nhận bug report theo cùng một cấu trúc để dễ phân loại, tái hiện và theo dõi trạng thái sửa lỗi.
 
-<!-- TODO: Insert Figure: Playwright HTML report overview -->
+Một bug report cần có các thông tin sau:
 
-Hình 61: Playwright HTML report overview
+- Bug title: tiêu đề ngắn gọn, nêu rõ module và hành vi lỗi.
+- Preconditions: điều kiện trước khi tái hiện lỗi, gồm tài khoản, role, dữ liệu và trạng thái nghiệp vụ.
+- Steps to reproduce: các bước tái hiện lỗi theo thứ tự.
+- Actual result: kết quả thực tế quan sát được.
+- Expected result: kết quả mong đợi theo SRS/test case.
+- Severity: mức độ nghiêm trọng của lỗi.
+- Priority: mức độ ưu tiên xử lý.
+- Environment: môi trường chạy test, trình duyệt, thiết bị, phiên bản backend/frontend nếu có.
+- Evidence: screenshot, video, trace, terminal output, API response hoặc log liên quan.
+- Status: trạng thái xử lý lỗi.
 
-### 5.11. Bảng ghi nhận lỗi
+Severity được phân loại như sau:
 
-| Bug ID | Module | Mô tả lỗi | Steps to Reproduce | Actual Result | Expected Result | Severity | Status |
-|---|---|---|---|---|---|---|---|
-| BUG-TPL-001 | Discovery | Chưa ghi nhận lỗi thực tế | Sẽ cập nhật nếu phát hiện lỗi khi kiểm thử UC01 | Chưa thực hiện | Chưa thực hiện | N/A | Template |
-| BUG-TPL-002 | Appointment | Chưa ghi nhận lỗi thực tế | Sẽ cập nhật nếu phát hiện lỗi khi kiểm thử UC02 | Chưa thực hiện | Chưa thực hiện | N/A | Template |
-| BUG-TPL-003 | Question | Chưa ghi nhận lỗi thực tế | Sẽ cập nhật nếu phát hiện lỗi khi kiểm thử UC03 | Chưa thực hiện | Chưa thực hiện | N/A | Template |
-| BUG-TPL-004 | Consultation | Chưa ghi nhận lỗi thực tế | Sẽ cập nhật nếu phát hiện lỗi khi kiểm thử UC04 | Chưa thực hiện | Chưa thực hiện | N/A | Template |
-| BUG-TPL-005 | Auth/Authorization | Chưa ghi nhận lỗi thực tế | Sẽ cập nhật nếu phát hiện lỗi xác thực/phân quyền | Chưa thực hiện | Chưa thực hiện | N/A | Template |
+| Severity | Ý nghĩa |
+|---|---|
+| Critical | Lỗi làm hệ thống không thể sử dụng, mất dữ liệu, sai phân quyền nghiêm trọng hoặc ảnh hưởng dữ liệu sức khỏe nhạy cảm. |
+| High | Lỗi chặn luồng nghiệp vụ chính như đăng nhập, đặt lịch, tư vấn, kê đơn hoặc đánh giá. |
+| Medium | Lỗi ảnh hưởng chức năng nhưng có cách xử lý thay thế hoặc không chặn toàn bộ luồng chính. |
+| Low | Lỗi nhỏ về hiển thị, nội dung, trải nghiệm hoặc vấn đề không ảnh hưởng nghiệp vụ chính. |
 
-<!-- TODO: Insert Figure: Bug evidence screenshot if defects are found -->
+Status được sử dụng trong vòng đời bug:
 
-Hình 62: Bug evidence screenshot if defects are found
+| Status | Ý nghĩa |
+|---|---|
+| Open | Lỗi mới được ghi nhận, chưa xử lý. |
+| In Progress | Lỗi đang được phân tích hoặc sửa. |
+| Fixed | Lỗi đã được sửa và chờ kiểm thử lại. |
+| Retest | QA đang kiểm thử lại bản sửa. |
+| Closed | Lỗi đã được xác nhận sửa thành công. |
+| Won't Fix | Lỗi được ghi nhận nhưng không sửa theo quyết định phạm vi hoặc nghiệp vụ. |
 
-### 5.12. Minh chứng kiểm thử cần bổ sung
+### 5.9. Bảng ghi nhận lỗi
 
-| STT | Minh chứng cần bổ sung | Trạng thái | Ghi chú |
-|---|---|---|---|
-| 1 | Screenshot Playwright terminal result | Chờ minh chứng | Bổ sung sau khi chạy Playwright. |
-| 2 | Screenshot Playwright HTML report | Chờ minh chứng | Bổ sung tổng quan số test pass/fail/skipped. |
-| 3 | Screenshot selected passing test case | Chờ minh chứng | Chỉ bổ sung khi testcase đã chạy và pass thật. |
-| 4 | Screenshot failed test case if any | Chờ minh chứng | Chỉ bổ sung nếu có testcase fail thật. |
-| 5 | Screenshot bug evidence if any | Chờ minh chứng | Chỉ bổ sung nếu có defect được ghi nhận. |
-| 6 | Screenshot UI flow for appointment booking | Chờ minh chứng | Minh chứng cho UC02. |
-| 7 | Screenshot UI flow for health question/reply | Chờ minh chứng | Minh chứng cho UC03. |
+| Bug ID | Module | Mô tả lỗi | Steps to reproduce | Actual result | Expected result | Severity | Status | Evidence |
+|---|---|---|---|---|---|---|---|---|
+| Chưa ghi nhận lỗi thực tế trong phạm vi chưa chạy test | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chưa thực hiện | Chờ bổ sung minh chứng |
 
-### 5.13. Cách ghi nhận lỗi
+Các dòng trong bảng hiện chỉ là mẫu ghi nhận lỗi. Khi có lỗi thật sau quá trình chạy test, nhóm sẽ thay thế bằng Bug ID cụ thể, module bị ảnh hưởng, steps to reproduce, actual result, expected result, severity, status và evidence tương ứng.
 
-Khi phát hiện lỗi, nhóm ghi nhận theo một bug report thống nhất để dễ truy vết về use case, testcase và module. Một lỗi cần có mô tả ngắn gọn, actual result, expected result, mức độ nghiêm trọng và trạng thái xử lý. Severity được đề xuất gồm Critical, High, Medium, Low. Status được đề xuất gồm Open, In Progress, Fixed, Retest, Closed hoặc Won't Fix.
+## 6. Checklist rà soát chất lượng
 
-| Bug ID | Module | Mô tả lỗi | Actual Result | Expected Result | Severity | Status |
-|---|---|---|---|---|---|---|
-| BUG-001 | Discovery | Chưa ghi nhận lỗi thực tế | N/A | N/A | N/A | Not Reported |
-| BUG-002 | Appointment | Chưa ghi nhận lỗi thực tế | N/A | N/A | N/A | Not Reported |
-| BUG-003 | Question | Chưa ghi nhận lỗi thực tế | N/A | N/A | N/A | Not Reported |
-| BUG-004 | Consultation | Chưa ghi nhận lỗi thực tế | N/A | N/A | N/A | Not Reported |
-| BUG-005 | Auth/Authorization | Chưa ghi nhận lỗi thực tế | N/A | N/A | N/A | Not Reported |
-| BUG-006 | Privacy/Logging | Chưa ghi nhận lỗi thực tế | N/A | N/A | N/A | Not Reported |
+Checklist rà soát chất lượng được dùng để kiểm tra mức độ đầy đủ của báo cáo so với SRS, thiết kế hệ thống, API, bảo mật, quyền riêng tư và kế hoạch kiểm thử. Trạng thái trong checklist không thể hiện kết quả chạy test, mà thể hiện mức độ đã rà soát nội dung tài liệu và hạng mục cần tiếp tục kiểm tra bằng minh chứng thực tế.
 
-Các dòng trên là placeholder để chuẩn hóa cách ghi nhận lỗi, không phải danh sách lỗi đã phát hiện. Khi có lỗi thật, nhóm cần thay thế placeholder bằng thông tin thực tế và liên kết Bug ID với Test ID tương ứng.
+### 6.1. Checklist rà soát yêu cầu
+
+| ID | Nội dung rà soát | Mục tiêu | Trạng thái | Ghi chú |
+|---|---|---|---|---|
+| REQ-01 | Actor đầy đủ theo SRS | Bảo đảm báo cáo đề cập Guest User, Patient, Doctor, Administrator và External Services theo phạm vi SRS. | Đã rà soát | Actor chính đã được mô tả trong phần phân tích use case. |
+| REQ-02 | Use case Guest đầy đủ | Bảo đảm Guest có các luồng public discovery và bị yêu cầu đăng nhập khi thực hiện chức năng protected. | Đã rà soát | Đã có nhóm use case và test case Guest/Public Discovery. |
+| REQ-03 | Use case Patient đầy đủ | Bảo đảm Patient có đăng ký/đăng nhập, hồ sơ, đặt lịch, câu hỏi, consultation, prescription, rating và notification. | Đã rà soát | Đã bao phủ trong các nhóm chức năng chính; kết quả thực thi cần cập nhật sau khi chạy test. |
+| REQ-04 | Use case Doctor đầy đủ | Bảo đảm Doctor có hồ sơ, lịch hẹn, phản hồi câu hỏi, consultation, summary và prescription. | Đã rà soát | Đã có test case cho Doctor trong question, appointment, consultation và prescription. |
+| REQ-05 | Use case Admin đầy đủ | Bảo đảm Admin có quản lý user, specialty, appointment, moderation, rating và dashboard/reporting. | Đã rà soát | Đã bổ sung nhóm Administration và Reporting/Dashboard. |
+| REQ-06 | External Services được đề cập | Bảo đảm notification, video service, SMS optional và file storage nếu có được nêu trong phạm vi kiểm thử. | Đã rà soát | Đã có nhóm Notification và External Services/File Storage. |
+| REQ-07 | Functional requirements được mapping | Bảo đảm các yêu cầu chức năng chính có use case, API hoặc test case tương ứng. | Đã rà soát | Mapping được thể hiện qua các nhóm test case từ public discovery đến dashboard. |
+| REQ-08 | Non-functional requirements được đề cập | Bảo đảm báo cáo có bảo mật, privacy, hiệu năng MVP, khả dụng, logging và testability. | Đã rà soát | Các yêu cầu phi chức năng đã được mô tả; cần bổ sung số liệu thực thi nếu kiểm thử chuyên sâu. |
+| REQ-09 | Business rules được mô tả | Bảo đảm rule về appointment status, duplicate slot, completed-only rating, ownership và consultation window được nêu. | Đã rà soát | Các rule đã được đưa vào test case positive/negative. |
+| REQ-10 | Data privacy được mô tả | Bảo đảm dữ liệu sức khỏe, prescription, consultation result và notification được kiểm soát theo phạm vi truy cập. | Đã rà soát | Đã có checklist bảo mật/privacy và test case quyền truy cập. |
+| REQ-11 | Error handling được mô tả | Bảo đảm lỗi validation, unauthorized, forbidden, conflict và provider unavailable được đề cập. | Đã rà soát | Cần kiểm tra thêm thông báo lỗi thực tế khi chạy test. |
+| REQ-12 | Testability được mô tả | Bảo đảm báo cáo nêu cách kiểm thử thủ công, API testing, Playwright, test data và minh chứng cần bổ sung. | Đã rà soát | Đã có phần kế hoạch automation test, bảng kết quả kiểm thử và mẫu ghi nhận lỗi. |
+
+### 6.2. Checklist rà soát thiết kế
+
+| ID | Nội dung rà soát | Mục tiêu | Trạng thái | Ghi chú |
+|---|---|---|---|---|
+| DES-01 | Có architecture diagram | Bảo đảm báo cáo có mô tả kiến trúc tổng quan và vị trí hình kiến trúc. | Cần kiểm tra thêm | Cần bổ sung hoặc xác nhận hình architecture diagram cuối cùng. |
+| DES-02 | Có UI/Form theo nhóm chức năng | Bảo đảm các form chính như login, profile, booking, question, consultation, admin được mô tả. | Đã rà soát | Một số hình giao diện vẫn cần bổ sung minh chứng. |
+| DES-03 | Có API theo nhóm chức năng | Bảo đảm API được gom theo public, auth, profile, appointment, question, consultation, rating, notification, admin và reporting. | Đã rà soát | API được mô tả theo nhóm chức năng. |
+| DES-04 | Có ERD/database design | Bảo đảm báo cáo có thiết kế dữ liệu và bảng dữ liệu chính. | Cần kiểm tra thêm | Cần xác nhận hình ERD/diagram cuối cùng đã được chèn đầy đủ. |
+| DES-05 | Có phân quyền role-based | Bảo đảm quyền truy cập theo Guest, Patient, Doctor và Administrator được mô tả. | Đã rà soát | Đã có nội dung RBAC và test case phân quyền. |
+| DES-06 | Có ownership Patient/Doctor | Bảo đảm Patient chỉ truy cập dữ liệu của mình và Doctor chỉ truy cập dữ liệu phụ trách. | Đã rà soát | Đã có trong test case profile, appointment, question, consultation, prescription và rating. |
+| DES-07 | Có trạng thái appointment/question/consultation | Bảo đảm trạng thái nghiệp vụ chính được nêu để thiết kế test case state transition. | Đã rà soát | Đã đề cập các trạng thái như `CONFIRMED`, `CANCELLED`, `COMPLETED`, `PENDING`, `ANSWERED`. |
+| DES-08 | Có notification flow | Bảo đảm luồng xác nhận lịch, nhắc lịch và thông báo khi Doctor phản hồi được mô tả. | Đã rà soát | Notification provider có thể ở mức MVP/mock tùy môi trường. |
+| DES-09 | Có admin/reporting flow | Bảo đảm luồng Admin quản lý hệ thống và xem dashboard/reporting được mô tả. | Đã rà soát | Đã bổ sung nhóm Administration và Reporting/Dashboard. |
+| DES-10 | Có TODO hình minh chứng đầy đủ | Bảo đảm các vị trí cần hình terminal, HTML report, UI flow và bug minh chứng được đánh dấu. | Đã rà soát | Các TODO minh chứng đã có trong phần automation; cần bổ sung hình sau khi chạy test. |
+
+### 6.3. Checklist rà soát API
+
+| ID | Nội dung rà soát | Mục tiêu | Trạng thái | Ghi chú |
+|---|---|---|---|---|
+| API-01 | Public API không yêu cầu token | Bảo đảm API public discovery cho Guest không yêu cầu đăng nhập. | Đã rà soát | Cần xác nhận thêm bằng API test thực tế. |
+| API-02 | Protected API yêu cầu token | Bảo đảm booking, question, appointment, consultation, rating, notification và admin API yêu cầu xác thực. | Đã rà soát | Cần kiểm tra thêm response thực tế cho request thiếu token. |
+| API-03 | Auth API validation | Bảo đảm đăng ký/đăng nhập validate email, mật khẩu và thông tin bắt buộc. | Đã rà soát | Đã có test case Auth positive/negative. |
+| API-04 | Profile API ownership | Bảo đảm Patient/Doctor chỉ cập nhật hồ sơ đúng phạm vi. | Đã rà soát | Đã có test case ownership cho profile. |
+| API-05 | Appointment API chống trùng lịch | Bảo đảm không đặt trùng hoặc chồng lấn slot theo rule nghiệp vụ. | Đã rà soát | Cần cập nhật kết quả sau khi chạy test duplicate slot. |
+| API-06 | Question API role/scope | Bảo đảm Patient gửi câu hỏi, Doctor chỉ xử lý câu hỏi đúng phạm vi. | Đã rà soát | Đã có test case Doctor phản hồi và từ chối ngoài phạm vi. |
+| API-07 | Consultation API appointment ownership | Bảo đảm chỉ Patient và Doctor của appointment hợp lệ được start/join/chat/end. | Đã rà soát | Đã có test case Consultation Session. |
+| API-08 | Prescription API chỉ đúng Doctor/Patient | Bảo đảm Doctor phụ trách tạo prescription và Patient chỉ xem prescription của mình. | Đã rà soát | Đã có test case Consultation Result & Prescription. |
+| API-09 | Rating API chỉ sau completed consultation | Bảo đảm Patient chỉ đánh giá appointment/consultation đã completed. | Đã rà soát | Đã có test case Rating & Feedback. |
+| API-10 | Admin API chỉ Admin truy cập | Bảo đảm user không phải Admin không truy cập admin module/API. | Đã rà soát | Đã có test case Administration và Authorization. |
+| API-11 | Notification API không lộ dữ liệu nhạy cảm | Bảo đảm notification payload không chứa dữ liệu sức khỏe chi tiết không cần thiết. | Đã rà soát | Cần kiểm tra thêm payload thực tế khi chạy API test. |
+| API-12 | Error response rõ ràng | Bảo đảm lỗi validation, unauthorized, forbidden, not found và conflict có phản hồi dễ hiểu. | Cần kiểm tra thêm | Cần chạy API test để xác nhận format lỗi thực tế. |
+
+### 6.4. Checklist rà soát bảo mật và privacy
+
+| ID | Nội dung rà soát | Mục tiêu | Trạng thái | Ghi chú |
+|---|---|---|---|---|
+| SEC-01 | Mật khẩu không lưu plain text | Bảo đảm mật khẩu được lưu an toàn, không hiển thị dưới dạng plain text. | Cần kiểm tra thêm | Cần xác nhận bằng kiểm tra môi trường và dữ liệu thực tế. |
+| SEC-02 | Token/secret không ghi trong báo cáo | Bảo đảm báo cáo không chứa secret, token thật hoặc thông tin xác thực nhạy cảm. | Đã rà soát | Báo cáo chỉ dùng placeholder và tên biến khái quát. |
+| SEC-03 | Guest không truy cập protected resource | Bảo đảm Guest bị chặn ở booking, question, consultation, rating và admin. | Đã rà soát | Đã có test case negative cho Guest. |
+| SEC-04 | Patient chỉ xem dữ liệu của mình | Bảo đảm Patient không xem appointment, question, consultation result, prescription, rating hoặc notification của Patient khác. | Đã rà soát | Đã có test case privacy theo Patient ownership. |
+| SEC-05 | Doctor chỉ xem dữ liệu phụ trách | Bảo đảm Doctor không truy cập appointment/question/consultation ngoài phạm vi. | Đã rà soát | Đã có test case Doctor ngoài phạm vi bị từ chối. |
+| SEC-06 | Admin action được kiểm soát | Bảo đảm Admin module chỉ dành cho Administrator và thao tác nhạy cảm có kiểm soát. | Đã rà soát | Cần kiểm tra thêm audit/log sau khi chạy test. |
+| SEC-07 | Dữ liệu sức khỏe không lộ sai phạm vi | Bảo đảm summary, question content, health profile và consultation data không bị lộ cho user không có quyền. | Đã rà soát | Cần bổ sung minh chứng kiểm thử privacy. |
+| SEC-08 | Prescription không lộ sai người | Bảo đảm prescription chỉ hiển thị cho Patient sở hữu, Doctor phụ trách hoặc Admin theo policy. | Đã rà soát | Đã có test case prescription privacy. |
+| SEC-09 | File upload có kiểm soát quyền | Bảo đảm file tài liệu sức khỏe nếu có được upload/xem theo quyền. | Cần kiểm tra thêm | Chức năng file storage có thể phụ thuộc phạm vi MVP. |
+| SEC-10 | Log không chứa dữ liệu nhạy cảm không cần thiết | Bảo đảm log không ghi raw health data, token hoặc secret không cần thiết. | Cần kiểm tra thêm | Cần kiểm tra log thực tế khi chạy test. |
+| SEC-11 | Audit cho hành động nhạy cảm nếu hệ thống hỗ trợ | Bảo đảm thay đổi user, appointment, moderation và dữ liệu tư vấn có audit theo policy. | Cần kiểm tra thêm | Áp dụng nếu hệ thống hỗ trợ audit trail trong môi trường kiểm thử. |
+| SEC-12 | Lỗi không lộ thông tin nội bộ | Bảo đảm error response không trả stack trace, secret, query nhạy cảm hoặc thông tin nội bộ. | Cần kiểm tra thêm | Cần chạy negative API test để xác nhận. |
+
+### 6.5. Checklist rà soát kiểm thử
+
+| ID | Nội dung rà soát | Mục tiêu | Trạng thái | Ghi chú |
+|---|---|---|---|---|
+| TEST-01 | Có test case Guest | Bảo đảm Guest/Public Discovery có positive và negative test. | Đã rà soát | Đã có mục 4.1. |
+| TEST-02 | Có test case Auth | Bảo đảm đăng ký, đăng nhập, logout và phân quyền có test case. | Đã rà soát | Đã có mục 4.2. |
+| TEST-03 | Có test case Profile | Bảo đảm Patient/Doctor profile và ownership có test case. | Đã rà soát | Đã có mục 4.3. |
+| TEST-04 | Có test case Specialty/Doctor Discovery | Bảo đảm specialty, doctor public discovery và trạng thái active/approved có test case. | Đã rà soát | Đã có mục 4.4. |
+| TEST-05 | Có test case Question | Bảo đảm Patient gửi câu hỏi, Doctor phản hồi và scope có test case. | Đã rà soát | Đã có mục 4.5. |
+| TEST-06 | Có test case Appointment | Bảo đảm booking, duplicate slot, cancel, doctor/admin appointment có test case. | Đã rà soát | Đã có mục 4.6. |
+| TEST-07 | Có test case Consultation | Bảo đảm start/join/chat/video fallback/end consultation có test case. | Đã rà soát | Đã có mục 4.7. |
+| TEST-08 | Có test case Prescription | Bảo đảm summary, prescription validation và privacy có test case. | Đã rà soát | Đã có mục 4.8. |
+| TEST-09 | Có test case Rating | Bảo đảm completed-only rating, score validation, duplicate rating và moderation có test case. | Đã rà soát | Đã có mục 4.9. |
+| TEST-10 | Có test case Notification | Bảo đảm confirmation, reminder, question reply notification và privacy có test case. | Đã rà soát | Đã có mục 4.10. |
+| TEST-11 | Có test case Admin | Bảo đảm user, specialty, appointment, moderation và non-admin access có test case. | Đã rà soát | Đã có mục 4.11. |
+| TEST-12 | Có test case Reporting | Bảo đảm dashboard KPI, time filter, non-admin access và privacy có test case. | Đã rà soát | Đã có mục 4.12. |
+| TEST-13 | Có automation plan | Bảo đảm có phạm vi automation, cấu trúc Playwright, lệnh chạy và danh sách test ưu tiên. | Đã rà soát | Đã có mục 5. |
+| TEST-14 | Có mẫu ghi nhận lỗi | Bảo đảm lỗi có mẫu gồm module, các steps to reproduce, actual result, expected result, severity, status và evidence. | Đã rà soát | Đã có mục 5.8 và 5.9. |
+| TEST-15 | Có test result table | Bảo đảm có bảng tổng hợp kết quả kiểm thử không tạo đạt/không đạt giả. | Đã rà soát | Đã có mục 5.7 với trạng thái chưa thực hiện. |
+| TEST-16 | Có TODO minh chứng screenshot/report | Bảo đảm các hình minh chứng terminal, HTML report, đạt/không đạt screenshot được đánh dấu TODO. | Đã rà soát | Đã có mục 5.6. |
 
 # CHƯƠNG IV. KẾT LUẬN
 
 ## 1. Nhận xét về điểm mạnh, điểm yếu trong cách tiến hành đồ án
 
-Đề tài "Xây dựng và kiểm thử nền tảng tư vấn sức khỏe trực tuyến" được thực hiện theo định hướng kết hợp giữa phân tích, thiết kế hệ thống và đảm bảo chất lượng phần mềm. Báo cáo tập trung vào bốn use case chính được lựa chọn từ SRS, gồm Guest User tra cứu bác sĩ và chuyển đổi sang đăng ký/đăng nhập, Patient đặt lịch hẹn tư vấn, Doctor phản hồi câu hỏi sức khỏe và Doctor thực hiện phiên tư vấn trực tuyến. Đây là các luồng nghiệp vụ đại diện cho quá trình người dùng tiếp cận hệ thống, tương tác với bác sĩ, đặt lịch và thực hiện tư vấn trong phạm vi MVP.
+Đề tài "Xây dựng và kiểm thử nền tảng tư vấn sức khỏe trực tuyến" được thực hiện nhằm xây dựng một hệ thống hỗ trợ người dùng tra cứu bác sĩ, đặt lịch tư vấn, gửi câu hỏi sức khỏe, tham gia tư vấn trực tuyến, nhận kết quả tư vấn, đơn thuốc và gửi đánh giá sau buổi tư vấn. Hệ thống được định hướng theo phạm vi MVP của SRS, bao gồm các nhóm chức năng dành cho Guest User, Patient, Doctor, Administrator và các External Services như notification service, video service và file storage nếu được hỗ trợ.
 
-Trong quá trình thực hiện, nhóm đã sử dụng SRS và các tài liệu hỗ trợ như requirement baseline, API contract, architecture overview, database design, authorization matrix, privacy guide và test strategy để xây dựng nội dung báo cáo. Cách tiếp cận này giúp báo cáo không chỉ mô tả chức năng phần mềm mà còn thể hiện được mối liên hệ giữa yêu cầu, thiết kế, kiểm thử và bằng chứng chất lượng. Tuy nhiên, do báo cáo hiện đang được hoàn thiện từ backend repository, một số minh chứng liên quan đến giao diện frontend, hình ảnh sơ đồ và kết quả Playwright E2E vẫn cần được bổ sung trong giai đoạn hoàn thiện cuối.
+Báo cáo đã trình bày quá trình phân tích yêu cầu, xác định actor và use case theo SRS, phân tích các nhóm nghiệp vụ chính, thiết kế hệ thống ở mức UI/Form/API/database, đặc tả test case cho các nhóm chức năng và xây dựng định hướng automation test bằng Playwright cho một số luồng E2E tiêu biểu. Phạm vi kiểm thử trong báo cáo không chỉ tập trung vào một vài luồng chính, mà mở rộng đến các nhóm chức năng quan trọng như authentication, profile, specialty/doctor discovery, appointment, health question, consultation, prescription, rating, notification, administration, reporting/dashboard và external services.
 
 ### 1.1. Điểm mạnh
 
-Trước hết, báo cáo bám theo tài liệu SRS và các tài liệu trong hệ thống tài liệu dự án. Các nội dung chính như actor, phạm vi MVP, luồng nghiệp vụ, yêu cầu chức năng, yêu cầu phi chức năng, phân quyền, bảo mật dữ liệu sức khỏe, API và cơ sở dữ liệu đều được trình bày dựa trên nguồn tài liệu có sẵn. Điều này giúp hạn chế việc mô tả cảm tính và tạo cơ sở cho hoạt động kiểm thử có thể truy vết.
+Trước hết, báo cáo bám theo SRS và phạm vi MVP của hệ thống. Các nội dung như actor, use case, yêu cầu chức năng, yêu cầu phi chức năng, business rule, phân quyền, bảo mật, quyền riêng tư dữ liệu sức khỏe, API và cơ sở dữ liệu được trình bày theo hướng có thể truy vết từ yêu cầu đến test case.
 
-Thứ hai, báo cáo đã xác định rõ các actor và business flow chính của nền tảng tư vấn sức khỏe trực tuyến. Các actor như Guest User, Patient, Doctor và Administrator được phân biệt theo quyền và phạm vi thao tác. Từ đó, nhóm lựa chọn bốn use case trọng tâm để phân tích sâu, phù hợp với mục tiêu kiểm thử trong báo cáo.
+Thứ hai, báo cáo bao phủ đầy đủ các actor chính theo SRS. Guest User được mô tả ở các luồng public discovery và điều hướng đăng nhập khi thực hiện chức năng cần xác thực. Patient được bao phủ qua hồ sơ, đặt lịch, câu hỏi sức khỏe, tham gia tư vấn, xem kết quả, prescription, rating và notification. Doctor được bao phủ qua hồ sơ chuyên môn, quản lý lịch, phản hồi câu hỏi, thực hiện consultation, ghi summary và prescription. Administrator được bao phủ qua quản lý người dùng, chuyên khoa, lịch hẹn, kiểm duyệt, rating và dashboard/reporting. External Services cũng được đề cập qua notification, video mock/basic và file storage nếu có.
 
-Thứ ba, đối với từng use case, báo cáo đã mô tả mục tiêu, actor, tiền điều kiện, luồng sự kiện chính, luồng phụ và hậu điều kiện. Cách đặc tả này giúp các luồng nghiệp vụ trở nên rõ ràng, có khả năng kiểm thử và thuận lợi cho việc thiết kế testcase. Các tình huống như Guest User bị chuyển hướng đăng nhập, Patient đặt lịch hẹn, Doctor trả lời câu hỏi và Doctor thực hiện phiên tư vấn đều được trình bày theo hướng có thể xác định expected result.
+Thứ ba, báo cáo có danh sách use case theo SRS và phân tích các nhóm nghiệp vụ chính. Các luồng như public discovery, authentication, profile management, specialty management, appointment management, question and answer, consultation session, consultation result, prescription, rating, notification, administration và reporting được mô tả để làm cơ sở thiết kế test case.
 
-Thứ tư, báo cáo đã định nghĩa các yêu cầu chất lượng phần mềm theo ba nhóm môi trường: môi trường nghiệp vụ, môi trường vận hành và môi trường phát triển. Các nội dung như bảo mật, quyền riêng tư dữ liệu sức khỏe, phân quyền, kiểm tra dữ liệu nhập, xử lý lỗi, hiệu năng ở mức MVP, tính khả dụng, modular design, logging và khả năng kiểm thử được xem xét như những tiêu chí quan trọng chứ không chỉ là phần bổ sung.
+Thứ tư, phần thiết kế hệ thống đã đề cập các lớp quan trọng gồm UI/Form, API theo nhóm chức năng và database design. Việc mô tả input, output, actor, điều kiện truy cập và trạng thái nghiệp vụ giúp các chức năng có cơ sở để kiểm thử bằng UI, API testing và E2E testing.
 
-Thứ năm, nhóm đã xây dựng checklist rà soát yêu cầu, thiết kế, API và bảo mật. Checklist này hỗ trợ việc kiểm tra lại tính đầy đủ của báo cáo, đặc biệt là các nội dung như actor, precondition/postcondition, input/output, RBAC, API validation, protected API, ownership của Patient/Doctor, bảo vệ mật khẩu và hạn chế log dữ liệu nhạy cảm.
+Thứ năm, báo cáo đã xác định yêu cầu chất lượng phần mềm, bao gồm bảo mật, phân quyền, quyền riêng tư dữ liệu sức khỏe, xử lý lỗi, hiệu năng ở mức MVP, khả dụng, logging, audit nếu được hỗ trợ và khả năng kiểm thử. Đây là các tiêu chí quan trọng đối với một hệ thống có xử lý thông tin sức khỏe và dữ liệu cá nhân.
 
-Thứ sáu, báo cáo đã đặc tả testcase theo từng use case, bao gồm cả positive test và negative test. Các testcase được trình bày theo mô tả, tiền điều kiện, bước thực hiện, kỹ thuật/công cụ và bảng phân hoạch miền giá trị. Điều này giúp hoạt động kiểm thử có cấu trúc hơn, đồng thời tạo nền tảng để triển khai kiểm thử tự động sau này.
+Thứ sáu, báo cáo đã xây dựng test case cho các nhóm chức năng chính. Các nhóm test case bao gồm Guest/Public Discovery, Authentication & Authorization, Profile, Specialty & Doctor Discovery, Health Question, Appointment Management, Consultation Session, Consultation Result & Prescription, Rating & Feedback, Notification, Administration, Reporting/Dashboard và External Services/File Storage. Các test case có cả positive và negative scenario, đồng thời chú trọng validation, authorization, ownership và trạng thái nghiệp vụ.
 
-Cuối cùng, báo cáo đã xây dựng định hướng minh họa kiểm thử tự động bằng Playwright cho frontend. Phần này chưa ghi nhận kết quả thực thi, nhưng đã xác định rõ phạm vi tự động hóa, công cụ, cấu trúc test dự kiến, danh sách testcase ưu tiên, cách chạy, cách ghi nhận kết quả và cách ghi nhận lỗi. Đây là cơ sở để nhóm tiếp tục triển khai ở frontend repository trong giai đoạn sau.
+Thứ bảy, báo cáo có checklist rà soát yêu cầu, thiết kế, API, bảo mật/privacy và kiểm thử. Checklist này hỗ trợ việc kiểm tra lại tính đầy đủ của báo cáo trước khi bổ sung minh chứng thực tế, đặc biệt ở các điểm như actor, use case, API protected/public, RBAC, Patient/Doctor ownership, dữ liệu sức khỏe, prescription, notification payload, log và audit.
+
+Cuối cùng, báo cáo đã có định hướng Playwright automation cho các luồng E2E tiêu biểu. Phần automation xác định rõ mục tiêu, phạm vi, cấu trúc thư mục đề xuất, danh sách test ưu tiên, cách chạy test, minh chứng cần bổ sung, bảng tổng hợp kết quả và mẫu ghi nhận lỗi. Dù chưa có kết quả chạy test thật, phần này tạo nền tảng để triển khai kiểm thử hồi quy ở giai đoạn sau.
 
 ### 1.2. Điểm yếu
 
-Bên cạnh các điểm mạnh, báo cáo vẫn còn một số hạn chế cần được hoàn thiện. Trước hết, báo cáo chưa chèn đầy đủ hình ảnh giao diện UI, use case diagram, activity diagram, ERD và screenshot kết quả kiểm thử. Nhiều vị trí hiện vẫn đang được giữ dưới dạng TODO placeholder, vì nhóm chưa có đủ ảnh chụp giao diện và sơ đồ cuối cùng để đưa vào báo cáo.
+Bên cạnh các điểm mạnh, báo cáo vẫn còn một số hạn chế cần được hoàn thiện. Trước hết, báo cáo chưa chèn đầy đủ hình UI, use case diagram, activity diagram, architecture diagram, ERD và screenshot kết quả kiểm thử. Một số vị trí vẫn đang để TODO để bổ sung hình minh chứng sau.
 
-Thứ hai, báo cáo chưa cập nhật kết quả pass/fail thực tế cho Playwright automation. Lý do là phần kiểm thử tự động sẽ được triển khai và chạy ở frontend repository, trong khi báo cáo hiện đang được viết từ backend repository. Vì vậy, các bảng kết quả kiểm thử tự động hiện chỉ ở trạng thái `Chưa thực hiện`, `Chờ minh chứng` hoặc `Planned / Evidence Pending`, nhằm tránh ghi nhận kết quả không có bằng chứng.
+Thứ hai, báo cáo chưa có kết quả chạy Playwright thật. Các bảng kết quả kiểm thử vẫn để trạng thái chưa thực hiện hoặc chờ bổ sung minh chứng, nhằm tránh tạo số liệu đạt/không đạt không có bằng chứng.
 
-Thứ ba, phạm vi testcase hiện tập trung vào bốn use case trọng tâm. Một số chức năng mở rộng như profile management, prescription, rating, notification và admin dashboard đã được nhắc đến trong phạm vi hệ thống nhưng chưa được kiểm thử sâu trong phần testcase chính của báo cáo. Các chức năng này cần được bổ sung testcase nếu muốn đánh giá đầy đủ hơn toàn bộ hệ thống.
+Thứ ba, một số chức năng phụ thuộc vào môi trường và dữ liệu test ổn định. Các luồng như appointment theo thời gian, consultation window, prescription sau consultation, rating sau completed appointment, reminder notification và dashboard thống kê cần test data phù hợp trước khi chạy kiểm thử thực tế.
 
-Thứ tư, performance testing và security testing hiện mới dừng ở mức tiêu chí, định hướng và checklist rà soát. Báo cáo chưa có bằng chứng kiểm thử hiệu năng bằng công cụ chuyên dụng, chưa có số liệu benchmark và chưa có kết quả kiểm thử bảo mật chuyên sâu theo OWASP API Security Top 10. Do đó, phần đánh giá chất lượng phi chức năng vẫn cần được bổ sung nếu thời gian và môi trường cho phép.
+Thứ tư, notification, video consultation và file storage có thể mới ở mức MVP/mock tùy môi trường triển khai. Vì vậy, các test case liên quan đến email/SMS, video provider, fallback chat, upload file và file storage unavailable cần được hiểu theo phạm vi hỗ trợ thực tế của hệ thống tại thời điểm kiểm thử.
 
-Thứ năm, video consultation trong phạm vi MVP có thể mới ở mức mock hoặc simulated nếu chưa tích hợp video provider thật. Vì vậy, các kiểm thử liên quan đến video cần được hiểu theo phạm vi MVP và cần được cập nhật lại nếu hệ thống tích hợp dịch vụ video thật trong giai đoạn sau.
+Thứ năm, performance test và security test hiện mới ở mức định hướng nếu chưa có quá trình thực thi bằng công cụ chuyên dụng. Báo cáo đã đề cập tiêu chí và checklist, nhưng chưa có số liệu benchmark từ k6/JMeter hoặc kết quả kiểm thử bảo mật theo OWASP API Security Top 10.
+
+Cuối cùng, báo cáo cần thêm minh chứng để hoàn thiện bản cuối. Các bằng chứng cần bổ sung gồm ảnh giao diện, sơ đồ thiết kế, Playwright terminal, Playwright HTML report, ảnh minh chứng test đạt, ảnh minh chứng test không đạt nếu có lỗi, API response minh chứng và bug minh chứng tương ứng.
 
 ## 2. Khả năng cải tiến cách tiến hành đồ án
 
-Để hoàn thiện báo cáo và nâng cao chất lượng đồ án, nhóm cần tiếp tục bổ sung hình ảnh diagram và screenshot UI vào các vị trí TODO. Các hình như wireframe, use case diagram, activity diagram, kiến trúc hệ thống, ERD, giao diện chính và minh chứng kiểm thử sẽ giúp báo cáo trực quan hơn, đồng thời tăng tính thuyết phục khi trình bày kết quả.
+Để hoàn thiện báo cáo và nâng cao chất lượng đồ án, nhóm cần bổ sung toàn bộ hình và screenshot còn thiếu, bao gồm UI screen, use case diagram, activity diagram, architecture diagram, ERD, terminal output, Playwright HTML report, ảnh minh chứng test đạt và ảnh minh chứng test không đạt nếu phát hiện lỗi.
 
-Về kiểm thử tự động, nhóm cần triển khai Playwright E2E test trong frontend repository dựa trên các testcase đã đặc tả. Các luồng nên được ưu tiên gồm Guest User tìm kiếm bác sĩ, Guest User bị chuyển hướng đăng nhập khi đặt lịch, Patient đặt lịch hẹn, Patient gửi câu hỏi, Doctor phản hồi câu hỏi, Doctor bắt đầu phiên tư vấn và Doctor hoàn tất phiên tư vấn. Sau khi chạy Playwright, nhóm cần cập nhật bảng kết quả kiểm thử, số lượng testcase pass/fail/skipped, Playwright HTML report, ảnh terminal và các screenshot minh chứng vào báo cáo cuối kỳ.
+Nhóm cần chạy Playwright thật trên môi trường có đầy đủ database, backend, frontend và test data. Sau khi chạy, cần cập nhật bảng kết quả kiểm thử bằng số liệu thực tế, gồm tổng số, số lượng đạt, số lượng không đạt, số lượng bỏ qua, trạng thái, ghi chú và minh chứng kèm theo. Các kết quả chỉ nên được ghi vào báo cáo khi có report, screenshot hoặc trace tương ứng.
 
-Ngoài bốn use case trọng tâm, nhóm có thể mở rộng testcase cho profile management, prescriptions, ratings, notifications và admin dashboard. Đây là các chức năng quan trọng để đánh giá đầy đủ hơn vai trò Patient, Doctor và Administrator, đồng thời giúp kiểm tra các luồng quản trị và lịch sử tư vấn sau khi phiên tư vấn hoàn tất.
+Bên cạnh E2E automation, nhóm nên bổ sung API test và integration test cho các nghiệp vụ quan trọng như auth, appointment duplicate slot, question scope, consultation ownership, prescription privacy, rating completed-only, notification outbox/log và admin authorization. API/integration test giúp kiểm tra sâu các rule nghiệp vụ ngay cả khi UI chưa hoàn thiện.
 
-Về kiểm thử phi chức năng, nếu có thời gian, nhóm nên bổ sung kiểm thử hiệu năng bằng k6 hoặc JMeter cho các endpoint quan trọng như public doctor discovery, login, booking appointment, question answering và consultation history. Kết quả hiệu năng nên được trình bày bằng số liệu cụ thể như response time trung bình, p95, throughput và error rate trong điều kiện kiểm thử xác định.
+Về hiệu năng, nhóm có thể bổ sung performance test bằng k6 hoặc JMeter cho các endpoint quan trọng như public doctor discovery, login, booking appointment, appointments listing, question answering, consultation history và dashboard/reporting. Kết quả nên được trình bày bằng số liệu cụ thể như average response time, p95, throughput và error rate trong điều kiện kiểm thử xác định.
 
-Về bảo mật, nhóm nên bổ sung kiểm thử theo OWASP API Security Top 10, đặc biệt là các nhóm lỗi liên quan đến broken object level authorization, broken authentication, excessive data exposure, mass assignment, security misconfiguration và improper assets management. Các testcase bảo mật cần tập trung vào quyền sở hữu dữ liệu Patient/Doctor, dữ liệu sức khỏe, token, password, audit log và thông báo lỗi.
+Về bảo mật, nhóm nên bổ sung security test theo OWASP API Security Top 10. Trọng tâm nên đặt vào broken object level authorization, broken authentication, excessive data exposure, mass assignment, security misconfiguration, token handling, error leakage và quyền truy cập dữ liệu sức khỏe. Các kiểm thử này cần đặc biệt chú ý đến Patient ownership, Doctor scope, Admin-only API, prescription privacy, notification payload, file access, log và audit.
 
-Về quy trình phát triển, nhóm có thể tích hợp CI/CD để chạy test tự động khi có thay đổi mã nguồn. Pipeline nên bao gồm kiểm tra định dạng, type-check, build, unit/integration test, Playwright E2E test và lưu report artifact. Nếu phù hợp, nhóm có thể bổ sung báo cáo test dạng HTML hoặc Allure để kết quả kiểm thử dễ theo dõi, dễ chèn vào báo cáo và dễ đối chiếu trong quá trình nghiệm thu.
+Nhóm cũng cần hoàn thiện test data và seed data. Dữ liệu kiểm thử nên bao gồm Guest scenario, Patient, Doctor active/approved, Doctor inactive/unapproved, Administrator, specialty, appointment ở nhiều trạng thái, question ở nhiều trạng thái, consultation completed, prescription, rating, notification và dashboard data. Test data ổn định sẽ giúp kiểm thử thủ công, API test và automation test ít phụ thuộc vào thao tác chuẩn bị thủ công.
 
-Tóm lại, báo cáo hiện đã hình thành được nền tảng phân tích, thiết kế và đặc tả kiểm thử cho nền tảng tư vấn sức khỏe trực tuyến. Tuy nhiên, để đạt mức hoàn thiện cao hơn cho báo cáo cuối kỳ, nhóm cần tiếp tục bổ sung minh chứng trực quan, kết quả kiểm thử thực tế và các kiểm thử tự động/phi chức năng có bằng chứng rõ ràng.
+Về quy trình, nhóm có thể tích hợp CI/CD để chạy kiểm thử tự động khi có thay đổi. Pipeline nên bao gồm kiểm tra định dạng, type-check, build, unit test, integration test, API test, Playwright E2E test và lưu report artifact. Nếu phù hợp, nhóm có thể bổ sung Allure report hoặc Playwright report artifact để kết quả kiểm thử dễ theo dõi và dễ đối chiếu trong quá trình nghiệm thu.
+
+Nhóm nên mở rộng kiểm thử cho notification, video và file storage. Notification cần kiểm tra confirmation, reminder, question reply, provider unavailable, retry/log và nội dung không lộ dữ liệu sức khỏe. Video cần kiểm tra video mock/basic, unavailable provider và fallback chat. File storage nếu có cần kiểm tra upload, file type/size, quyền xem file và storage unavailable.
+
+Dashboard và reporting cũng có thể được cải thiện bằng cách bổ sung bộ dữ liệu thống kê rõ ràng, kiểm tra filter theo thời gian, kiểm tra KPI tối thiểu, kiểm tra dữ liệu tổng hợp và bảo đảm dashboard không lộ thông tin sức khỏe chi tiết. Ngoài ra, nhóm cần rà soát privacy, log và audit kỹ hơn để bảo đảm dữ liệu sức khỏe, token, secret, prescription và consultation summary không bị ghi hoặc hiển thị sai phạm vi.
+
+Tóm lại, báo cáo đã tạo được cơ sở cho việc hoàn thiện sản phẩm và triển khai kiểm thử trong giai đoạn sau. Nội dung hiện tại giúp xác định rõ phạm vi yêu cầu, thiết kế, test case, checklist chất lượng và định hướng automation. Tuy nhiên, báo cáo không khẳng định hệ thống đã hoàn chỉnh tuyệt đối khi chưa có đầy đủ bằng chứng chạy test, hình minh chứng và kết quả kiểm thử thực tế. Các nội dung này cần tiếp tục được bổ sung để hoàn thiện báo cáo cuối cùng.
 
 # TÀI LIỆU THAM KHẢO
 
-<!-- TODO: Chuẩn hóa danh mục tài liệu tham khảo ở phiên bản cuối. -->
+[1] IEEE Computer Society, "IEEE Standard for Software and System Test Documentation", Available: https://standards.ieee.org/standard/829-2008.html.
+
+[2] International Software Testing Qualifications Board, "Certified Tester Foundation Level Syllabus", Available: https://www.istqb.org/certifications/certified-tester-foundation-level.
+
+[3] Glenford J. Myers, Corey Sandler, and Tom Badgett, "The Art of Software Testing", Available: https://www.wiley.com/en-us/The+Art+of+Software+Testing%2C+3rd+Edition-p-9781118031964.
+
+[4] Microsoft, "Playwright Documentation", Available: https://playwright.dev/docs/intro.
+
+[5] Meta Open Source, "React Documentation", Available: https://react.dev/.
+
+[6] Vite Team, "Vite Documentation", Available: https://vitejs.dev/guide/.
+
+[7] Microsoft, "TypeScript Documentation", Available: https://www.typescriptlang.org/docs/.
+
+[8] OpenJS Foundation, "Node.js Documentation", Available: https://nodejs.org/en/docs.
+
+[9] NestJS, "NestJS Documentation", Available: https://docs.nestjs.com/.
+
+[10] Prisma, "Prisma Documentation", Available: https://www.prisma.io/docs.
+
+[11] PostgreSQL Global Development Group, "PostgreSQL Documentation", Available: https://www.postgresql.org/docs/.
+
+[12] OWASP Foundation, "OWASP API Security Top 10", Available: https://owasp.org/www-project-api-security/.
+
+[13] OpenID Foundation, "JSON Web Token (JWT)", Available: https://jwt.io/introduction.
+
+[14] OpenAPI Initiative, "OpenAPI Specification", Available: https://spec.openapis.org/oas/latest.html.
+
+[15] Tailwind Labs, "Tailwind CSS Documentation", Available: https://tailwindcss.com/docs.
+
+[16] PrimeTek Informatics, "PrimeReact Documentation", Available: https://primereact.org/.
+
+[17] Socket.IO, "Socket.IO Documentation", Available: https://socket.io/docs/v4/.
+
+[18] Docker Inc., "Docker Documentation", Available: https://docs.docker.com/.

@@ -45,9 +45,9 @@ Thành phố Hồ Chí Minh, ngày 23 tháng 5 năm 2026
 
 [**MỤC LỤC 3**](#_Toc230335404)
 
-[**DANH SÁCH HÌNH ẢNH 5**](#_Toc230335405)
-
 [**DANH SÁCH BẢNG 5**](#_Toc230335406)
+
+[**DANH SÁCH HÌNH ẢNH 5**](#_Toc230335405)
 
 [**TÓM TẮT 6**](#_Toc230335407)
 
@@ -143,7 +143,17 @@ Thành phố Hồ Chí Minh, ngày 23 tháng 5 năm 2026
 
 [**4.3.3. Quan hệ dữ liệu chính 47**](#_Toc230335453)
 
-[**TÀI LIỆU THAM KHẢO 48**](#_Toc230335454)
+[**CHƯƠNG III. TRIỂN KHAI HỆ THỐNG 49**](#chuong-iii-trien-khai-he-thong)
+
+[**1. Phần mềm ứng dụng 49**](#1-phan-mem-ung-dung)
+
+[**2. Kiểm thử 61**](#2-kiem-thu)
+
+[**CHƯƠNG IV. KẾT LUẬN 78**](#chuong-iv-ket-luan)
+
+[**TÀI LIỆU THAM KHẢO 83**](#tai-lieu-tham-khao)
+
+# DANH SÁCH BẢNG
 
 | Số bảng | Tên bảng                                        |
 | ------- | ----------------------------------------------- |
@@ -153,6 +163,16 @@ Thành phố Hồ Chí Minh, ngày 23 tháng 5 năm 2026
 | Bảng 4  | Mapping yêu cầu chất lượng và kỹ thuật kiểm thử |
 | Bảng 5  | Form/API dùng cho Usecase                       |
 | Bảng 6  | Từ điển cơ sở dữ liệu                           |
+| Bảng 7  | Công nghệ và lệnh triển khai backend            |
+| Bảng 8  | Công nghệ và lệnh triển khai frontend           |
+| Bảng 9  | Môi trường và dữ liệu kiểm thử                  |
+| Bảng 10 | Test case UC01 - Guest tra cứu bác sĩ           |
+| Bảng 11 | Test case UC02 - Đăng ký / đăng nhập / phân quyền |
+| Bảng 12 | Test case UC03 - Patient đặt lịch tư vấn        |
+| Bảng 13 | Test case UC04 - Patient gửi câu hỏi và Doctor phản hồi |
+| Bảng 14 | Test case UC05 - Doctor tư vấn, ghi kết quả và đơn thuốc |
+| Bảng 15 | Test case UC06 - Administrator quản lý hệ thống |
+| Bảng 16 | Tổng hợp kết quả Playwright E2E                 |
 
 # DANH SÁCH HÌNH ẢNH
 
@@ -172,8 +192,29 @@ Thành phố Hồ Chí Minh, ngày 23 tháng 5 năm 2026
 | Hình 12 | Biểu đồ hoạt động Administrator quản lý hệ thống và dashboard |
 | Hình 13 | Kiến trúc hệ thống                                            |
 | Hình 14 | ERD / Database diagram                                        |
-
-## DANH SÁCH BẢNG
+| Hình 15 | Giao diện Trang chủ public                                    |
+| Hình 16 | Giao diện Danh sách chuyên khoa                               |
+| Hình 17 | Giao diện Danh sách bác sĩ                                    |
+| Hình 18 | Giao diện Chi tiết bác sĩ                                     |
+| Hình 19 | Giao diện Đăng ký                                             |
+| Hình 20 | Giao diện Đăng nhập                                           |
+| Hình 21 | Giao diện Patient dashboard và hồ sơ                          |
+| Hình 22 | Giao diện Patient đặt lịch tư vấn                             |
+| Hình 23 | Giao diện Patient danh sách lịch hẹn                          |
+| Hình 24 | Giao diện Patient gửi câu hỏi sức khỏe                        |
+| Hình 25 | Giao diện Patient xem câu hỏi và phản hồi                     |
+| Hình 26 | Giao diện Patient xem kết quả tư vấn và đơn thuốc             |
+| Hình 27 | Giao diện Doctor dashboard và hồ sơ                           |
+| Hình 28 | Giao diện Doctor quản lý lịch hẹn                             |
+| Hình 29 | Giao diện Doctor quản lý câu hỏi                              |
+| Hình 30 | Giao diện Doctor phiên tư vấn, kết quả và đơn thuốc           |
+| Hình 31 | Giao diện Admin dashboard                                     |
+| Hình 32 | Giao diện Admin quản lý và duyệt bác sĩ                       |
+| Hình 33 | Giao diện Admin quản lý chuyên khoa                           |
+| Hình 34 | Giao diện Admin quản lý người dùng và lịch hẹn                |
+| Hình 35 | Cấu trúc thư mục kiểm thử tự động Playwright                  |
+| Hình 36 | Kết quả chạy kiểm thử Playwright trên terminal                |
+| Hình 37 | Báo cáo HTML của Playwright                                   |
 
 ## TÓM TẮT
 
@@ -183,9 +224,9 @@ Phạm vi cốt lõi của hệ thống được xác định theo tài liệu y
 
 Về chức năng, hệ thống bao gồm các nhóm nghiệp vụ chính: public access/discovery, authentication/authorization, patient profile, doctor profile, specialty management, doctor discovery, health question, appointment, consultation session, consultation result/prescription, rating, notification, admin management và reporting/dashboard. Các nhóm chức năng này phản ánh đầy đủ phạm vi sử dụng của nền tảng, từ việc người dùng khách tra cứu thông tin bác sĩ, bệnh nhân đăng ký tài khoản và đặt lịch tư vấn, bác sĩ phản hồi câu hỏi và thực hiện phiên tư vấn, đến việc quản trị viên quản lý người dùng, chuyên khoa, lịch hẹn, nội dung và số liệu vận hành.
 
-Báo cáo không chỉ tập trung vào một vài luồng minh họa, mà tổ chức nội dung phân tích và kiểm thử theo đầy đủ các nhóm use case chính trong tài liệu yêu cầu. Một số luồng E2E quan trọng như tra cứu bác sĩ, đặt lịch tư vấn, gửi và phản hồi câu hỏi sức khỏe, tham gia phiên tư vấn trực tuyến có thể được chọn để minh họa automation test bằng Playwright. Tuy nhiên, phần phân tích yêu cầu, mapping use case và đặc tả test case vẫn cần bao phủ các nhóm actor và chức năng chính của hệ thống.
+Báo cáo không chỉ tập trung vào một vài luồng minh họa, mà tổ chức nội dung phân tích và kiểm thử theo đầy đủ các nhóm use case chính trong tài liệu yêu cầu. Ở giai đoạn cuối kỳ, hệ thống đã có backend MVP, frontend theo vai trò và bộ kiểm thử E2E bằng Playwright cho các luồng public, authentication, patient, doctor và administrator. Các luồng cần dữ liệu nghiệp vụ thật được thiết kế sẵn trong test suite nhưng chưa ghi nhận là pass nếu môi trường seed chưa đáp ứng.
 
-Định hướng đảm bảo chất lượng của đề tài gồm: phân tích yêu cầu, thiết kế use case, thiết kế UI/API/database, thiết kế test case, xây dựng kiểm thử tự động bằng Playwright cho các luồng phù hợp, kết hợp checklist rà soát bảo mật, phân quyền và quyền riêng tư dữ liệu sức khỏe. Báo cáo không ghi kết quả kiểm thử thực tế khi chưa có quá trình thực thi và minh chứng tương ứng; các kết quả, lỗi phát hiện và hình ảnh minh chứng sẽ được bổ sung sau khi nhóm hoàn tất hoạt động kiểm thử.
+Định hướng đảm bảo chất lượng của đề tài gồm: phân tích yêu cầu, thiết kế use case, thiết kế UI/API/database, thiết kế test case, xây dựng kiểm thử tự động bằng Playwright cho các luồng phù hợp, kết hợp checklist rà soát bảo mật, phân quyền và quyền riêng tư dữ liệu sức khỏe. Kết quả thực thi gần nhất được ghi nhận minh bạch: backend build pass, backend Jest pass theo cấu hình `--passWithNoTests` và chưa có unit test; frontend build pass, lint pass; Playwright E2E phát hiện 37 test, trong đó 6 pass và 31 skip/fixme do thiếu seed dữ liệu nghiệp vụ thật. Các hình ảnh minh chứng cần chèn vào bản Word/PDF được đánh dấu TODO rõ ràng trong Chương III.
 
 Về công nghệ, frontend sử dụng React 18, TypeScript, Vite, React Router v6, Redux Toolkit, Redux Saga, Axios, PrimeReact, Tailwind CSS, Formik, Yup, i18next và Recharts. Backend được trình bày theo hướng Node.js với NestJS, TypeScript, Prisma ORM và PostgreSQL; hệ thống sử dụng JWT, RBAC và kiểm soát quyền sở hữu dữ liệu cho xác thực và phân quyền. Công cụ kiểm thử chính là Playwright cho E2E automation test; tùy phạm vi triển khai, nhóm có thể bổ sung Postman/API testing và Jest/unit test cho các tầng phù hợp.
 
@@ -841,6 +882,369 @@ Hình 14 - ERD / Database diagram
 - users có nhiều notification_logs, user_sessions, password_reset_tokens và audit_logs.
 - file_attachments có thể gắn với consultation_sessions hoặc một owner nghiệp vụ thông qua ownerType và ownerId.
 
+# CHƯƠNG III. TRIỂN KHAI HỆ THỐNG
+
+## 1. Phần mềm ứng dụng
+
+### 1.1. Giao diện chính của phần mềm
+
+Hệ thống frontend được triển khai theo mô hình ứng dụng web một trang, chia giao diện theo vai trò Guest, Patient, Doctor và Administrator. Các màn hình chính sử dụng React Router để điều hướng, Redux Toolkit/Redux Saga để quản lý trạng thái nghiệp vụ, Axios để gọi API backend, PrimeReact và Tailwind CSS để xây dựng giao diện. Các màn hình đã được bổ sung `data-testid` cho mục tiêu kiểm thử tự động bằng Playwright.
+
+**Trang chủ public.** Màn hình trang chủ giới thiệu nền tảng, hiển thị các điểm truy cập nhanh đến danh sách bác sĩ, chuyên khoa và hành động đặt lịch hoặc đặt câu hỏi. Dữ liệu bác sĩ nổi bật và chuyên khoa được lấy từ API public thay vì mock cục bộ.
+
+TODO: Chèn hình giao diện Trang chủ public  
+Hình 15: Giao diện Trang chủ public
+
+**Danh sách chuyên khoa.** Màn hình danh sách chuyên khoa cho phép người dùng khách xem các chuyên khoa đang hoạt động. Dữ liệu được lấy từ `/api/public/specialties` và dùng cho cả luồng tra cứu bác sĩ, đăng ký bác sĩ và đặt lịch.
+
+TODO: Chèn hình giao diện Danh sách chuyên khoa  
+Hình 16: Giao diện Danh sách chuyên khoa
+
+**Danh sách bác sĩ.** Màn hình danh sách bác sĩ hỗ trợ tìm kiếm theo từ khóa và lọc theo chuyên khoa. Mỗi thẻ bác sĩ hiển thị thông tin cơ bản, chuyên khoa, trạng thái public phù hợp và tóm tắt đánh giá gồm `avgRating`, `ratingCount`.
+
+TODO: Chèn hình giao diện Danh sách bác sĩ  
+Hình 17: Giao diện Danh sách bác sĩ
+
+**Chi tiết bác sĩ.** Màn hình chi tiết bác sĩ hiển thị hồ sơ, chuyên khoa, kinh nghiệm, thông tin đánh giá và các nút hành động đặt lịch hoặc đặt câu hỏi. Khi người dùng chưa đăng nhập, CTA chuyển về trang đăng nhập kèm return URL an toàn.
+
+TODO: Chèn hình giao diện Chi tiết bác sĩ  
+Hình 18: Giao diện Chi tiết bác sĩ
+
+**Đăng ký.** Màn hình đăng ký hỗ trợ tạo tài khoản Patient hoặc Doctor. Với Doctor, form lấy danh sách chuyên khoa từ backend và gửi `specialtyId` theo contract thật của API `/api/auth/register`.
+
+TODO: Chèn hình giao diện Đăng ký  
+Hình 19: Giao diện Đăng ký
+
+**Đăng nhập.** Màn hình đăng nhập gọi `/api/auth/login`, lưu access token trong session storage và dựa trên role để chuyển hướng đến dashboard tương ứng. Refresh token được xử lý theo backend session/cookie flow.
+
+TODO: Chèn hình giao diện Đăng nhập  
+Hình 20: Giao diện Đăng nhập
+
+**Patient dashboard và hồ sơ.** Patient dashboard hiển thị thông tin tổng quan của người bệnh và dẫn tới các nghiệp vụ chính. Màn hình hồ sơ sử dụng `GET/PATCH /api/patients/me/profile`, chuẩn hóa dữ liệu user/profile và không hiển thị dữ liệu nhạy cảm.
+
+TODO: Chèn hình giao diện Patient dashboard và hồ sơ  
+Hình 21: Giao diện Patient dashboard và hồ sơ
+
+**Patient đặt lịch tư vấn.** Màn hình đặt lịch cho phép bệnh nhân chọn chuyên khoa, bác sĩ, ngày giờ, thời lượng, lý do và ghi chú. Dữ liệu chuyên khoa/bác sĩ lấy từ public API, sau đó tạo lịch bằng `POST /api/appointments`.
+
+TODO: Chèn hình giao diện Patient đặt lịch tư vấn  
+Hình 22: Giao diện Patient đặt lịch tư vấn
+
+**Patient danh sách lịch hẹn.** Màn hình lịch sử/danh sách lịch hẹn lấy dữ liệu từ `/api/appointments/mine` với filter cơ bản theo trạng thái và khoảng ngày. Người dùng có thể xem chi tiết, hủy lịch hẹn theo quyền và mở kết quả tư vấn nếu lịch đã có dữ liệu.
+
+TODO: Chèn hình giao diện Patient danh sách lịch hẹn  
+Hình 23: Giao diện Patient danh sách lịch hẹn
+
+**Patient gửi câu hỏi sức khỏe.** Màn hình đặt câu hỏi cho phép bệnh nhân nhập tiêu đề và nội dung, gửi qua `POST /api/questions`. Form tập trung vào nội dung y tế dạng hỏi đáp, không triển khai upload tệp trong phạm vi MVP.
+
+TODO: Chèn hình giao diện Patient gửi câu hỏi sức khỏe  
+Hình 24: Giao diện Patient gửi câu hỏi sức khỏe
+
+**Patient xem câu hỏi và phản hồi.** Danh sách câu hỏi của bệnh nhân lấy từ `/api/questions/mine`, hiển thị trạng thái xử lý và câu trả lời của bác sĩ nếu có. Với MVP, chi tiết câu hỏi có thể được xem từ dữ liệu danh sách thay vì deep link riêng.
+
+TODO: Chèn hình giao diện Patient xem câu hỏi và phản hồi  
+Hình 25: Giao diện Patient xem câu hỏi và phản hồi
+
+**Patient xem kết quả tư vấn và đơn thuốc.** Màn hình kết quả sử dụng `/api/consultations/:appointmentId/result`, hiển thị phiên tư vấn, tóm tắt của bác sĩ, đơn thuốc và các dòng thuốc. Nếu chưa có đơn thuốc, giao diện hiển thị trạng thái rỗng thay vì lỗi.
+
+TODO: Chèn hình giao diện Patient xem kết quả tư vấn và đơn thuốc  
+Hình 26: Giao diện Patient xem kết quả tư vấn và đơn thuốc
+
+**Doctor dashboard và hồ sơ.** Doctor dashboard hiển thị thông tin tổng quan cho bác sĩ. Màn hình hồ sơ dùng `/api/doctors/me/profile`, `/api/doctors/me/specialties` và `/api/doctors/me/schedule` để cập nhật mô tả chuyên môn, chuyên khoa và lịch làm việc.
+
+TODO: Chèn hình giao diện Doctor dashboard và hồ sơ  
+Hình 27: Giao diện Doctor dashboard và hồ sơ
+
+**Doctor danh sách lịch hẹn, xác nhận và hoàn tất.** Màn hình lịch hẹn của bác sĩ lấy dữ liệu từ `/api/appointments/doctor/me`. Bác sĩ có thể xem chi tiết lịch hẹn thuộc phạm vi của mình, xác nhận bằng `/api/appointments/:id/confirm` và hoàn tất bằng `/api/appointments/:id/complete`.
+
+TODO: Chèn hình giao diện Doctor quản lý lịch hẹn  
+Hình 28: Giao diện Doctor quản lý lịch hẹn
+
+**Doctor danh sách câu hỏi và phản hồi.** Màn hình inbox lấy câu hỏi từ `/api/questions/assigned`. Bác sĩ trả lời bằng `POST /api/questions/:id/answers` với payload `{ content }`, sau đó danh sách được làm mới để phản ánh trạng thái mới.
+
+TODO: Chèn hình giao diện Doctor quản lý câu hỏi  
+Hình 29: Giao diện Doctor quản lý câu hỏi
+
+**Doctor phiên tư vấn, ghi kết quả và tạo đơn thuốc.** Màn hình phiên tư vấn hỗ trợ start/join/end session, chat fallback, nhập summary và tạo prescription. Phạm vi MVP chưa tích hợp video call thật; giao diện mô phỏng phần video và tập trung vào chat/kết quả/đơn thuốc.
+
+TODO: Chèn hình giao diện Doctor phiên tư vấn, kết quả và đơn thuốc  
+Hình 30: Giao diện Doctor phiên tư vấn, kết quả và đơn thuốc
+
+**Admin dashboard.** Admin dashboard sử dụng `/api/reports/dashboard` để hiển thị số liệu tổng quan về người dùng, lịch hẹn, câu hỏi và hoạt động hệ thống. Một số biểu đồ nâng cao chưa có endpoint backend đầy đủ được giữ ở dạng fallback/empty state có ghi chú.
+
+TODO: Chèn hình giao diện Admin dashboard  
+Hình 31: Giao diện Admin dashboard
+
+**Admin quản lý bác sĩ và duyệt bác sĩ.** Màn hình quản lý bác sĩ gọi `/api/admin/doctors`, hỗ trợ filter theo trạng thái duyệt, active và từ khóa. Admin có thể approve/reject hồ sơ bác sĩ qua `/api/admin/doctors/:doctorId/approval`.
+
+TODO: Chèn hình giao diện Admin quản lý và duyệt bác sĩ  
+Hình 32: Giao diện Admin quản lý và duyệt bác sĩ
+
+**Admin quản lý chuyên khoa.** Màn hình chuyên khoa sử dụng `/api/admin/specialties` để xem, tạo, cập nhật và deactivate chuyên khoa. MVP dùng deactivate thay cho xóa cứng để giữ tính toàn vẹn dữ liệu.
+
+TODO: Chèn hình giao diện Admin quản lý chuyên khoa  
+Hình 33: Giao diện Admin quản lý chuyên khoa
+
+**Admin quản lý người dùng và lịch hẹn.** Admin có thể quản lý user qua `/api/admin/users`, quản lý bệnh nhân bằng filter role PATIENT, và quản lý lịch hẹn qua `/api/admin/appointments`. Các thao tác thay đổi trạng thái dùng endpoint PATCH theo backend contract.
+
+TODO: Chèn hình giao diện Admin quản lý người dùng và lịch hẹn  
+Hình 34: Giao diện Admin quản lý người dùng và lịch hẹn
+
+### 1.2. Cài đặt cho hệ thống phần mềm
+
+Backend được triển khai trong repository `OnlineHealthConsultation-Service`. Hệ thống sử dụng NestJS, Prisma ORM và PostgreSQL; các module chính gồm Auth/session/JWT/RBAC/Ownership, Patient profile, Doctor profile, Specialty, Public discovery, Health question/answer/moderation, Appointment, Consultation session/WebSocket chat, Prescription, Rating, Notification infrastructure/outbox/log, Admin user management và Reporting dashboard.
+
+| Thành phần | Công nghệ / lệnh | Ghi chú |
+|---|---|---|
+| Runtime | Node.js qua nvm | Khi chạy trong môi trường tool cần source `~/.nvm/nvm.sh` trước khi gọi npm. |
+| Backend framework | NestJS 10, TypeScript | Tổ chức theo module/controller/service/dto. |
+| ORM/database | Prisma ORM, PostgreSQL | Schema nằm tại `prisma/schema.prisma`. |
+| Auth/security | JWT, session, RBAC, ownership guard | Kiểm soát role và dữ liệu thuộc sở hữu patient/doctor/admin. |
+| Realtime | Socket.IO/WebSocket chat | Hỗ trợ phiên tư vấn dạng chat; video thật để sau. |
+| Setup DB | `npm run db:setup` | Generate Prisma client, deploy migration, seed dữ liệu cơ bản. |
+| Migration | `npm run prisma:migrate:deploy` | Dùng cho môi trường deploy/demo ổn định. |
+| Seed | `npm run prisma:seed` | Hiện tạo admin và một số specialty cơ bản; seed E2E đầy đủ còn TODO. |
+| Run dev | `npm run dev` hoặc `npm run start:dev` | Chạy backend watch mode. |
+| Build | `npm run build` | Kết quả chạy thật: pass. |
+| Test | `npm test` | Kết quả chạy thật: pass theo `--passWithNoTests`, Jest báo chưa có test. |
+
+Bảng 7: Công nghệ và lệnh triển khai backend
+
+Frontend được triển khai trong repository `OnlineHealthConsultation-Web`. Hệ thống sử dụng React 18, Vite, Redux Toolkit/Redux Saga, Axios, PrimeReact, Tailwind CSS, Formik/Yup, Recharts và Playwright.
+
+| Thành phần | Công nghệ / lệnh | Ghi chú |
+|---|---|---|
+| Frontend framework | React 18, TypeScript, Vite | Build bằng `tsc -b && vite build`. |
+| Routing/state | React Router v6, Redux Toolkit, Redux Saga | Phân quyền route theo role. |
+| API client | Axios | Base URL theo env, gắn Bearer token và xử lý refresh. |
+| UI/form/chart | PrimeReact, Tailwind CSS, Formik, Yup, Recharts | Dùng cho dashboard, bảng dữ liệu, form và chart. |
+| Run dev | `npm run dev` | Mặc định phục vụ frontend tại `http://localhost:5173`. |
+| Build | `npm run build` | Kết quả chạy thật: pass, có warning không chặn về browserslist/chunk size. |
+| Lint | `npm run lint` | Kết quả chạy thật: pass. |
+| Type check | `npm run type-check` | Có script riêng, không thay thế kết quả build đã chạy. |
+| E2E | `npm run test:e2e` | Chạy Playwright headless. |
+| E2E headed/UI/debug | `npm run test:e2e:headed`, `npm run test:e2e:ui`, `npm run test:e2e:debug` | Dùng khi debug test. |
+| Browser install/report | `npm run test:e2e:install`, `npm run test:e2e:report` | Cài browser Playwright và mở HTML report. |
+
+Bảng 8: Công nghệ và lệnh triển khai frontend
+
+Cơ sở dữ liệu dùng PostgreSQL và Prisma migration. Seed hiện tại tạo tài khoản admin `admin@healthcare.local` / `Admin@123` và các chuyên khoa cơ bản như `General Medicine`, `Cardiology`. Để chạy đầy đủ Playwright E2E nghiệp vụ, cần bổ sung seed patient, doctor đã duyệt, appointment, question, consultation, prescription và rating theo tài liệu `OnlineHealthConsultation-Web/docs/test-seed-requirements.md`.
+
+## 2. Kiểm thử
+
+### 2.1. Chiến lược kiểm thử
+
+Chiến lược kiểm thử của đề tài kết hợp kiểm thử thủ công, kiểm thử API ở mức tích hợp FE-BE và kiểm thử tự động E2E bằng Playwright. Các test case được thiết kế theo use case UC01-UC06, bao phủ luồng public discovery, đăng ký/đăng nhập/phân quyền, đặt lịch, hỏi đáp sức khỏe, phiên tư vấn/kết quả/đơn thuốc và quản trị hệ thống. Các điểm nhạy cảm như xác thực, phân quyền theo role, ownership dữ liệu patient/doctor, validation form và không lộ dữ liệu nhạy cảm được xem là trọng tâm chất lượng.
+
+### 2.2. Phạm vi kiểm thử
+
+Phạm vi đã thực hiện gồm kiểm tra build backend/frontend, lint frontend, Playwright smoke/public/auth và chuẩn bị test suite cho các luồng nghiệp vụ có seed. Backend đã được build và kiểm tra Jest theo cấu hình hiện tại. Frontend đã được build/lint và chạy Playwright. Các luồng cần dữ liệu nghiệp vụ thật chưa được ghi nhận pass nếu seed chưa đủ.
+
+Phạm vi chưa kiểm thử chuyên sâu gồm gửi email thật, SMS thật, video call thật, file upload thật, rate limiting, audit log UI nâng cao, performance testing, penetration/security testing chuyên sâu và full pagination toàn hệ thống. Các nội dung này được đưa vào hạn chế và hướng phát triển ở Chương IV.
+
+### 2.3. Môi trường kiểm thử
+
+| Hạng mục | Giá trị hiện tại |
+|---|---|
+| Hệ điều hành | TODO: Ghi hệ điều hành/máy chạy test chính thức khi chụp minh chứng. |
+| Node.js | TODO: Ghi `node -v` tại thời điểm nộp. |
+| Backend URL | Mặc định `http://localhost:4000/api` theo cấu hình frontend. |
+| Frontend URL | Mặc định `http://localhost:5173`. |
+| Database | PostgreSQL qua Prisma schema/migration. |
+| Browser E2E | Playwright project cấu hình trong `playwright.config.ts`; TODO: ghi browser chính thức từ report. |
+| Tài khoản admin seed | `admin@healthcare.local` / `Admin@123`. |
+| Tài khoản patient/doctor seed | TODO: Cần bổ sung dữ liệu theo `docs/test-seed-requirements.md`. |
+| Test artifact | `OnlineHealthConsultation-Web/playwright-report/index.html`, `OnlineHealthConsultation-Web/test-results/`. |
+
+Bảng 9: Môi trường và dữ liệu kiểm thử
+
+### 2.4. Đặc tả test case cho UC01: Guest tra cứu bác sĩ
+
+| Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| E2E-001 | Guest xem trang chủ | Frontend chạy được | Không yêu cầu | Mở `/` | Trang chủ hiển thị, không lỗi runtime | E2E smoke | P0 | Automated | Pass |
+| E2E-002 | Guest xem danh sách bác sĩ | Frontend/backend public API chạy được | Public doctors API | Mở `/doctors` | Trang danh sách bác sĩ hiển thị, có trạng thái loading/empty/data phù hợp | E2E | P0 | Automated | Pass |
+| E2E-003 | Guest tìm kiếm/lọc bác sĩ | Có trang danh sách bác sĩ | Keyword/specialty nếu có | Nhập keyword hoặc chọn specialty | Danh sách được cập nhật theo filter hoặc hiển thị empty state hợp lệ | E2E | P0 | Automated | Pass |
+| E2E-004 | Guest xem chi tiết bác sĩ có rating summary | Cần ít nhất một bác sĩ public đã duyệt | `E2E_APPROVED_DOCTOR_ID` hoặc card public | Mở card bác sĩ | Trang chi tiết hiển thị hồ sơ, chuyên khoa, `avgRating`, `ratingCount` | E2E | P0 | Automated | Skipped: chưa có public doctor seed |
+| E2E-005 | Guest bấm đặt lịch được chuyển đăng nhập | Cần bác sĩ public | Doctor card/detail | Bấm CTA đặt lịch | Hệ thống chuyển đến `/login` với return intent an toàn | E2E | P0 | Automated | Skipped: chưa có public doctor seed |
+
+Bảng 10: Test case UC01 - Guest tra cứu bác sĩ
+
+### 2.5. Đặc tả test case cho UC02: Đăng ký / đăng nhập / phân quyền
+
+| Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| E2E-006 | Patient đăng nhập | Cần patient seed active | `E2E_PATIENT_EMAIL`, `E2E_PATIENT_PASSWORD` | Mở login, nhập credential | Đăng nhập thành công, chuyển đến patient dashboard | E2E | P0 | Automated | Skipped: thiếu patient seed |
+| E2E-007 | Doctor đăng nhập | Cần doctor seed active/approved | `E2E_DOCTOR_EMAIL`, `E2E_DOCTOR_PASSWORD` | Mở login, nhập credential | Đăng nhập thành công, chuyển đến doctor dashboard | E2E | P0 | Automated | Skipped: thiếu doctor seed |
+| E2E-008 | Admin đăng nhập | Cần bật seeded run | `admin@healthcare.local` | Mở login, nhập credential admin | Đăng nhập thành công, chuyển đến admin dashboard | E2E | P0 | Automated | Skipped bởi `E2E_RUN_SEEDED` gate |
+| E2E-009 | Guest vào route patient bị chuyển login | Không đăng nhập | `/patient` | Mở route bảo vệ | Hệ thống chuyển đến login hoặc chặn truy cập | E2E security | P0 | Automated | Pass |
+| E2E-010 | Patient không vào được Doctor/Admin | Cần patient seed | Patient credential | Login patient, mở `/doctor`, `/admin` | Bị chặn hoặc vào trang 403 | E2E authorization | P0 | Automated | Skipped: thiếu patient seed |
+| E2E-011 | Doctor không vào được Patient/Admin | Cần doctor seed | Doctor credential | Login doctor, mở `/patient`, `/admin` | Bị chặn hoặc vào trang 403 | E2E authorization | P0 | Automated | Skipped: thiếu doctor seed |
+| E2E-012 | Logout xóa session | Cần seeded login account | Account theo role | Login, bấm logout | Token local bị xóa, quay về login/public | E2E | P1 | Automated | Skipped: chưa bật account seed |
+
+Bảng 11: Test case UC02 - Đăng ký / đăng nhập / phân quyền
+
+### 2.6. Đặc tả test case cho UC03: Patient đặt lịch tư vấn
+
+| Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| E2E-013 | Patient tạo lịch hẹn | Patient seed và approved doctor seed | Patient account, doctor id, thời gian hợp lệ | Login patient, mở đặt lịch, submit form | Tạo appointment thành công | E2E | P0 | Automated | Skipped: thiếu patient/doctor seed |
+| E2E-014 | Patient xem danh sách lịch hẹn | Patient có dữ liệu lịch hẹn | `E2E_PATIENT_EMAIL` | Login patient, mở history/appointments | Danh sách lịch hẹn của chính patient hiển thị | E2E | P0 | Automated | Skipped: thiếu patient seed |
+| E2E-015 | Patient xem chi tiết lịch hẹn | Patient có appointment id | `E2E_APPOINTMENT_ID` | Mở detail từ danh sách | Detail hiển thị doctor, scheduledAt, status, reason, notes | E2E/ownership | P0 | Automated | Skipped: thiếu appointment seed |
+| E2E-016 | Patient hủy lịch hẹn | Cần appointment disposable | Appointment pending/confirmed của patient | Bấm cancel | Appointment chuyển trạng thái hủy đúng quyền | E2E mutation | P1 | Automated | Fixme: cần disposable appointment seed |
+| E2E-017 | Validation lỗi khi đặt lịch | Patient seed | Form thiếu dữ liệu | Submit form rỗng/sai | Hiển thị validation, không tạo appointment | E2E validation | P1 | Automated | Skipped: thiếu patient seed |
+
+Bảng 12: Test case UC03 - Patient đặt lịch tư vấn
+
+### 2.7. Đặc tả test case cho UC04: Patient gửi câu hỏi và Doctor phản hồi
+
+| Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| E2E-018 | Patient gửi câu hỏi sức khỏe | Patient seed | Title/content hợp lệ | Login patient, mở ask question, submit | Question được tạo và hiển thị trạng thái phù hợp | E2E | P0 | Automated | Skipped: thiếu patient seed |
+| E2E-019 | Patient xem danh sách câu hỏi của mình | Patient seed có question | Patient credential | Mở history/questions | Chỉ hiển thị question thuộc patient | E2E/ownership | P0 | Automated | Skipped: thiếu patient seed |
+| E2E-020 | Doctor xem câu hỏi được giao/mở | Doctor seed | Doctor credential | Login doctor, mở inbox | Danh sách câu hỏi assigned/open hiển thị | E2E | P0 | Automated | Skipped: thiếu doctor seed |
+| E2E-021 | Doctor phản hồi câu hỏi | Doctor seed, pending question | Pending question assigned | Nhập answer, submit | Answer được lưu qua `{ content }`, list refresh | E2E mutation | P0 | Automated | Skipped: thiếu doctor/pending question seed |
+| E2E-022 | Patient xem phản hồi bác sĩ | Patient seed, answered question | Answered question | Mở question/history | Câu trả lời hiển thị đúng nội dung | E2E | P0 | Automated | Skipped: thiếu answered question seed |
+| E2E-023 | Doctor không được xem/sửa question ngoài phạm vi | Cần API/detail route hoặc seed đặc biệt | Question ngoài phạm vi | Thử truy cập ngoài quyền | Bị chặn 403 hoặc không hiển thị | Negative security | P1 | Planned/partial | Fixme: chưa có direct FE detail route/API |
+
+Bảng 13: Test case UC04 - Patient gửi câu hỏi và Doctor phản hồi
+
+### 2.8. Đặc tả test case cho UC05: Doctor tư vấn, ghi kết quả và đơn thuốc
+
+| Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| E2E-024 | Doctor xác nhận lịch hẹn | Doctor seed, pending appointment | `E2E_APPOINTMENT_ID` | Login doctor, bấm confirm | Appointment chuyển trạng thái confirmed | E2E mutation | P0 | Automated | Skipped: thiếu pending appointment seed |
+| E2E-025 | Doctor hoàn tất lịch hẹn | Doctor seed, confirmed appointment | `E2E_CONFIRMED_APPOINTMENT_ID` | Bấm complete | Appointment chuyển trạng thái completed | E2E mutation | P0 | Automated | Skipped: thiếu confirmed appointment seed |
+| E2E-026 | Doctor start/join consultation | Doctor seed, appointment hợp lệ | `E2E_CONSULTATION_APPOINTMENT_ID` | Mở consultation, start/join | Session được tạo/join, chat area hiển thị | E2E | P1 | Automated | Skipped: thiếu consultation appointment seed |
+| E2E-027 | Doctor lưu summary | Consultation session có quyền | Summary text | Nhập summary, lưu | Summary được lưu và hiển thị lại | E2E | P1 | Automated | Skipped: thiếu consultation appointment seed |
+| E2E-028 | Doctor tạo đơn thuốc | Consultation session có quyền | Prescription items | Nhập thuốc, liều, hướng dẫn, lưu | Prescription và items được tạo | E2E | P1 | Automated | Skipped: thiếu consultation appointment seed |
+| E2E-029 | Patient xem kết quả/đơn thuốc | Completed consultation seed | `E2E_COMPLETED_APPOINTMENT_ID` | Login patient, mở result | Hiển thị summary và prescription/items hoặc empty state hợp lệ | E2E | P0 | Automated | Skipped: thiếu completed consultation seed |
+
+Bảng 14: Test case UC05 - Doctor tư vấn, ghi kết quả và đơn thuốc
+
+### 2.9. Đặc tả test case cho UC06: Administrator quản lý hệ thống và dashboard
+
+| Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
+|---|---|---|---|---|---|---|---|---|---|
+| E2E-030 | Admin xem dashboard | Admin seed, bật seeded run | `admin@healthcare.local` | Login admin, mở `/admin` | Dashboard hiển thị số liệu từ `/reports/dashboard` | E2E | P0 | Automated | Skipped bởi `E2E_RUN_SEEDED` gate |
+| E2E-031 | Admin xem danh sách bác sĩ | Admin seed | Doctor list | Mở `/admin/doctors` | Danh sách/filter doctor hiển thị, không lộ passwordHash | E2E | P0 | Automated | Skipped bởi `E2E_RUN_SEEDED` gate |
+| E2E-032 | Admin approve/reject doctor | Admin seed, pending doctor | `E2E_PENDING_DOCTOR_ID` | Bấm approve/reject | Doctor approvalStatus cập nhật | E2E mutation | P0 | Automated | Skipped: thiếu pending doctor seed |
+| E2E-033 | Admin xem chuyên khoa | Admin seed | Specialty seed | Mở `/admin/specialties` | Danh sách chuyên khoa hiển thị | E2E | P1 | Automated | Skipped bởi `E2E_RUN_SEEDED` gate |
+| E2E-034 | Admin tạo/cập nhật/deactivate chuyên khoa | Admin seed, disposable specialty | Specialty test data | Thực hiện create/update/deactivate | Trạng thái chuyên khoa cập nhật đúng | E2E mutation | P1 | Automated | Fixme: cần disposable specialty seed |
+| E2E-035 | Non-admin không vào admin dashboard | Patient/doctor seed | Non-admin account | Login non-admin, mở `/admin` | Bị chặn hoặc vào 403 | E2E authorization | P0 | Automated | Skipped: thiếu patient/doctor seed |
+
+Bảng 15: Test case UC06 - Administrator quản lý hệ thống và dashboard
+
+### 2.10. Hiện thực kiểm thử tự động bằng Playwright
+
+Đề tài sử dụng Playwright làm công cụ E2E chính thay cho Cypress. Playwright phù hợp với mục tiêu cuối kỳ vì hỗ trợ đa trình duyệt, auto-wait, trace, screenshot/video khi lỗi, Page Object pattern và HTML report. Test suite hiện không mock toàn bộ API như cách tiếp cận fixture/intercept cũ; các luồng nghiệp vụ được định hướng chạy với frontend thật, backend thật và dữ liệu seed thật.
+
+Cấu trúc thư mục E2E hiện tại gồm:
+
+- `e2e/specs`: chứa spec theo nhóm use case, gồm `public.spec.ts`, `auth.spec.ts`, `patient-appointments.spec.ts`, `patient-questions.spec.ts`, `doctor-workflow.spec.ts`, `admin.spec.ts`.
+- `e2e/pages`: chứa Page Object như `BasePage`, `HomePage`, `LoginPage`, `RegisterPage`, `DoctorListPage`, `DoctorDetailPage`, `PatientDashboardPage`, `PatientAppointmentPage`, `PatientQuestionPage`, `DoctorDashboardPage`, `DoctorQuestionPage`, `DoctorAppointmentPage`, `AdminDashboardPage`, `AdminDoctorPage`.
+- `e2e/utils`: chứa helper đăng nhập, API helper, selector helper và danh sách `data-testid`.
+- `e2e/test-data`: chứa dữ liệu và biến môi trường gợi ý cho seed.
+- `e2e/fixtures`: dành cho fixture Playwright nếu cần mở rộng sau; không dùng fixture/intercept kiểu Cypress.
+
+TODO: Chèn hình cấu trúc thư mục Playwright  
+Hình 35: Cấu trúc thư mục kiểm thử tự động Playwright
+
+Các lệnh chạy kiểm thử chính:
+
+```bash
+npm run test:e2e:install
+npm run test:e2e
+npm run test:e2e:headed
+npm run test:e2e:ui
+npm run test:e2e:debug
+npm run test:e2e:report
+```
+
+Khi chạy đầy đủ luồng nghiệp vụ thật, cần cấu hình seed và biến môi trường:
+
+```bash
+E2E_RUN_SEEDED=true
+E2E_PATIENT_EMAIL=...
+E2E_PATIENT_PASSWORD=...
+E2E_DOCTOR_EMAIL=...
+E2E_DOCTOR_PASSWORD=...
+E2E_ADMIN_EMAIL=admin@healthcare.local
+E2E_ADMIN_PASSWORD=Admin@123
+```
+
+Playwright được cấu hình reporter `list` và `html`; trace bật ở lần retry đầu tiên, screenshot chỉ giữ khi lỗi, video giữ khi lỗi. HTML report nằm tại `OnlineHealthConsultation-Web/playwright-report/index.html`; artifact lỗi nằm tại `OnlineHealthConsultation-Web/test-results/`.
+
+TODO: Chèn hình kết quả chạy Playwright trên terminal  
+Hình 36: Kết quả chạy kiểm thử Playwright trên terminal
+
+TODO: Chèn hình Playwright HTML report  
+Hình 37: Báo cáo HTML của Playwright
+
+### 2.11. Kết quả kiểm thử và ghi nhận lỗi
+
+Kết quả chạy thật gần nhất được ghi nhận từ tài liệu `OnlineHealthConsultation-Web/docs/playwright-e2e-test-summary.md` và `OnlineHealthConsultation-Web/docs/fe-be-integration-recheck-summary.md`.
+
+| Hạng mục | Lệnh đã chạy | Kết quả thật | Ghi chú |
+|---|---|---|---|
+| Backend build | `npm run build` | Pass | NestJS build thành công. |
+| Backend Jest | `npm test` | Pass theo cấu hình hiện tại | Jest chạy với `--passWithNoTests`, báo `No tests found`; chưa có unit test backend thực sự. |
+| Frontend build | `npm run build` | Pass | Có warning không chặn về browserslist cũ và chunk size lớn. |
+| Frontend lint | `npm run lint` | Pass | Không có lỗi lint tại lần chạy đã ghi nhận. |
+| Playwright E2E | `npm run test:e2e` | Pass runner; 37 discovered, 6 passed, 31 skipped/fixme | Các test nghiệp vụ bị skip/fixme do thiếu seed dữ liệu thật hoặc cần disposable data. |
+
+Bảng 16: Tổng hợp kết quả Playwright E2E
+
+Các lỗi/rủi ro QA đã được ghi nhận trong quá trình recheck FE-BE gồm: lệch `data-testid` admin dashboard, UI admin user cho phép tạo role ADMIN trong khi backend không hỗ trợ, payload edit user gửi role không được backend nhận, và helper moderation gửi action chưa khớp backend. Các lỗi này đã được sửa ở frontend. Các rủi ro còn lại gồm thiếu unified admin moderation list endpoint, thiếu doctor patient list endpoint, thiếu endpoint admin doctor-profile CRUD đầy đủ, và thiếu seed dữ liệu nghiệp vụ cho toàn bộ E2E.
+
+Không có failure artifact trong lần chạy Playwright hiện tại vì không có test thất bại; các test chưa đủ điều kiện dữ liệu được đánh dấu skipped/fixme. Trước khi nộp bản Word/PDF, nhóm cần chụp lại terminal test result và Playwright HTML report sau khi xác nhận môi trường demo cuối cùng.
+
+# CHƯƠNG IV. KẾT LUẬN
+
+## 1. Nhận xét về kết quả đạt được
+
+Đề tài đã hoàn thành các hoạt động chính của một quy trình đảm bảo chất lượng phần mềm ở phạm vi đồ án: phân tích yêu cầu/SRS, xác định actor và use case, thiết kế activity diagram, kiến trúc, API/form và cơ sở dữ liệu, sau đó triển khai backend/frontend MVP và kiểm thử tích hợp. Backend được tổ chức theo module NestJS, dùng Prisma/PostgreSQL, JWT, RBAC và ownership để bảo vệ dữ liệu theo vai trò. Frontend đã được cập nhật để gọi API thật cho các luồng public, auth, patient, doctor, admin và reports.
+
+Ở góc độ kiểm thử, nhóm đã chuyển hoàn toàn định hướng E2E từ Cypress sang Playwright, xây dựng cấu trúc spec/page object/test data rõ ràng và bổ sung selector ổn định cho các màn hình quan trọng. Các test case UC01-UC06 đã được đặc tả, trong đó một phần public/auth smoke đã chạy pass, còn các luồng nghiệp vụ sâu được viết sẵn nhưng cần seed dữ liệu thật trước khi ghi nhận pass.
+
+### 1.1. Điểm mạnh
+
+- Phân chia actor rõ ràng, gồm Guest, Patient, Doctor và Administrator.
+- Backend có cấu trúc module tương đối đầy đủ cho MVP: appointment, question, consultation, prescription, rating, admin và reports.
+- Cơ chế JWT/RBAC/ownership giúp giảm rủi ro patient/doctor xem nhầm dữ liệu ngoài phạm vi.
+- Frontend có route và layout theo role, phù hợp demo cuối kỳ và chụp hình báo cáo.
+- API contract FE-BE đã được rà soát và cập nhật cho các endpoint quan trọng.
+- Playwright E2E được tổ chức theo Page Object, có khả năng mở rộng khi bổ sung seed data.
+- Tài liệu traceability giữa use case, màn hình, API và test case đã được tạo ở nhiều file checklist/summary.
+
+### 1.2. Điểm hạn chế
+
+- Email verification và gửi email thật qua SMTP/SendGrid chưa được tích hợp; MVP chỉ xử lý ở mức mock/log phù hợp demo.
+- SMS thật chưa được tích hợp do cần provider, chi phí và dữ liệu số điện thoại thật.
+- Video call thật bằng WebRTC/Jitsi/Agora chưa có; hệ thống hiện ưu tiên chat fallback và video mock cho phiên tư vấn.
+- File upload thật chưa triển khai, vì cần xử lý storage, quyền truy cập file và kiểm soát an toàn nội dung.
+- Một số màn hình admin nâng cao còn phụ thuộc endpoint backend chưa có, ví dụ unified moderation list, doctor patient list và báo cáo nâng cao.
+- Seed dữ liệu E2E chưa đủ cho full patient/doctor/admin workflow; vì vậy nhiều test automation đang skipped/fixme chứ chưa được ghi nhận pass.
+- Backend Jest hiện pass theo `--passWithNoTests`, chưa có bộ unit/integration test backend thực sự.
+- Kiểm thử performance, security chuyên sâu, rate limiting và audit log UI nâng cao chưa nằm trong phạm vi triển khai cuối kỳ.
+
+## 2. Khả năng cải tiến và hướng phát triển
+
+Trong các giai đoạn tiếp theo, hệ thống có thể được mở rộng theo các hướng sau:
+
+- Tích hợp provider email thật như SMTP/SendGrid cho email verification, quên mật khẩu và thông báo lịch hẹn.
+- Tích hợp SMS provider cho nhắc lịch và thông báo khẩn cấp.
+- Tích hợp video call thật qua WebRTC, Jitsi hoặc Agora, kèm kiểm thử kết nối và fallback.
+- Bổ sung file attachment/upload cho hồ sơ tư vấn, đơn thuốc và tài liệu y tế, kèm kiểm soát quyền truy cập.
+- Hoàn thiện notification center, retry provider và giao diện quản trị notification/audit log.
+- Bổ sung rate limiting, security hardening, kiểm thử OWASP, kiểm thử tải và kiểm thử hiệu năng.
+- Hoàn thiện seed dữ liệu E2E, sau đó chạy toàn bộ Playwright suite trong CI/CD với database reset hoặc disposable records.
+- Mở rộng dashboard/reporting cho biểu đồ câu hỏi, top doctors, phân bố chuyên khoa, xu hướng lịch hẹn và chất lượng tư vấn.
+- Bổ sung pagination/filter thống nhất cho toàn bộ các màn hình danh sách có dữ liệu lớn.
+- Bổ sung workflow nâng cao như NO_SHOW appointment, doctor cancel appointment, patient close question và password change.
+
+Nhìn chung, hệ thống hiện đạt mức MVP phù hợp cho mục tiêu demo cuối kỳ, minh họa kiến trúc full-stack, tích hợp API thật và quy trình QA bằng test case/Playwright. Tuy nhiên, hệ thống chưa nên được xem là production-ready cho môi trường y tế thật nếu chưa hoàn thiện các phần bảo mật nâng cao, provider thật, dữ liệu kiểm thử đầy đủ và kiểm thử phi chức năng chuyên sâu.
+
 # TÀI LIỆU THAM KHẢO
 
 - Tài liệu yêu cầu phần mềm (SRS): _Online Health Consultation Platform_, nhóm thực hiện, 2026.
@@ -848,6 +1252,10 @@ Hình 14 - ERD / Database diagram
 - React Documentation. <https://react.dev>
 - Prisma ORM Documentation. <https://www.prisma.io/docs>
 - PostgreSQL Documentation. <https://www.postgresql.org/docs>
+- Playwright Documentation. <https://playwright.dev/docs/intro>
+- TypeScript Documentation. <https://www.typescriptlang.org/docs/>
+- Redux Toolkit Documentation. <https://redux-toolkit.js.org/>
+- Vite Documentation. <https://vite.dev/guide/>
 - OWASP Top 10 Web Application Security Risks. <https://owasp.org/www-project-top-ten/>
 - ISO/IEC 25010:2011 - Systems and software Quality Requirements and Evaluation (SQuaRE).
 - Roger S. Pressman, _Software Engineering: A Practitioner's Approach_, 8th edition, McGraw-Hill, 2014.

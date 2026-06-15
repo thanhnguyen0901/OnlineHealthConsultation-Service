@@ -1,0 +1,80 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #37474F
+skinparam ArrowThickness 1.2
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+skinparam actor {
+  BackgroundColor #E8F5E9
+  BorderColor #2E7D32
+  FontColor #263238
+}
+
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+skinparam rectangle {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+skinparam cloud {
+  BackgroundColor #FCE4EC
+  BorderColor #AD1457
+  FontColor #263238
+}
+
+actor "Patient" as PA
+
+cloud "Notification\nService" as NS
+cloud "Video\nService" as VS
+
+rectangle "Patient Use Cases" {
+  usecase "Đăng ký tài khoản" as UCP01
+  usecase "Đăng nhập" as UCP02
+  usecase "Đăng xuất" as UCP03
+  usecase "Quản lý hồ sơ\nsức khỏe cá nhân" as UCP04
+  usecase "Tìm kiếm bác sĩ\ntheo chuyên khoa" as UCP05
+  usecase "Xem chi tiết\nbác sĩ" as UCP06
+  usecase "Gửi câu hỏi\nsức khỏe" as UCP07
+  usecase "Đặt lịch hẹn\ntư vấn" as UCP08
+  usecase "Xem danh sách\nlịch hẹn sắp tới" as UCP09
+  usecase "Tham gia phiên\ntư vấn" as UCP10
+  usecase "Xem phản hồi\ncủa bác sĩ" as UCP11
+  usecase "Xem lịch sử\ntư vấn" as UCP12
+  usecase "Xem đơn thuốc và\ntóm tắt tư vấn" as UCP13
+  usecase "Đánh giá chất lượng\ntư vấn" as UCP14
+  usecase "Nhận nhắc lịch\nvà thông báo" as UCP15
+}
+
+PA --> UCP01
+PA --> UCP02
+PA --> UCP03
+PA --> UCP04
+PA --> UCP05
+PA --> UCP06
+PA --> UCP07
+PA --> UCP08
+PA --> UCP09
+PA --> UCP10
+PA --> UCP11
+PA --> UCP12
+PA --> UCP13
+PA --> UCP14
+PA --> UCP15
+
+UCP15 --> NS
+UCP10 --> VS
+
+@enduml

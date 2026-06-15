@@ -1,0 +1,78 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #37474F
+skinparam ArrowThickness 1.2
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+skinparam actor {
+  BackgroundColor #FFF3E0
+  BorderColor #EF6C00
+  FontColor #263238
+}
+
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+skinparam rectangle {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+skinparam cloud {
+  BackgroundColor #FCE4EC
+  BorderColor #AD1457
+  FontColor #263238
+}
+
+skinparam database {
+  BackgroundColor #E0F7FA
+  BorderColor #00838F
+  FontColor #263238
+}
+
+actor "Doctor" as DC
+
+cloud "Video\nService" as VS
+database "File\nStorage" as FS
+
+rectangle "Doctor Use Cases" {
+  usecase "Đăng nhập" as UCD01
+  usecase "Quản lý hồ sơ\nbác sĩ" as UCD02
+  usecase "Xem câu hỏi sức khỏe\nđược phân công\nhoặc có thể xử lý" as UCD03
+  usecase "Phản hồi câu hỏi\ncủa bệnh nhân" as UCD04
+  usecase "Quản lý lịch\ntư vấn" as UCD05
+  usecase "Xem các lịch hẹn\nđã được đặt" as UCD06
+  usecase "Bắt đầu phiên\ntư vấn" as UCD07
+  usecase "Thực hiện tư vấn\nqua chat hoặc video" as UCD08
+  usecase "Ghi nhận kết quả\ntư vấn" as UCD09
+  usecase "Cấp đơn thuốc\nđiện tử cơ bản" as UCD10
+  usecase "Xem lịch sử tư vấn\ncủa bệnh nhân" as UCD11
+}
+
+DC --> UCD01
+DC --> UCD02
+DC --> UCD03
+DC --> UCD04
+DC --> UCD05
+DC --> UCD06
+DC --> UCD07
+DC --> UCD08
+DC --> UCD09
+DC --> UCD10
+DC --> UCD11
+
+UCD08 --> VS
+UCD10 --> FS
+
+@enduml

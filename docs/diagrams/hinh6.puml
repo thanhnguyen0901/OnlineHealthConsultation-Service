@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #37474F
+skinparam ArrowThickness 1.2
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+skinparam actor {
+  BackgroundColor #F3E5F5
+  BorderColor #7B1FA2
+  FontColor #263238
+}
+
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+skinparam rectangle {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+actor "Administrator" as AD
+
+rectangle "Administrator Use Cases" {
+  usecase "Đăng nhập" as UCA01
+  usecase "Quản lý tài khoản\nbác sĩ" as UCA02
+  usecase "Quản lý tài khoản\nbệnh nhân" as UCA03
+  usecase "Quản lý\nchuyên khoa" as UCA04
+  usecase "Quản lý\nlịch hẹn" as UCA05
+  usecase "Kiểm duyệt nội dung\ntư vấn và phản hồi" as UCA06
+  usecase "Xem dashboard\nthống kê hệ thống" as UCA07
+  usecase "Theo dõi người dùng\nđang hoạt động và\nsố lượng phiên tư vấn" as UCA08
+}
+
+AD --> UCA01
+AD --> UCA02
+AD --> UCA03
+AD --> UCA04
+AD --> UCA05
+AD --> UCA06
+AD --> UCA07
+AD --> UCA08
+
+@enduml

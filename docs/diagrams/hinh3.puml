@@ -1,0 +1,50 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #37474F
+skinparam ArrowThickness 1.2
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+skinparam actor {
+  BackgroundColor #ECEFF1
+  BorderColor #455A64
+  FontColor #263238
+}
+
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+skinparam rectangle {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+actor "Guest User" as GU
+
+rectangle "Guest User Use Cases" {
+  usecase "Xem trang chủ\nhệ thống" as UCG01
+  usecase "Xem danh sách\nchuyên khoa" as UCG02
+  usecase "Tìm kiếm bác sĩ\ntheo chuyên khoa\nhoặc từ khóa" as UCG03
+  usecase "Xem danh sách\nbác sĩ nổi bật\nhoặc đang hoạt động" as UCG04
+  usecase "Xem chi tiết hồ sơ\ncông khai của bác sĩ" as UCG05
+  usecase "Chuyển đến đăng ký\nhoặc đăng nhập khi\nmuốn đặt lịch/gửi câu hỏi" as UCG06
+}
+
+GU --> UCG01
+GU --> UCG02
+GU --> UCG03
+GU --> UCG04
+GU --> UCG05
+GU --> UCG06
+
+@enduml

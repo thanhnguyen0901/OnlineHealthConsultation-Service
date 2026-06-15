@@ -1,0 +1,102 @@
+@startuml
+left to right direction
+
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam defaultFontSize 13
+skinparam ArrowColor #37474F
+skinparam ArrowThickness 1.2
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+
+skinparam actor {
+  BackgroundColor #ECEFF1
+  BorderColor #455A64
+  FontColor #263238
+}
+
+skinparam usecase {
+  BackgroundColor #FFFFFF
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+skinparam rectangle {
+  BackgroundColor #E3F2FD
+  BorderColor #1565C0
+  FontColor #263238
+}
+
+skinparam cloud {
+  BackgroundColor #FCE4EC
+  BorderColor #AD1457
+  FontColor #263238
+}
+
+skinparam database {
+  BackgroundColor #E0F7FA
+  BorderColor #00838F
+  FontColor #263238
+}
+
+actor "Guest User" as GU
+actor "Patient" as PA
+actor "Doctor" as DC
+actor "Administrator" as AD
+
+cloud "Notification\nService" as NS
+cloud "Video\nService" as VS
+database "File\nStorage" as FS
+
+rectangle "Online Health Consultation Platform" {
+  usecase "Tra cứu thông tin\ncông khai" as UC_Public
+  usecase "Xác thực và\nphân quyền" as UC_Auth
+  usecase "Quản lý hồ sơ\nbệnh nhân" as UC_PatientProfile
+  usecase "Quản lý hồ sơ\nbác sĩ" as UC_DoctorProfile
+  usecase "Quản lý\nchuyên khoa" as UC_Specialty
+  usecase "Tìm kiếm và xem\nthông tin bác sĩ" as UC_Discovery
+  usecase "Hỏi đáp\nsức khỏe" as UC_Question
+  usecase "Quản lý\nlịch hẹn" as UC_Appointment
+  usecase "Phiên tư vấn\ntrực tuyến" as UC_Consultation
+  usecase "Kết quả tư vấn\nvà đơn thuốc" as UC_Result
+  usecase "Đánh giá\nchất lượng tư vấn" as UC_Rating
+  usecase "Thông báo và\nnhắc lịch" as UC_Notification
+  usecase "Quản trị hệ thống\nvà dashboard" as UC_Admin
+}
+
+GU --> UC_Public
+GU --> UC_Discovery
+GU --> UC_Auth
+
+PA --> UC_Auth
+PA --> UC_PatientProfile
+PA --> UC_Discovery
+PA --> UC_Question
+PA --> UC_Appointment
+PA --> UC_Consultation
+PA --> UC_Result
+PA --> UC_Rating
+PA --> UC_Notification
+
+DC --> UC_Auth
+DC --> UC_DoctorProfile
+DC --> UC_Question
+DC --> UC_Appointment
+DC --> UC_Consultation
+DC --> UC_Result
+DC --> UC_Notification
+
+AD --> UC_Auth
+AD --> UC_Specialty
+AD --> UC_Admin
+AD --> UC_Appointment
+AD --> UC_Question
+
+UC_Notification --> NS
+UC_Consultation --> VS
+UC_Result --> FS
+UC_Question --> FS
+
+@enduml

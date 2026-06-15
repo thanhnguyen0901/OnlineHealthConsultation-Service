@@ -9,11 +9,13 @@ import {
   NotificationStatus,
   NotificationType,
   Prisma,
+  Role,
 } from '@prisma/client';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { ListAppointmentQueryDto } from './dto/list-appointment-query.dto';
 
 const CONFLICT_STATUSES: AppointmentStatus[] = [
   AppointmentStatus.PENDING_CONFIRMATION,
@@ -23,6 +25,76 @@ const CONFLICT_STATUSES: AppointmentStatus[] = [
 @Injectable()
 export class AppointmentService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private buildAppointmentFilters(query?: ListAppointmentQueryDto): Prisma.AppointmentWhereInput {
+    const scheduledAt: Prisma.DateTimeFilter = {};
+
+    if (query?.fromDate) {
+      scheduledAt.gte = new Date(query.fromDate);
+    }
+
+    if (query?.toDate) {
+      scheduledAt.lte = new Date(query.toDate);
+    }
+
+    return {
+      ...(query?.status ? { status: query.status } : {}),
+      ...(Object.keys(scheduledAt).length > 0 ? { scheduledAt } : {}),
+    };
+  }
+
+  private getAppointmentDetailInclude() {
+    return {
+      patient: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              isActive: true,
+            },
+          },
+        },
+      },
+      doctor: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              isActive: true,
+            },
+          },
+          specialties: {
+            include: {
+              specialty: {
+                select: {
+                  id: true,
+                  nameEn: true,
+                  nameVi: true,
+                },
+              },
+            },
+          },
+        },
+      },
+      session: {
+        select: {
+          id: true,
+          status: true,
+          startedAt: true,
+          endedAt: true,
+          summary: true,
+          channel: true,
+        },
+      },
+      rating: true,
+    } satisfies Prisma.AppointmentInclude;
+  }
 
   async createAppointment(userId: string, dto: CreateAppointmentDto) {
     const patient = await this.prisma.patientProfile.findUnique({ where: { userId } });
@@ -133,14 +205,17 @@ export class AppointmentService {
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
-  async listMyAppointments(userId: string) {
+  async listMyAppointments(userId: string, query?: ListAppointmentQueryDto) {
     const patient = await this.prisma.patientProfile.findUnique({ where: { userId } });
     if (!patient) {
       throw new NotFoundException('Patient profile not found');
     }
 
     return this.prisma.appointment.findMany({
-      where: { patientId: patient.id },
+      where: {
+        patientId: patient.id,
+        ...this.buildAppointmentFilters(query),
+      },
       orderBy: { scheduledAt: 'desc' },
       include: {
         doctor: {
@@ -205,14 +280,17 @@ export class AppointmentService {
     });
   }
 
-  async listDoctorAppointments(userId: string) {
+  async listDoctorAppointments(userId: string, query?: ListAppointmentQueryDto) {
     const doctor = await this.prisma.doctorProfile.findUnique({ where: { userId } });
     if (!doctor) {
       throw new NotFoundException('Doctor profile not found');
     }
 
     return this.prisma.appointment.findMany({
-      where: { doctorId: doctor.id },
+      where: {
+        doctorId: doctor.id,
+        ...this.buildAppointmentFilters(query),
+      },
       orderBy: { scheduledAt: 'desc' },
       include: {
         patient: {
@@ -228,6 +306,33 @@ export class AppointmentService {
         },
       },
     });
+  }
+
+  async getAppointmentDetail(userId: string, role: Role, appointmentId: string) {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: this.getAppointmentDetailInclude(),
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (role === Role.PATIENT) {
+      const patient = await this.prisma.patientProfile.findUnique({ where: { userId } });
+      if (!patient || appointment.patientId !== patient.id) {
+        throw new ForbiddenException('Cannot view appointment of another patient');
+      }
+    }
+
+    if (role === Role.DOCTOR) {
+      const doctor = await this.prisma.doctorProfile.findUnique({ where: { userId } });
+      if (!doctor || appointment.doctorId !== doctor.id) {
+        throw new ForbiddenException('Cannot view appointment of another doctor');
+      }
+    }
+
+    return appointment;
   }
 
   async confirmAppointment(userId: string, appointmentId: string) {
@@ -328,8 +433,9 @@ export class AppointmentService {
     });
   }
 
-  listAllAppointments() {
+  listAllAppointments(query?: ListAppointmentQueryDto) {
     return this.prisma.appointment.findMany({
+      where: this.buildAppointmentFilters(query),
       orderBy: { scheduledAt: 'desc' },
       include: {
         patient: {

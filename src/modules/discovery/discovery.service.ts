@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, RatingStatus } from '@prisma/client';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { PublicDoctorQueryDto } from './dto/public-doctor-query.dto';
@@ -93,8 +93,18 @@ export class DiscoveryService {
       this.prisma.doctorProfile.count({ where }),
     ]);
 
+    const itemsWithRating = await Promise.all(
+      items.map(async (doctor) => {
+        const ratingSummary = await this.getDoctorRatingSummary(doctor.id);
+        return {
+          ...doctor,
+          ...ratingSummary,
+        };
+      }),
+    );
+
     return {
-      data: items,
+      data: itemsWithRating,
       meta: {
         page,
         limit,
@@ -104,8 +114,28 @@ export class DiscoveryService {
     };
   }
 
-  getPublicDoctorById(doctorId: string) {
-    return this.prisma.doctorProfile.findFirst({
+  private async getDoctorRatingSummary(doctorId: string) {
+    const aggregate = await this.prisma.rating.aggregate({
+      where: {
+        doctorId,
+        status: RatingStatus.VISIBLE,
+      },
+      _avg: {
+        score: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    return {
+      avgRating: aggregate._avg.score,
+      ratingCount: aggregate._count._all,
+    };
+  }
+
+  async getPublicDoctorById(doctorId: string) {
+    const doctor = await this.prisma.doctorProfile.findFirst({
       where: {
         id: doctorId,
         isActive: true,
@@ -137,5 +167,16 @@ export class DiscoveryService {
         },
       },
     });
+
+    if (!doctor) {
+      return null;
+    }
+
+    const ratingSummary = await this.getDoctorRatingSummary(doctor.id);
+
+    return {
+      ...doctor,
+      ...ratingSummary,
+    };
   }
 }

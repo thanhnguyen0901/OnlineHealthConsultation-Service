@@ -92,6 +92,16 @@ export class ConsultationController {
     return this.consultationService.createPrescription(user.sub, appointmentId, dto);
   }
 
+  @Roles(Role.PATIENT, Role.DOCTOR, Role.ADMIN)
+  @Get(':appointmentId/result')
+  @ApiOperation({ summary: 'Participant gets consultation result and prescription' })
+  getConsultationResult(
+    @CurrentUser() user: { sub: string; role: Role },
+    @Param('appointmentId') appointmentId: string,
+  ) {
+    return this.consultationService.getConsultationResult(user.sub, user.role, appointmentId);
+  }
+
   @Roles(Role.PATIENT)
   @Get('mine')
   @ApiOperation({ summary: 'Patient lists own consultation history and outcomes' })
@@ -126,6 +136,13 @@ export class RatingController {
   @ApiOperation({ summary: 'Patient lists own ratings' })
   listMyRatings(@CurrentUser() user: { sub: string }) {
     return this.consultationService.listMyRatings(user.sub);
+  }
+
+  @Roles(Role.DOCTOR)
+  @Get('doctor/me')
+  @ApiOperation({ summary: 'Doctor lists own visible ratings' })
+  listDoctorRatings(@CurrentUser() user: { sub: string }) {
+    return this.consultationService.listDoctorRatings(user.sub);
   }
 }
 

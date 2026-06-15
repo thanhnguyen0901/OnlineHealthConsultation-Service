@@ -77,6 +77,25 @@ export class ConsultationService {
     return appointment;
   }
 
+  private async assertAppointmentAccess(userId: string, role: Role, appointment: {
+    patientId: string;
+    doctorId: string;
+  }) {
+    if (role === Role.PATIENT) {
+      const patient = await this.prisma.patientProfile.findUnique({ where: { userId } });
+      if (!patient || appointment.patientId !== patient.id) {
+        throw new ForbiddenException('Cannot view consultation result of another patient');
+      }
+    }
+
+    if (role === Role.DOCTOR) {
+      const doctor = await this.prisma.doctorProfile.findUnique({ where: { userId } });
+      if (!doctor || appointment.doctorId !== doctor.id) {
+        throw new ForbiddenException('Cannot view consultation result of another doctor');
+      }
+    }
+  }
+
   async startSession(userId: string, appointmentId: string, dto?: StartSessionDto) {
     const doctor = await this.prisma.doctorProfile.findUnique({ where: { userId } });
     if (!doctor) {
@@ -397,6 +416,113 @@ export class ConsultationService {
         },
       },
     });
+  }
+
+  async listDoctorRatings(userId: string) {
+    const doctor = await this.prisma.doctorProfile.findUnique({ where: { userId } });
+    if (!doctor) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+
+    return this.prisma.rating.findMany({
+      where: {
+        doctorId: doctor.id,
+        status: RatingStatus.VISIBLE,
+      },
+      orderBy: { createdAt: 'desc' },
+      include: {
+        appointment: {
+          select: {
+            id: true,
+            scheduledAt: true,
+            durationMinutes: true,
+            status: true,
+          },
+        },
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getConsultationResult(userId: string, role: Role, appointmentId: string) {
+    const appointment = await this.prisma.appointment.findUnique({
+      where: { id: appointmentId },
+      include: {
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+              },
+            },
+          },
+        },
+        doctor: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                role: true,
+              },
+            },
+          },
+        },
+        session: {
+          include: {
+            prescription: {
+              include: {
+                items: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    await this.assertAppointmentAccess(userId, role, appointment);
+
+    return {
+      appointment: {
+        id: appointment.id,
+        scheduledAt: appointment.scheduledAt,
+        durationMinutes: appointment.durationMinutes,
+        status: appointment.status,
+        reason: appointment.reason,
+        notes: appointment.notes,
+        patient: appointment.patient,
+        doctor: appointment.doctor,
+      },
+      consultation: appointment.session
+        ? {
+            id: appointment.session.id,
+            status: appointment.session.status,
+            startedAt: appointment.session.startedAt,
+            endedAt: appointment.session.endedAt,
+            summary: appointment.session.summary,
+            channel: appointment.session.channel,
+          }
+        : null,
+      prescription: appointment.session?.prescription ?? null,
+    };
   }
 
   async listMyConsultations(userId: string) {

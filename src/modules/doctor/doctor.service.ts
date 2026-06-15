@@ -7,6 +7,7 @@ import { UpdateDoctorProfileDto } from './dto/update-doctor-profile.dto';
 import { UpdateDoctorScheduleDto } from './dto/update-doctor-schedule.dto';
 import { UpdateDoctorSpecialtiesDto } from './dto/update-doctor-specialties.dto';
 import { UpdateDoctorApprovalDto } from './dto/update-doctor-approval.dto';
+import { AdminListDoctorsQueryDto } from './dto/admin-list-doctors-query.dto';
 
 @Injectable()
 export class DoctorService {
@@ -127,6 +128,69 @@ export class DoctorService {
     });
 
     return this.getMyProfile(userId);
+  }
+
+  async listDoctorsForAdmin(query: AdminListDoctorsQueryDto) {
+    const page = query.page ?? 1;
+    const limit = Math.min(query.limit ?? 20, 100);
+    const skip = (page - 1) * limit;
+    const keyword = query.keyword?.trim();
+
+    const where: Prisma.DoctorProfileWhereInput = {
+      ...(query.approvalStatus ? { approvalStatus: query.approvalStatus } : {}),
+      ...(query.isActive !== undefined ? { isActive: query.isActive } : {}),
+      ...(keyword
+        ? {
+            user: {
+              OR: [
+                { email: { contains: keyword, mode: 'insensitive' } },
+                { firstName: { contains: keyword, mode: 'insensitive' } },
+                { lastName: { contains: keyword, mode: 'insensitive' } },
+              ],
+            },
+          }
+        : {}),
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.doctorProfile.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              role: true,
+              isActive: true,
+              deletedAt: true,
+              createdAt: true,
+              updatedAt: true,
+            },
+          },
+          specialties: {
+            include: {
+              specialty: true,
+            },
+          },
+        },
+      }),
+      this.prisma.doctorProfile.count({ where }),
+    ]);
+
+    return {
+      data: items,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(Math.ceil(total / limit), 1),
+      },
+    };
   }
 
   async updateDoctorApproval(doctorId: string, dto: UpdateDoctorApprovalDto, adminId: string) {

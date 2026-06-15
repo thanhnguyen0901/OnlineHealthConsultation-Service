@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
@@ -7,6 +7,7 @@ import { UpdateDoctorProfileDto } from './dto/update-doctor-profile.dto';
 import { UpdateDoctorScheduleDto } from './dto/update-doctor-schedule.dto';
 import { UpdateDoctorSpecialtiesDto } from './dto/update-doctor-specialties.dto';
 import { UpdateDoctorApprovalDto } from './dto/update-doctor-approval.dto';
+import { AdminListDoctorsQueryDto } from './dto/admin-list-doctors-query.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
@@ -54,6 +55,13 @@ export class DoctorController {
     @Body() dto: UpdateDoctorSpecialtiesDto,
   ) {
     return this.doctorService.updateMySpecialties(user.sub, dto);
+  }
+
+  @Roles(Role.ADMIN)
+  @Get('admin/doctors')
+  @ApiOperation({ summary: 'Admin lists doctors with profile, approval and specialty filters' })
+  async listDoctorsForAdmin(@Query() query: AdminListDoctorsQueryDto) {
+    return this.doctorService.listDoctorsForAdmin(query);
   }
 
   @Roles(Role.ADMIN)

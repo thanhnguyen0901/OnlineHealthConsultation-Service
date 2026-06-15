@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
 
@@ -9,6 +9,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { AdminUpdateAppointmentStatusDto } from './dto/admin-update-appointment-status.dto';
+import { ListAppointmentQueryDto } from './dto/list-appointment-query.dto';
 
 @ApiTags('Appointments')
 @ApiBearerAuth()
@@ -27,8 +28,8 @@ export class AppointmentController {
   @Roles(Role.PATIENT)
   @Get('mine')
   @ApiOperation({ summary: 'Patient lists own appointments' })
-  listMyAppointments(@CurrentUser() user: { sub: string }) {
-    return this.appointmentService.listMyAppointments(user.sub);
+  listMyAppointments(@CurrentUser() user: { sub: string }, @Query() query: ListAppointmentQueryDto) {
+    return this.appointmentService.listMyAppointments(user.sub, query);
   }
 
   @Roles(Role.PATIENT)
@@ -41,8 +42,18 @@ export class AppointmentController {
   @Roles(Role.DOCTOR)
   @Get('doctor/me')
   @ApiOperation({ summary: 'Doctor lists own appointments' })
-  listDoctorAppointments(@CurrentUser() user: { sub: string }) {
-    return this.appointmentService.listDoctorAppointments(user.sub);
+  listDoctorAppointments(@CurrentUser() user: { sub: string }, @Query() query: ListAppointmentQueryDto) {
+    return this.appointmentService.listDoctorAppointments(user.sub, query);
+  }
+
+  @Roles(Role.PATIENT, Role.DOCTOR, Role.ADMIN)
+  @Get(':id')
+  @ApiOperation({ summary: 'Get appointment detail by id' })
+  getAppointmentDetail(
+    @CurrentUser() user: { sub: string; role: Role },
+    @Param('id') appointmentId: string,
+  ) {
+    return this.appointmentService.getAppointmentDetail(user.sub, user.role, appointmentId);
   }
 
   @Roles(Role.DOCTOR)
@@ -70,8 +81,8 @@ export class AdminAppointmentController {
 
   @Get()
   @ApiOperation({ summary: 'Admin lists all appointments' })
-  listAllAppointments() {
-    return this.appointmentService.listAllAppointments();
+  listAllAppointments(@Query() query: ListAppointmentQueryDto) {
+    return this.appointmentService.listAllAppointments(query);
   }
 
   @Patch(':id/status')

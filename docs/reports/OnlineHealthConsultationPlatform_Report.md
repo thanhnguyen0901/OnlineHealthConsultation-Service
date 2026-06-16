@@ -224,9 +224,9 @@ Phạm vi cốt lõi của hệ thống được xác định theo tài liệu y
 
 Về chức năng, hệ thống bao gồm các nhóm nghiệp vụ chính: public access/discovery, authentication/authorization, patient profile, doctor profile, specialty management, doctor discovery, health question, appointment, consultation session, consultation result/prescription, rating, notification, admin management và reporting/dashboard. Các nhóm chức năng này phản ánh đầy đủ phạm vi sử dụng của nền tảng, từ việc người dùng khách tra cứu thông tin bác sĩ, bệnh nhân đăng ký tài khoản và đặt lịch tư vấn, bác sĩ phản hồi câu hỏi và thực hiện phiên tư vấn, đến việc quản trị viên quản lý người dùng, chuyên khoa, lịch hẹn, nội dung và số liệu vận hành.
 
-Báo cáo không chỉ tập trung vào một vài luồng minh họa, mà tổ chức nội dung phân tích và kiểm thử theo đầy đủ các nhóm use case chính trong tài liệu yêu cầu. Ở giai đoạn cuối kỳ, hệ thống đã có backend MVP, frontend theo vai trò và bộ kiểm thử E2E bằng Playwright cho các luồng public, authentication, patient, doctor và administrator. Các luồng cần dữ liệu nghiệp vụ thật được thiết kế sẵn trong test suite nhưng chưa ghi nhận là pass nếu môi trường seed chưa đáp ứng.
+Báo cáo không chỉ tập trung vào một vài luồng minh họa, mà tổ chức nội dung phân tích và kiểm thử theo đầy đủ các nhóm use case chính trong tài liệu yêu cầu. Ở giai đoạn cuối kỳ, hệ thống đã có backend MVP, frontend theo vai trò, seed dữ liệu E2E nghiệp vụ và bộ kiểm thử E2E bằng Playwright cho các luồng public, authentication, patient, doctor và administrator.
 
-Định hướng đảm bảo chất lượng của đề tài gồm: phân tích yêu cầu, thiết kế use case, thiết kế UI/API/database, thiết kế test case, xây dựng kiểm thử tự động bằng Playwright cho các luồng phù hợp, kết hợp checklist rà soát bảo mật, phân quyền và quyền riêng tư dữ liệu sức khỏe. Kết quả thực thi gần nhất được ghi nhận minh bạch: backend build pass, backend Jest pass theo cấu hình `--passWithNoTests` và chưa có unit test; frontend build pass, lint pass; Playwright E2E phát hiện 37 test, trong đó 6 pass và 31 skip/fixme do thiếu seed dữ liệu nghiệp vụ thật. Các hình ảnh minh chứng cần chèn vào bản Word/PDF được đánh dấu TODO rõ ràng trong Chương III.
+Định hướng đảm bảo chất lượng của đề tài gồm: phân tích yêu cầu, thiết kế use case, thiết kế UI/API/database, thiết kế test case, xây dựng kiểm thử tự động bằng Playwright cho các luồng phù hợp, kết hợp checklist rà soát bảo mật, phân quyền và quyền riêng tư dữ liệu sức khỏe. Kết quả thực thi gần nhất được ghi nhận minh bạch: backend build pass, backend Jest pass theo cấu hình `--passWithNoTests` và chưa có unit test; frontend build pass, lint pass; Playwright E2E phát hiện 37 test, trong đó 36 pass, 1 skipped/fixme và 0 failed với dữ liệu seed thật. Các hình ảnh minh chứng cần chèn vào bản Word/PDF được đánh dấu TODO rõ ràng trong Chương III.
 
 Về công nghệ, frontend sử dụng React 18, TypeScript, Vite, React Router v6, Redux Toolkit, Redux Saga, Axios, PrimeReact, Tailwind CSS, Formik, Yup, i18next và Recharts. Backend được trình bày theo hướng Node.js với NestJS, TypeScript, Prisma ORM và PostgreSQL; hệ thống sử dụng JWT, RBAC và kiểm soát quyền sở hữu dữ liệu cho xác thực và phân quyền. Công cụ kiểm thử chính là Playwright cho E2E automation test; tùy phạm vi triển khai, nhóm có thể bổ sung Postman/API testing và Jest/unit test cho các tầng phù hợp.
 
@@ -1003,7 +1003,8 @@ Backend được triển khai trong repository `OnlineHealthConsultation-Service
 | Realtime | Socket.IO/WebSocket chat | Hỗ trợ phiên tư vấn dạng chat; video thật để sau. |
 | Setup DB | `npm run db:setup` | Generate Prisma client, deploy migration, seed dữ liệu cơ bản. |
 | Migration | `npm run prisma:migrate:deploy` | Dùng cho môi trường deploy/demo ổn định. |
-| Seed | `npm run prisma:seed` | Hiện tạo admin và một số specialty cơ bản; seed E2E đầy đủ còn TODO. |
+| Seed dev | `npm run prisma:seed` | Tạo admin và một số specialty cơ bản cho môi trường dev. |
+| Seed E2E | `npm run db:seed:e2e` | Tạo dữ liệu patient/doctor/admin, appointment, question, consultation, prescription, rating và disposable records cho Playwright. |
 | Run dev | `npm run dev` hoặc `npm run start:dev` | Chạy backend watch mode. |
 | Build | `npm run build` | Kết quả chạy thật: pass. |
 | Test | `npm test` | Kết quả chạy thật: pass theo `--passWithNoTests`, Jest báo chưa có test. |
@@ -1028,7 +1029,7 @@ Frontend được triển khai trong repository `OnlineHealthConsultation-Web`. 
 
 Bảng 8: Công nghệ và lệnh triển khai frontend
 
-Cơ sở dữ liệu dùng PostgreSQL và Prisma migration. Seed hiện tại tạo tài khoản admin `admin@healthcare.local` / `Admin@123` và các chuyên khoa cơ bản như `General Medicine`, `Cardiology`. Để chạy đầy đủ Playwright E2E nghiệp vụ, cần bổ sung seed patient, doctor đã duyệt, appointment, question, consultation, prescription và rating theo tài liệu `OnlineHealthConsultation-Web/docs/test-seed-requirements.md`.
+Cơ sở dữ liệu dùng PostgreSQL và Prisma migration. Seed dev tạo tài khoản admin `admin@healthcare.local` / `Admin@123` và một số chuyên khoa cơ bản. Seed E2E riêng tại `prisma/seed-e2e.ts` tạo đầy đủ patient, doctor đã duyệt, doctor chờ duyệt, appointment, question, consultation, prescription, rating và disposable records để chạy Playwright với backend thật.
 
 ## 2. Kiểm thử
 
@@ -1038,7 +1039,7 @@ Chiến lược kiểm thử của đề tài kết hợp kiểm thử thủ cô
 
 ### 2.2. Phạm vi kiểm thử
 
-Phạm vi đã thực hiện gồm kiểm tra build backend/frontend, lint frontend, Playwright smoke/public/auth và chuẩn bị test suite cho các luồng nghiệp vụ có seed. Backend đã được build và kiểm tra Jest theo cấu hình hiện tại. Frontend đã được build/lint và chạy Playwright. Các luồng cần dữ liệu nghiệp vụ thật chưa được ghi nhận pass nếu seed chưa đủ.
+Phạm vi đã thực hiện gồm kiểm tra build backend/frontend, lint frontend, seed dữ liệu E2E, health check backend và chạy Playwright cho các luồng public/auth/patient/doctor/admin. Backend đã được build và kiểm tra Jest theo cấu hình hiện tại. Frontend đã được build/lint và chạy Playwright full suite với dữ liệu seed thật.
 
 Phạm vi chưa kiểm thử chuyên sâu gồm gửi email thật, SMS thật, video call thật, file upload thật, rate limiting, audit log UI nâng cao, performance testing, penetration/security testing chuyên sâu và full pagination toàn hệ thống. Các nội dung này được đưa vào hạn chế và hướng phát triển ở Chương IV.
 
@@ -1046,14 +1047,14 @@ Phạm vi chưa kiểm thử chuyên sâu gồm gửi email thật, SMS thật, 
 
 | Hạng mục | Giá trị hiện tại |
 |---|---|
-| Hệ điều hành | TODO: Ghi hệ điều hành/máy chạy test chính thức khi chụp minh chứng. |
-| Node.js | TODO: Ghi `node -v` tại thời điểm nộp. |
+| Hệ điều hành | Local macOS development environment tại workspace `/Users/ThanhNguyen/Projects/SV/WebProgramming/OnlineHealthConsultation`. |
+| Node.js | `v24.13.0`, npm `11.6.2`. |
 | Backend URL | Mặc định `http://localhost:4000/api` theo cấu hình frontend. |
 | Frontend URL | Mặc định `http://localhost:5173`. |
 | Database | PostgreSQL qua Prisma schema/migration. |
-| Browser E2E | Playwright project cấu hình trong `playwright.config.ts`; TODO: ghi browser chính thức từ report. |
+| Browser E2E | Playwright Chromium project theo cấu hình `playwright.config.ts`. |
 | Tài khoản admin seed | `admin@healthcare.local` / `Admin@123`. |
-| Tài khoản patient/doctor seed | TODO: Cần bổ sung dữ liệu theo `docs/test-seed-requirements.md`. |
+| Tài khoản patient/doctor seed | `patient.e2e@healthcare.local` / `Patient@123`, `doctor.e2e@healthcare.local` / `Doctor@123`, `doctor.pending.e2e@healthcare.local` / `Doctor@123`. |
 | Test artifact | `OnlineHealthConsultation-Web/playwright-report/index.html`, `OnlineHealthConsultation-Web/test-results/`. |
 
 Bảng 9: Môi trường và dữ liệu kiểm thử
@@ -1065,8 +1066,8 @@ Bảng 9: Môi trường và dữ liệu kiểm thử
 | E2E-001 | Guest xem trang chủ | Frontend chạy được | Không yêu cầu | Mở `/` | Trang chủ hiển thị, không lỗi runtime | E2E smoke | P0 | Automated | Pass |
 | E2E-002 | Guest xem danh sách bác sĩ | Frontend/backend public API chạy được | Public doctors API | Mở `/doctors` | Trang danh sách bác sĩ hiển thị, có trạng thái loading/empty/data phù hợp | E2E | P0 | Automated | Pass |
 | E2E-003 | Guest tìm kiếm/lọc bác sĩ | Có trang danh sách bác sĩ | Keyword/specialty nếu có | Nhập keyword hoặc chọn specialty | Danh sách được cập nhật theo filter hoặc hiển thị empty state hợp lệ | E2E | P0 | Automated | Pass |
-| E2E-004 | Guest xem chi tiết bác sĩ có rating summary | Cần ít nhất một bác sĩ public đã duyệt | `E2E_APPROVED_DOCTOR_ID` hoặc card public | Mở card bác sĩ | Trang chi tiết hiển thị hồ sơ, chuyên khoa, `avgRating`, `ratingCount` | E2E | P0 | Automated | Skipped: chưa có public doctor seed |
-| E2E-005 | Guest bấm đặt lịch được chuyển đăng nhập | Cần bác sĩ public | Doctor card/detail | Bấm CTA đặt lịch | Hệ thống chuyển đến `/login` với return intent an toàn | E2E | P0 | Automated | Skipped: chưa có public doctor seed |
+| E2E-004 | Guest xem chi tiết bác sĩ có rating summary | Cần ít nhất một bác sĩ public đã duyệt | `E2E_APPROVED_DOCTOR_ID` hoặc card public | Mở card bác sĩ | Trang chi tiết hiển thị hồ sơ, chuyên khoa, `avgRating`, `ratingCount` | E2E | P0 | Automated | Pass |
+| E2E-005 | Guest bấm đặt lịch được chuyển đăng nhập | Cần bác sĩ public | Doctor card/detail | Bấm CTA đặt lịch | Hệ thống chuyển đến `/login` với return intent an toàn | E2E | P0 | Automated | Pass |
 
 Bảng 10: Test case UC01 - Guest tra cứu bác sĩ
 
@@ -1074,13 +1075,13 @@ Bảng 10: Test case UC01 - Guest tra cứu bác sĩ
 
 | Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
 |---|---|---|---|---|---|---|---|---|---|
-| E2E-006 | Patient đăng nhập | Cần patient seed active | `E2E_PATIENT_EMAIL`, `E2E_PATIENT_PASSWORD` | Mở login, nhập credential | Đăng nhập thành công, chuyển đến patient dashboard | E2E | P0 | Automated | Skipped: thiếu patient seed |
-| E2E-007 | Doctor đăng nhập | Cần doctor seed active/approved | `E2E_DOCTOR_EMAIL`, `E2E_DOCTOR_PASSWORD` | Mở login, nhập credential | Đăng nhập thành công, chuyển đến doctor dashboard | E2E | P0 | Automated | Skipped: thiếu doctor seed |
-| E2E-008 | Admin đăng nhập | Cần bật seeded run | `admin@healthcare.local` | Mở login, nhập credential admin | Đăng nhập thành công, chuyển đến admin dashboard | E2E | P0 | Automated | Skipped bởi `E2E_RUN_SEEDED` gate |
+| E2E-006 | Patient đăng nhập | Cần patient seed active | `E2E_PATIENT_EMAIL`, `E2E_PATIENT_PASSWORD` | Mở login, nhập credential | Đăng nhập thành công, chuyển đến patient dashboard | E2E | P0 | Automated | Pass |
+| E2E-007 | Doctor đăng nhập | Cần doctor seed active/approved | `E2E_DOCTOR_EMAIL`, `E2E_DOCTOR_PASSWORD` | Mở login, nhập credential | Đăng nhập thành công, chuyển đến doctor dashboard | E2E | P0 | Automated | Pass |
+| E2E-008 | Admin đăng nhập | Cần bật seeded run | `admin@healthcare.local` | Mở login, nhập credential admin | Đăng nhập thành công, chuyển đến admin dashboard | E2E | P0 | Automated | Pass |
 | E2E-009 | Guest vào route patient bị chuyển login | Không đăng nhập | `/patient` | Mở route bảo vệ | Hệ thống chuyển đến login hoặc chặn truy cập | E2E security | P0 | Automated | Pass |
-| E2E-010 | Patient không vào được Doctor/Admin | Cần patient seed | Patient credential | Login patient, mở `/doctor`, `/admin` | Bị chặn hoặc vào trang 403 | E2E authorization | P0 | Automated | Skipped: thiếu patient seed |
-| E2E-011 | Doctor không vào được Patient/Admin | Cần doctor seed | Doctor credential | Login doctor, mở `/patient`, `/admin` | Bị chặn hoặc vào trang 403 | E2E authorization | P0 | Automated | Skipped: thiếu doctor seed |
-| E2E-012 | Logout xóa session | Cần seeded login account | Account theo role | Login, bấm logout | Token local bị xóa, quay về login/public | E2E | P1 | Automated | Skipped: chưa bật account seed |
+| E2E-010 | Patient không vào được Doctor/Admin | Cần patient seed | Patient credential | Login patient, mở `/doctor`, `/admin` | Bị chặn hoặc vào trang 403 | E2E authorization | P0 | Automated | Pass |
+| E2E-011 | Doctor không vào được Patient/Admin | Cần doctor seed | Doctor credential | Login doctor, mở `/patient`, `/admin` | Bị chặn hoặc vào trang 403 | E2E authorization | P0 | Automated | Pass |
+| E2E-012 | Logout xóa session | Cần seeded login account | Account theo role | Login, bấm logout | Token local bị xóa, quay về login/public | E2E | P1 | Automated | Pass |
 
 Bảng 11: Test case UC02 - Đăng ký / đăng nhập / phân quyền
 
@@ -1088,11 +1089,11 @@ Bảng 11: Test case UC02 - Đăng ký / đăng nhập / phân quyền
 
 | Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
 |---|---|---|---|---|---|---|---|---|---|
-| E2E-013 | Patient tạo lịch hẹn | Patient seed và approved doctor seed | Patient account, doctor id, thời gian hợp lệ | Login patient, mở đặt lịch, submit form | Tạo appointment thành công | E2E | P0 | Automated | Skipped: thiếu patient/doctor seed |
-| E2E-014 | Patient xem danh sách lịch hẹn | Patient có dữ liệu lịch hẹn | `E2E_PATIENT_EMAIL` | Login patient, mở history/appointments | Danh sách lịch hẹn của chính patient hiển thị | E2E | P0 | Automated | Skipped: thiếu patient seed |
-| E2E-015 | Patient xem chi tiết lịch hẹn | Patient có appointment id | `E2E_APPOINTMENT_ID` | Mở detail từ danh sách | Detail hiển thị doctor, scheduledAt, status, reason, notes | E2E/ownership | P0 | Automated | Skipped: thiếu appointment seed |
-| E2E-016 | Patient hủy lịch hẹn | Cần appointment disposable | Appointment pending/confirmed của patient | Bấm cancel | Appointment chuyển trạng thái hủy đúng quyền | E2E mutation | P1 | Automated | Fixme: cần disposable appointment seed |
-| E2E-017 | Validation lỗi khi đặt lịch | Patient seed | Form thiếu dữ liệu | Submit form rỗng/sai | Hiển thị validation, không tạo appointment | E2E validation | P1 | Automated | Skipped: thiếu patient seed |
+| E2E-013 | Patient tạo lịch hẹn | Patient seed và approved doctor seed | Patient account, doctor id, thời gian hợp lệ | Login patient, mở đặt lịch, submit form | Tạo appointment thành công | E2E | P0 | Automated | Pass |
+| E2E-014 | Patient xem danh sách lịch hẹn | Patient có dữ liệu lịch hẹn | `E2E_PATIENT_EMAIL` | Login patient, mở history/appointments | Danh sách lịch hẹn của chính patient hiển thị | E2E | P0 | Automated | Pass |
+| E2E-015 | Patient xem chi tiết lịch hẹn | Patient có appointment id | `E2E_APPOINTMENT_ID` | Mở detail từ danh sách | Detail hiển thị doctor, scheduledAt, status, reason, notes | E2E/ownership | P0 | Automated | Pass |
+| E2E-016 | Patient hủy lịch hẹn | Cần appointment disposable | Appointment pending/confirmed của patient | Bấm cancel | Appointment chuyển trạng thái hủy đúng quyền | E2E mutation | P1 | Automated | Pass |
+| E2E-017 | Validation lỗi khi đặt lịch | Patient seed | Form thiếu dữ liệu | Submit form rỗng/sai | Hiển thị validation, không tạo appointment | E2E validation | P1 | Automated | Pass |
 
 Bảng 12: Test case UC03 - Patient đặt lịch tư vấn
 
@@ -1100,11 +1101,11 @@ Bảng 12: Test case UC03 - Patient đặt lịch tư vấn
 
 | Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
 |---|---|---|---|---|---|---|---|---|---|
-| E2E-018 | Patient gửi câu hỏi sức khỏe | Patient seed | Title/content hợp lệ | Login patient, mở ask question, submit | Question được tạo và hiển thị trạng thái phù hợp | E2E | P0 | Automated | Skipped: thiếu patient seed |
-| E2E-019 | Patient xem danh sách câu hỏi của mình | Patient seed có question | Patient credential | Mở history/questions | Chỉ hiển thị question thuộc patient | E2E/ownership | P0 | Automated | Skipped: thiếu patient seed |
-| E2E-020 | Doctor xem câu hỏi được giao/mở | Doctor seed | Doctor credential | Login doctor, mở inbox | Danh sách câu hỏi assigned/open hiển thị | E2E | P0 | Automated | Skipped: thiếu doctor seed |
-| E2E-021 | Doctor phản hồi câu hỏi | Doctor seed, pending question | Pending question assigned | Nhập answer, submit | Answer được lưu qua `{ content }`, list refresh | E2E mutation | P0 | Automated | Skipped: thiếu doctor/pending question seed |
-| E2E-022 | Patient xem phản hồi bác sĩ | Patient seed, answered question | Answered question | Mở question/history | Câu trả lời hiển thị đúng nội dung | E2E | P0 | Automated | Skipped: thiếu answered question seed |
+| E2E-018 | Patient gửi câu hỏi sức khỏe | Patient seed | Title/content hợp lệ | Login patient, mở ask question, submit | Question được tạo và hiển thị trạng thái phù hợp | E2E | P0 | Automated | Pass |
+| E2E-019 | Patient xem danh sách câu hỏi của mình | Patient seed có question | Patient credential | Mở history/questions | Chỉ hiển thị question thuộc patient | E2E/ownership | P0 | Automated | Pass |
+| E2E-020 | Doctor xem câu hỏi được giao/mở | Doctor seed | Doctor credential | Login doctor, mở inbox | Danh sách câu hỏi assigned/open hiển thị | E2E | P0 | Automated | Pass |
+| E2E-021 | Doctor phản hồi câu hỏi | Doctor seed, pending question | Pending question assigned | Nhập answer, submit | Answer được lưu qua `{ content }`, list refresh | E2E mutation | P0 | Automated | Pass |
+| E2E-022 | Patient xem phản hồi bác sĩ | Patient seed, answered question | Answered question | Mở question/history | Câu trả lời hiển thị đúng nội dung | E2E | P0 | Automated | Pass |
 | E2E-023 | Doctor không được xem/sửa question ngoài phạm vi | Cần API/detail route hoặc seed đặc biệt | Question ngoài phạm vi | Thử truy cập ngoài quyền | Bị chặn 403 hoặc không hiển thị | Negative security | P1 | Planned/partial | Fixme: chưa có direct FE detail route/API |
 
 Bảng 13: Test case UC04 - Patient gửi câu hỏi và Doctor phản hồi
@@ -1113,12 +1114,12 @@ Bảng 13: Test case UC04 - Patient gửi câu hỏi và Doctor phản hồi
 
 | Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
 |---|---|---|---|---|---|---|---|---|---|
-| E2E-024 | Doctor xác nhận lịch hẹn | Doctor seed, pending appointment | `E2E_APPOINTMENT_ID` | Login doctor, bấm confirm | Appointment chuyển trạng thái confirmed | E2E mutation | P0 | Automated | Skipped: thiếu pending appointment seed |
-| E2E-025 | Doctor hoàn tất lịch hẹn | Doctor seed, confirmed appointment | `E2E_CONFIRMED_APPOINTMENT_ID` | Bấm complete | Appointment chuyển trạng thái completed | E2E mutation | P0 | Automated | Skipped: thiếu confirmed appointment seed |
-| E2E-026 | Doctor start/join consultation | Doctor seed, appointment hợp lệ | `E2E_CONSULTATION_APPOINTMENT_ID` | Mở consultation, start/join | Session được tạo/join, chat area hiển thị | E2E | P1 | Automated | Skipped: thiếu consultation appointment seed |
-| E2E-027 | Doctor lưu summary | Consultation session có quyền | Summary text | Nhập summary, lưu | Summary được lưu và hiển thị lại | E2E | P1 | Automated | Skipped: thiếu consultation appointment seed |
-| E2E-028 | Doctor tạo đơn thuốc | Consultation session có quyền | Prescription items | Nhập thuốc, liều, hướng dẫn, lưu | Prescription và items được tạo | E2E | P1 | Automated | Skipped: thiếu consultation appointment seed |
-| E2E-029 | Patient xem kết quả/đơn thuốc | Completed consultation seed | `E2E_COMPLETED_APPOINTMENT_ID` | Login patient, mở result | Hiển thị summary và prescription/items hoặc empty state hợp lệ | E2E | P0 | Automated | Skipped: thiếu completed consultation seed |
+| E2E-024 | Doctor xác nhận lịch hẹn | Doctor seed, pending appointment | `E2E_APPOINTMENT_ID` | Login doctor, bấm confirm | Appointment chuyển trạng thái confirmed | E2E mutation | P0 | Automated | Pass |
+| E2E-025 | Doctor hoàn tất lịch hẹn | Doctor seed, confirmed appointment | `E2E_CONFIRMED_APPOINTMENT_ID` | Bấm complete | Appointment chuyển trạng thái completed | E2E mutation | P0 | Automated | Pass |
+| E2E-026 | Doctor start/join consultation | Doctor seed, appointment hợp lệ | `E2E_CONSULTATION_APPOINTMENT_ID` | Mở consultation, start/join | Session được tạo/join, chat area hiển thị | E2E | P1 | Automated | Pass |
+| E2E-027 | Doctor lưu summary | Consultation session có quyền | Summary text | Nhập summary, lưu | Summary được lưu và hiển thị lại | E2E | P1 | Automated | Pass |
+| E2E-028 | Doctor tạo đơn thuốc | Consultation session có quyền | Prescription items | Nhập thuốc, liều, hướng dẫn, lưu | Prescription và items được tạo | E2E | P1 | Automated | Pass |
+| E2E-029 | Patient xem kết quả/đơn thuốc | Completed consultation seed | `E2E_COMPLETED_APPOINTMENT_ID` | Login patient, mở result | Hiển thị summary và prescription/items hoặc empty state hợp lệ | E2E | P0 | Automated | Pass |
 
 Bảng 14: Test case UC05 - Doctor tư vấn, ghi kết quả và đơn thuốc
 
@@ -1126,12 +1127,12 @@ Bảng 14: Test case UC05 - Doctor tư vấn, ghi kết quả và đơn thuốc
 
 | Test Case ID | Title | Precondition | Test Data | Steps | Expected Result | Test Type | Priority | Automation Status | Result |
 |---|---|---|---|---|---|---|---|---|---|
-| E2E-030 | Admin xem dashboard | Admin seed, bật seeded run | `admin@healthcare.local` | Login admin, mở `/admin` | Dashboard hiển thị số liệu từ `/reports/dashboard` | E2E | P0 | Automated | Skipped bởi `E2E_RUN_SEEDED` gate |
-| E2E-031 | Admin xem danh sách bác sĩ | Admin seed | Doctor list | Mở `/admin/doctors` | Danh sách/filter doctor hiển thị, không lộ passwordHash | E2E | P0 | Automated | Skipped bởi `E2E_RUN_SEEDED` gate |
-| E2E-032 | Admin approve/reject doctor | Admin seed, pending doctor | `E2E_PENDING_DOCTOR_ID` | Bấm approve/reject | Doctor approvalStatus cập nhật | E2E mutation | P0 | Automated | Skipped: thiếu pending doctor seed |
-| E2E-033 | Admin xem chuyên khoa | Admin seed | Specialty seed | Mở `/admin/specialties` | Danh sách chuyên khoa hiển thị | E2E | P1 | Automated | Skipped bởi `E2E_RUN_SEEDED` gate |
-| E2E-034 | Admin tạo/cập nhật/deactivate chuyên khoa | Admin seed, disposable specialty | Specialty test data | Thực hiện create/update/deactivate | Trạng thái chuyên khoa cập nhật đúng | E2E mutation | P1 | Automated | Fixme: cần disposable specialty seed |
-| E2E-035 | Non-admin không vào admin dashboard | Patient/doctor seed | Non-admin account | Login non-admin, mở `/admin` | Bị chặn hoặc vào 403 | E2E authorization | P0 | Automated | Skipped: thiếu patient/doctor seed |
+| E2E-030 | Admin xem dashboard | Admin seed, bật seeded run | `admin@healthcare.local` | Login admin, mở `/admin` | Dashboard hiển thị số liệu từ `/reports/dashboard` | E2E | P0 | Automated | Pass |
+| E2E-031 | Admin xem danh sách bác sĩ | Admin seed | Doctor list | Mở `/admin/doctors` | Danh sách/filter doctor hiển thị, không lộ passwordHash | E2E | P0 | Automated | Pass |
+| E2E-032 | Admin approve/reject doctor | Admin seed, pending doctor | `E2E_PENDING_DOCTOR_ID` | Bấm approve/reject | Doctor approvalStatus cập nhật | E2E mutation | P0 | Automated | Pass |
+| E2E-033 | Admin xem chuyên khoa | Admin seed | Specialty seed | Mở `/admin/specialties` | Danh sách chuyên khoa hiển thị | E2E | P1 | Automated | Pass |
+| E2E-034 | Admin tạo/cập nhật/deactivate chuyên khoa | Admin seed, disposable specialty | Specialty test data | Thực hiện create/update/deactivate | Trạng thái chuyên khoa cập nhật đúng | E2E mutation | P1 | Automated | Pass |
+| E2E-035 | Non-admin không vào admin dashboard | Patient/doctor seed | Non-admin account | Login non-admin, mở `/admin` | Bị chặn hoặc vào 403 | E2E authorization | P0 | Automated | Pass |
 
 Bảng 15: Test case UC06 - Administrator quản lý hệ thống và dashboard
 
@@ -1161,16 +1162,23 @@ npm run test:e2e:debug
 npm run test:e2e:report
 ```
 
-Khi chạy đầy đủ luồng nghiệp vụ thật, cần cấu hình seed và biến môi trường:
+Khi chạy đầy đủ luồng nghiệp vụ thật, cần chạy seed E2E backend và cấu hình biến môi trường:
 
 ```bash
 E2E_RUN_SEEDED=true
-E2E_PATIENT_EMAIL=...
-E2E_PATIENT_PASSWORD=...
-E2E_DOCTOR_EMAIL=...
-E2E_DOCTOR_PASSWORD=...
+E2E_PATIENT_EMAIL=patient.e2e@healthcare.local
+E2E_PATIENT_PASSWORD=Patient@123
+E2E_DOCTOR_EMAIL=doctor.e2e@healthcare.local
+E2E_DOCTOR_PASSWORD=Doctor@123
 E2E_ADMIN_EMAIL=admin@healthcare.local
 E2E_ADMIN_PASSWORD=Admin@123
+E2E_APPROVED_DOCTOR_ID=019ed085-9bb9-7a83-bdee-b3b266b827b8
+E2E_PENDING_DOCTOR_ID=019ed085-9bb9-7a83-bdee-b3b35ffc1f61
+E2E_APPOINTMENT_ID=019ed085-9bc5-7ee1-aeb6-93edb9a2e3ce
+E2E_CONFIRMED_APPOINTMENT_ID=019ed085-9bc7-7925-9834-cedf831db8df
+E2E_COMPLETED_APPOINTMENT_ID=019ed085-9bca-78ba-b82b-f11d937b337c
+E2E_CONSULTATION_APPOINTMENT_ID=019ed085-9bcc-76ff-91ae-fa05ce14721d
+E2E_CANCELLABLE_APPOINTMENT_ID=019ed085-9bc9-76a1-b3d0-7f6a3899cc0b
 ```
 
 Playwright được cấu hình reporter `list` và `html`; trace bật ở lần retry đầu tiên, screenshot chỉ giữ khi lỗi, video giữ khi lỗi. HTML report nằm tại `OnlineHealthConsultation-Web/playwright-report/index.html`; artifact lỗi nằm tại `OnlineHealthConsultation-Web/test-results/`.
@@ -1191,13 +1199,13 @@ Kết quả chạy thật gần nhất được ghi nhận từ tài liệu `Onl
 | Backend Jest | `npm test` | Pass theo cấu hình hiện tại | Jest chạy với `--passWithNoTests`, báo `No tests found`; chưa có unit test backend thực sự. |
 | Frontend build | `npm run build` | Pass | Có warning không chặn về browserslist cũ và chunk size lớn. |
 | Frontend lint | `npm run lint` | Pass | Không có lỗi lint tại lần chạy đã ghi nhận. |
-| Playwright E2E | `npm run test:e2e` | Pass runner; 37 discovered, 6 passed, 31 skipped/fixme | Các test nghiệp vụ bị skip/fixme do thiếu seed dữ liệu thật hoặc cần disposable data. |
+| Playwright E2E | `npm run test:e2e` | Pass; 37 discovered, 36 passed, 1 skipped/fixme, 0 failed | Skipped/fixme còn lại là E2E-023 do frontend MVP chưa có direct question detail route/API cho negative test. |
 
 Bảng 16: Tổng hợp kết quả Playwright E2E
 
-Các lỗi/rủi ro QA đã được ghi nhận trong quá trình recheck FE-BE gồm: lệch `data-testid` admin dashboard, UI admin user cho phép tạo role ADMIN trong khi backend không hỗ trợ, payload edit user gửi role không được backend nhận, và helper moderation gửi action chưa khớp backend. Các lỗi này đã được sửa ở frontend. Các rủi ro còn lại gồm thiếu unified admin moderation list endpoint, thiếu doctor patient list endpoint, thiếu endpoint admin doctor-profile CRUD đầy đủ, và thiếu seed dữ liệu nghiệp vụ cho toàn bộ E2E.
+Các lỗi/rủi ro QA đã được ghi nhận trong quá trình recheck FE-BE gồm: lệch `data-testid` admin dashboard, UI admin user cho phép tạo role ADMIN trong khi backend không hỗ trợ, payload edit user gửi role không được backend nhận, và helper moderation gửi action chưa khớp backend. Các lỗi này đã được sửa ở frontend. Trong vòng chạy E2E cuối, nhóm bổ sung seed nghiệp vụ, mở lại các test bị skip vì thiếu data, sửa test doctor confirm/complete để target đúng appointment seed và dùng disposable data cho cancel/specialty mutation. Các rủi ro còn lại gồm thiếu unified admin moderation list endpoint, thiếu doctor patient list endpoint, thiếu endpoint admin doctor-profile CRUD đầy đủ và thiếu direct question detail route/API cho E2E-023.
 
-Không có failure artifact trong lần chạy Playwright hiện tại vì không có test thất bại; các test chưa đủ điều kiện dữ liệu được đánh dấu skipped/fixme. Trước khi nộp bản Word/PDF, nhóm cần chụp lại terminal test result và Playwright HTML report sau khi xác nhận môi trường demo cuối cùng.
+Không có failure artifact trong lần chạy Playwright cuối vì không có test thất bại. Playwright HTML report nằm tại `OnlineHealthConsultation-Web/playwright-report/index.html`; các hình minh chứng terminal và HTML report vẫn cần chụp/chèn vào bản Word/PDF.
 
 # CHƯƠNG IV. KẾT LUẬN
 
@@ -1205,7 +1213,7 @@ Không có failure artifact trong lần chạy Playwright hiện tại vì khôn
 
 Đề tài đã hoàn thành các hoạt động chính của một quy trình đảm bảo chất lượng phần mềm ở phạm vi đồ án: phân tích yêu cầu/SRS, xác định actor và use case, thiết kế activity diagram, kiến trúc, API/form và cơ sở dữ liệu, sau đó triển khai backend/frontend MVP và kiểm thử tích hợp. Backend được tổ chức theo module NestJS, dùng Prisma/PostgreSQL, JWT, RBAC và ownership để bảo vệ dữ liệu theo vai trò. Frontend đã được cập nhật để gọi API thật cho các luồng public, auth, patient, doctor, admin và reports.
 
-Ở góc độ kiểm thử, nhóm đã chuyển hoàn toàn định hướng E2E từ Cypress sang Playwright, xây dựng cấu trúc spec/page object/test data rõ ràng và bổ sung selector ổn định cho các màn hình quan trọng. Các test case UC01-UC06 đã được đặc tả, trong đó một phần public/auth smoke đã chạy pass, còn các luồng nghiệp vụ sâu được viết sẵn nhưng cần seed dữ liệu thật trước khi ghi nhận pass.
+Ở góc độ kiểm thử, nhóm đã chuyển hoàn toàn định hướng E2E từ Cypress sang Playwright, xây dựng cấu trúc spec/page object/test data rõ ràng và bổ sung selector ổn định cho các màn hình quan trọng. Các test case UC01-UC06 đã được đặc tả và chạy với seed dữ liệu thật; lần chạy cuối ghi nhận 36 pass, 1 skipped/fixme và 0 failed.
 
 ### 1.1. Điểm mạnh
 
@@ -1214,7 +1222,7 @@ Không có failure artifact trong lần chạy Playwright hiện tại vì khôn
 - Cơ chế JWT/RBAC/ownership giúp giảm rủi ro patient/doctor xem nhầm dữ liệu ngoài phạm vi.
 - Frontend có route và layout theo role, phù hợp demo cuối kỳ và chụp hình báo cáo.
 - API contract FE-BE đã được rà soát và cập nhật cho các endpoint quan trọng.
-- Playwright E2E được tổ chức theo Page Object, có khả năng mở rộng khi bổ sung seed data.
+- Playwright E2E được tổ chức theo Page Object, có seed dữ liệu nghiệp vụ riêng và đã chạy qua các nhóm UC01-UC06.
 - Tài liệu traceability giữa use case, màn hình, API và test case đã được tạo ở nhiều file checklist/summary.
 
 ### 1.2. Điểm hạn chế
@@ -1224,7 +1232,7 @@ Không có failure artifact trong lần chạy Playwright hiện tại vì khôn
 - Video call thật bằng WebRTC/Jitsi/Agora chưa có; hệ thống hiện ưu tiên chat fallback và video mock cho phiên tư vấn.
 - File upload thật chưa triển khai, vì cần xử lý storage, quyền truy cập file và kiểm soát an toàn nội dung.
 - Một số màn hình admin nâng cao còn phụ thuộc endpoint backend chưa có, ví dụ unified moderation list, doctor patient list và báo cáo nâng cao.
-- Seed dữ liệu E2E chưa đủ cho full patient/doctor/admin workflow; vì vậy nhiều test automation đang skipped/fixme chứ chưa được ghi nhận pass.
+- Playwright còn 1 test skipped/fixme cho negative case doctor truy cập trực tiếp question ngoài phạm vi vì frontend MVP chưa có direct question detail route/API.
 - Backend Jest hiện pass theo `--passWithNoTests`, chưa có bộ unit/integration test backend thực sự.
 - Kiểm thử performance, security chuyên sâu, rate limiting và audit log UI nâng cao chưa nằm trong phạm vi triển khai cuối kỳ.
 
@@ -1238,12 +1246,12 @@ Trong các giai đoạn tiếp theo, hệ thống có thể được mở rộng
 - Bổ sung file attachment/upload cho hồ sơ tư vấn, đơn thuốc và tài liệu y tế, kèm kiểm soát quyền truy cập.
 - Hoàn thiện notification center, retry provider và giao diện quản trị notification/audit log.
 - Bổ sung rate limiting, security hardening, kiểm thử OWASP, kiểm thử tải và kiểm thử hiệu năng.
-- Hoàn thiện seed dữ liệu E2E, sau đó chạy toàn bộ Playwright suite trong CI/CD với database reset hoặc disposable records.
+- Đưa seed dữ liệu E2E và Playwright full suite vào CI/CD với database reset hoặc disposable records trước mỗi lần chạy.
 - Mở rộng dashboard/reporting cho biểu đồ câu hỏi, top doctors, phân bố chuyên khoa, xu hướng lịch hẹn và chất lượng tư vấn.
 - Bổ sung pagination/filter thống nhất cho toàn bộ các màn hình danh sách có dữ liệu lớn.
 - Bổ sung workflow nâng cao như NO_SHOW appointment, doctor cancel appointment, patient close question và password change.
 
-Nhìn chung, hệ thống hiện đạt mức MVP phù hợp cho mục tiêu demo cuối kỳ, minh họa kiến trúc full-stack, tích hợp API thật và quy trình QA bằng test case/Playwright. Tuy nhiên, hệ thống chưa nên được xem là production-ready cho môi trường y tế thật nếu chưa hoàn thiện các phần bảo mật nâng cao, provider thật, dữ liệu kiểm thử đầy đủ và kiểm thử phi chức năng chuyên sâu.
+Nhìn chung, hệ thống hiện đạt mức MVP phù hợp cho mục tiêu demo cuối kỳ, minh họa kiến trúc full-stack, tích hợp API thật và quy trình QA bằng test case/Playwright. Tuy nhiên, hệ thống chưa nên được xem là production-ready cho môi trường y tế thật nếu chưa hoàn thiện các phần bảo mật nâng cao, provider thật, CI/CD E2E ổn định và kiểm thử phi chức năng chuyên sâu.
 
 # TÀI LIỆU THAM KHẢO
 

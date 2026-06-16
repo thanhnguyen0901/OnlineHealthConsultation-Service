@@ -224,9 +224,9 @@ Phạm vi cốt lõi của hệ thống được xác định theo tài liệu y
 
 Về chức năng, hệ thống bao gồm các nhóm nghiệp vụ chính: public access/discovery, authentication/authorization, patient profile, doctor profile, specialty management, doctor discovery, health question, appointment, consultation session, consultation result/prescription, rating, notification, admin management và reporting/dashboard. Các nhóm chức năng này phản ánh đầy đủ phạm vi sử dụng của nền tảng, từ việc người dùng khách tra cứu thông tin bác sĩ, bệnh nhân đăng ký tài khoản và đặt lịch tư vấn, bác sĩ phản hồi câu hỏi và thực hiện phiên tư vấn, đến việc quản trị viên quản lý người dùng, chuyên khoa, lịch hẹn, nội dung và số liệu vận hành.
 
-Báo cáo không chỉ tập trung vào một vài luồng minh họa, mà tổ chức nội dung phân tích và kiểm thử theo đầy đủ các nhóm use case chính trong tài liệu yêu cầu. Ở giai đoạn cuối kỳ, hệ thống đã có backend MVP, frontend theo vai trò, seed dữ liệu E2E nghiệp vụ và bộ kiểm thử E2E bằng Playwright cho các luồng public, authentication, patient, doctor và administrator.
+Báo cáo trình bày các nhóm use case chính trong tài liệu yêu cầu. Ở giai đoạn cuối kỳ, nhóm đã hoàn thành backend trong phạm vi đồ án, frontend theo vai trò, tích hợp API thật và bổ sung seed dữ liệu cho kiểm thử E2E.
 
-Định hướng đảm bảo chất lượng của đề tài gồm: phân tích yêu cầu, thiết kế use case, thiết kế UI/API/database, thiết kế test case, xây dựng kiểm thử tự động bằng Playwright cho các luồng phù hợp, kết hợp checklist rà soát bảo mật, phân quyền và quyền riêng tư dữ liệu sức khỏe. Kết quả thực thi gần nhất được ghi nhận minh bạch: backend build pass, backend Jest pass theo cấu hình `--passWithNoTests` và chưa có unit test; frontend build pass, lint pass; Playwright E2E phát hiện 37 test, trong đó 36 pass, 1 skipped/fixme và 0 failed với dữ liệu seed thật. Các hình ảnh minh chứng cần chèn vào bản Word/PDF được đánh dấu TODO rõ ràng trong Chương III.
+Hoạt động đảm bảo chất lượng gồm phân tích yêu cầu, thiết kế use case, thiết kế UI/API/database, viết test case và chạy Playwright E2E. Kết quả chạy cuối cùng: backend build pass; frontend build và lint pass; Playwright phát hiện 37 test, trong đó 36 pass, 1 skipped/fixme và 0 failed với dữ liệu seed thật. Hình minh chứng UI và Playwright vẫn giữ TODO để chèn sau.
 
 Về công nghệ, frontend sử dụng React 18, TypeScript, Vite, React Router v6, Redux Toolkit, Redux Saga, Axios, PrimeReact, Tailwind CSS, Formik, Yup, i18next và Recharts. Backend được trình bày theo hướng Node.js với NestJS, TypeScript, Prisma ORM và PostgreSQL; hệ thống sử dụng JWT, RBAC và kiểm soát quyền sở hữu dữ liệu cho xác thực và phân quyền. Công cụ kiểm thử chính là Playwright cho E2E automation test; tùy phạm vi triển khai, nhóm có thể bổ sung Postman/API testing và Jest/unit test cho các tầng phù hợp.
 
@@ -935,12 +935,12 @@ Hình 22: Giao diện Patient đặt lịch tư vấn
 TODO: Chèn hình giao diện Patient danh sách lịch hẹn  
 Hình 23: Giao diện Patient danh sách lịch hẹn
 
-**Patient gửi câu hỏi sức khỏe.** Màn hình đặt câu hỏi cho phép bệnh nhân nhập tiêu đề và nội dung, gửi qua `POST /api/questions`. Form tập trung vào nội dung y tế dạng hỏi đáp, không triển khai upload tệp trong phạm vi MVP.
+**Patient gửi câu hỏi sức khỏe.** Màn hình đặt câu hỏi cho phép bệnh nhân nhập tiêu đề và nội dung, gửi qua `POST /api/questions`. Form tập trung vào nội dung y tế dạng hỏi đáp, không triển khai upload tệp trong phạm vi cuối kỳ.
 
 TODO: Chèn hình giao diện Patient gửi câu hỏi sức khỏe  
 Hình 24: Giao diện Patient gửi câu hỏi sức khỏe
 
-**Patient xem câu hỏi và phản hồi.** Danh sách câu hỏi của bệnh nhân lấy từ `/api/questions/mine`, hiển thị trạng thái xử lý và câu trả lời của bác sĩ nếu có. Với MVP, chi tiết câu hỏi có thể được xem từ dữ liệu danh sách thay vì deep link riêng.
+**Patient xem câu hỏi và phản hồi.** Danh sách câu hỏi của bệnh nhân lấy từ `/api/questions/mine`, hiển thị trạng thái xử lý và câu trả lời của bác sĩ nếu có. Trong phạm vi hiện tại, chi tiết câu hỏi có thể được xem từ dữ liệu danh sách thay vì deep link riêng.
 
 TODO: Chèn hình giao diện Patient xem câu hỏi và phản hồi  
 Hình 25: Giao diện Patient xem câu hỏi và phản hồi
@@ -965,7 +965,7 @@ Hình 28: Giao diện Doctor quản lý lịch hẹn
 TODO: Chèn hình giao diện Doctor quản lý câu hỏi  
 Hình 29: Giao diện Doctor quản lý câu hỏi
 
-**Doctor phiên tư vấn, ghi kết quả và tạo đơn thuốc.** Màn hình phiên tư vấn hỗ trợ start/join/end session, chat fallback, nhập summary và tạo prescription. Phạm vi MVP chưa tích hợp video call thật; giao diện mô phỏng phần video và tập trung vào chat/kết quả/đơn thuốc.
+**Doctor phiên tư vấn, ghi kết quả và tạo đơn thuốc.** Màn hình phiên tư vấn hỗ trợ start/join/end session, chat fallback, nhập summary và tạo prescription. Phạm vi cuối kỳ chưa tích hợp video call thật; giao diện mô phỏng phần video và tập trung vào chat/kết quả/đơn thuốc.
 
 TODO: Chèn hình giao diện Doctor phiên tư vấn, kết quả và đơn thuốc  
 Hình 30: Giao diện Doctor phiên tư vấn, kết quả và đơn thuốc
@@ -980,7 +980,7 @@ Hình 31: Giao diện Admin dashboard
 TODO: Chèn hình giao diện Admin quản lý và duyệt bác sĩ  
 Hình 32: Giao diện Admin quản lý và duyệt bác sĩ
 
-**Admin quản lý chuyên khoa.** Màn hình chuyên khoa sử dụng `/api/admin/specialties` để xem, tạo, cập nhật và deactivate chuyên khoa. MVP dùng deactivate thay cho xóa cứng để giữ tính toàn vẹn dữ liệu.
+**Admin quản lý chuyên khoa.** Màn hình chuyên khoa sử dụng `/api/admin/specialties` để xem, tạo, cập nhật và deactivate chuyên khoa. Hệ thống dùng deactivate thay cho xóa cứng để giữ tính toàn vẹn dữ liệu.
 
 TODO: Chèn hình giao diện Admin quản lý chuyên khoa  
 Hình 33: Giao diện Admin quản lý chuyên khoa
@@ -1035,13 +1035,13 @@ Cơ sở dữ liệu dùng PostgreSQL và Prisma migration. Seed dev tạo tài 
 
 ### 2.1. Chiến lược kiểm thử
 
-Chiến lược kiểm thử của đề tài kết hợp kiểm thử thủ công, kiểm thử API ở mức tích hợp FE-BE và kiểm thử tự động E2E bằng Playwright. Các test case được thiết kế theo use case UC01-UC06, bao phủ luồng public discovery, đăng ký/đăng nhập/phân quyền, đặt lịch, hỏi đáp sức khỏe, phiên tư vấn/kết quả/đơn thuốc và quản trị hệ thống. Các điểm nhạy cảm như xác thực, phân quyền theo role, ownership dữ liệu patient/doctor, validation form và không lộ dữ liệu nhạy cảm được xem là trọng tâm chất lượng.
+Chiến lược kiểm thử gồm kiểm thử thủ công, kiểm thử tích hợp FE-BE và E2E automation bằng Playwright. Bộ test được chia theo UC01-UC06, bao phủ public discovery, đăng ký/đăng nhập, phân quyền, đặt lịch, hỏi đáp sức khỏe, tư vấn/đơn thuốc và quản trị. Các điểm được ưu tiên là xác thực, phân quyền, ownership dữ liệu patient/doctor, validation form và không lộ dữ liệu nhạy cảm.
 
 ### 2.2. Phạm vi kiểm thử
 
-Phạm vi đã thực hiện gồm kiểm tra build backend/frontend, lint frontend, seed dữ liệu E2E, health check backend và chạy Playwright cho các luồng public/auth/patient/doctor/admin. Backend đã được build và kiểm tra Jest theo cấu hình hiện tại. Frontend đã được build/lint và chạy Playwright full suite với dữ liệu seed thật.
+Phạm vi đã thực hiện gồm build backend/frontend, lint frontend, seed dữ liệu E2E, health check backend và chạy Playwright cho các luồng public, auth, patient, doctor và admin. Backend đã build pass. Frontend đã build/lint pass. Playwright đã chạy với dữ liệu seed thật.
 
-Phạm vi chưa kiểm thử chuyên sâu gồm gửi email thật, SMS thật, video call thật, file upload thật, rate limiting, audit log UI nâng cao, performance testing, penetration/security testing chuyên sâu và full pagination toàn hệ thống. Các nội dung này được đưa vào hạn chế và hướng phát triển ở Chương IV.
+Phạm vi chưa kiểm thử chuyên sâu gồm email thật, SMS thật, video call thật, file upload thật, rate limiting, audit log UI nâng cao, performance test, security test chuyên sâu và full pagination toàn hệ thống. Các nội dung này được ghi nhận ở Chương IV.
 
 ### 2.3. Môi trường kiểm thử
 
@@ -1106,7 +1106,7 @@ Bảng 12: Test case UC03 - Patient đặt lịch tư vấn
 | E2E-020 | Doctor xem câu hỏi được giao/mở | Doctor seed | Doctor credential | Login doctor, mở inbox | Danh sách câu hỏi assigned/open hiển thị | E2E | P0 | Automated | Pass |
 | E2E-021 | Doctor phản hồi câu hỏi | Doctor seed, pending question | Pending question assigned | Nhập answer, submit | Answer được lưu qua `{ content }`, list refresh | E2E mutation | P0 | Automated | Pass |
 | E2E-022 | Patient xem phản hồi bác sĩ | Patient seed, answered question | Answered question | Mở question/history | Câu trả lời hiển thị đúng nội dung | E2E | P0 | Automated | Pass |
-| E2E-023 | Doctor không được xem/sửa question ngoài phạm vi | Cần API/detail route hoặc seed đặc biệt | Question ngoài phạm vi | Thử truy cập ngoài quyền | Bị chặn 403 hoặc không hiển thị | Negative security | P1 | Planned/partial | Fixme: chưa có direct FE detail route/API |
+| E2E-023 | Doctor không được xem/sửa question ngoài phạm vi | Cần direct question detail route/API | Question ngoài phạm vi | Thử truy cập ngoài quyền | Bị chặn 403 hoặc không hiển thị | Negative security | P1 | Automated but fixme | Fixme: frontend hiện chưa có direct question detail route/API cho negative test ngoài phạm vi |
 
 Bảng 13: Test case UC04 - Patient gửi câu hỏi và Doctor phản hồi
 
@@ -1138,7 +1138,7 @@ Bảng 15: Test case UC06 - Administrator quản lý hệ thống và dashboard
 
 ### 2.10. Hiện thực kiểm thử tự động bằng Playwright
 
-Đề tài sử dụng Playwright làm công cụ E2E chính thay cho Cypress. Playwright phù hợp với mục tiêu cuối kỳ vì hỗ trợ đa trình duyệt, auto-wait, trace, screenshot/video khi lỗi, Page Object pattern và HTML report. Test suite hiện không mock toàn bộ API như cách tiếp cận fixture/intercept cũ; các luồng nghiệp vụ được định hướng chạy với frontend thật, backend thật và dữ liệu seed thật.
+Đề tài sử dụng Playwright làm công cụ E2E chính thay cho Cypress. Playwright hỗ trợ auto-wait, trace, screenshot/video khi lỗi, Page Object pattern và HTML report. Test suite không mock toàn bộ API như cách fixture/intercept cũ; các luồng chính chạy với frontend thật, backend thật và dữ liệu seed thật.
 
 Cấu trúc thư mục E2E hiện tại gồm:
 
@@ -1191,7 +1191,7 @@ Hình 37: Báo cáo HTML của Playwright
 
 ### 2.11. Kết quả kiểm thử và ghi nhận lỗi
 
-Kết quả chạy thật gần nhất được ghi nhận từ tài liệu `OnlineHealthConsultation-Web/docs/playwright-e2e-test-summary.md` và `OnlineHealthConsultation-Web/docs/fe-be-integration-recheck-summary.md`.
+Kết quả dưới đây là kết quả chạy thật gần nhất, ghi nhận từ tài liệu `OnlineHealthConsultation-Web/docs/playwright-e2e-test-summary.md` và `OnlineHealthConsultation-Web/docs/fe-be-integration-recheck-summary.md`.
 
 | Hạng mục | Lệnh đã chạy | Kết quả thật | Ghi chú |
 |---|---|---|---|
@@ -1199,40 +1199,42 @@ Kết quả chạy thật gần nhất được ghi nhận từ tài liệu `Onl
 | Backend Jest | `npm test` | Pass theo cấu hình hiện tại | Jest chạy với `--passWithNoTests`, báo `No tests found`; chưa có unit test backend thực sự. |
 | Frontend build | `npm run build` | Pass | Có warning không chặn về browserslist cũ và chunk size lớn. |
 | Frontend lint | `npm run lint` | Pass | Không có lỗi lint tại lần chạy đã ghi nhận. |
-| Playwright E2E | `npm run test:e2e` | Pass; 37 discovered, 36 passed, 1 skipped/fixme, 0 failed | Skipped/fixme còn lại là E2E-023 do frontend MVP chưa có direct question detail route/API cho negative test. |
+| Playwright E2E | `npm run test:e2e` | Pass; 37 discovered, 36 passed, 1 skipped/fixme, 0 failed | Fixme còn lại là E2E-023 do frontend hiện chưa có direct question detail route/API cho negative test ngoài phạm vi. |
 
 Bảng 16: Tổng hợp kết quả Playwright E2E
 
-Các lỗi/rủi ro QA đã được ghi nhận trong quá trình recheck FE-BE gồm: lệch `data-testid` admin dashboard, UI admin user cho phép tạo role ADMIN trong khi backend không hỗ trợ, payload edit user gửi role không được backend nhận, và helper moderation gửi action chưa khớp backend. Các lỗi này đã được sửa ở frontend. Trong vòng chạy E2E cuối, nhóm bổ sung seed nghiệp vụ, mở lại các test bị skip vì thiếu data, sửa test doctor confirm/complete để target đúng appointment seed và dùng disposable data cho cancel/specialty mutation. Các rủi ro còn lại gồm thiếu unified admin moderation list endpoint, thiếu doctor patient list endpoint, thiếu endpoint admin doctor-profile CRUD đầy đủ và thiếu direct question detail route/API cho E2E-023.
+Skipped/Fixme không được tính là Fail. Trong lần chạy cuối, chỉ còn một test negative nâng cao được đánh dấu fixme do frontend hiện chưa có route/API chi tiết cho câu hỏi ngoài phạm vi.
 
-Không có failure artifact trong lần chạy Playwright cuối vì không có test thất bại. Playwright HTML report nằm tại `OnlineHealthConsultation-Web/playwright-report/index.html`; các hình minh chứng terminal và HTML report vẫn cần chụp/chèn vào bản Word/PDF.
+Trong quá trình recheck FE-BE, nhóm đã sửa một số lỗi như lệch `data-testid` admin dashboard, UI admin user cho phép tạo role ADMIN không đúng backend, payload edit user gửi role không được backend nhận và helper moderation gửi action chưa khớp. Với E2E, nhóm bổ sung seed nghiệp vụ, mở lại các test bị skip vì thiếu data, chỉnh test doctor confirm/complete để target đúng appointment seed và dùng disposable data cho cancel/specialty mutation. Các rủi ro còn lại gồm thiếu unified admin moderation list endpoint, thiếu doctor patient list endpoint, thiếu endpoint admin doctor-profile CRUD đầy đủ và thiếu direct question detail route/API cho E2E-023.
+
+Không có failure artifact trong lần chạy Playwright cuối vì không có test thất bại. Playwright HTML report nằm tại `OnlineHealthConsultation-Web/playwright-report/index.html`. Các hình terminal và HTML report vẫn cần chụp/chèn vào bản Word/PDF.
 
 # CHƯƠNG IV. KẾT LUẬN
 
 ## 1. Nhận xét về kết quả đạt được
 
-Đề tài đã hoàn thành các hoạt động chính của một quy trình đảm bảo chất lượng phần mềm ở phạm vi đồ án: phân tích yêu cầu/SRS, xác định actor và use case, thiết kế activity diagram, kiến trúc, API/form và cơ sở dữ liệu, sau đó triển khai backend/frontend MVP và kiểm thử tích hợp. Backend được tổ chức theo module NestJS, dùng Prisma/PostgreSQL, JWT, RBAC và ownership để bảo vệ dữ liệu theo vai trò. Frontend đã được cập nhật để gọi API thật cho các luồng public, auth, patient, doctor, admin và reports.
+Đề tài đã hoàn thành các phần chính trong phạm vi đồ án: phân tích yêu cầu/SRS, xác định actor và use case, thiết kế activity diagram, kiến trúc, API/form và cơ sở dữ liệu, sau đó triển khai backend/frontend cho các luồng trọng tâm. Backend được tổ chức theo module NestJS, dùng Prisma/PostgreSQL, JWT, RBAC và ownership để bảo vệ dữ liệu theo vai trò. Frontend đã tích hợp API thật cho các luồng public, auth, patient, doctor, admin và reports.
 
-Ở góc độ kiểm thử, nhóm đã chuyển hoàn toàn định hướng E2E từ Cypress sang Playwright, xây dựng cấu trúc spec/page object/test data rõ ràng và bổ sung selector ổn định cho các màn hình quan trọng. Các test case UC01-UC06 đã được đặc tả và chạy với seed dữ liệu thật; lần chạy cuối ghi nhận 36 pass, 1 skipped/fixme và 0 failed.
+Nhóm đã chuyển E2E từ Cypress sang Playwright, bổ sung Page Object, test data và selector ổn định cho các màn hình chính. Các test case UC01-UC06 đã chạy với seed dữ liệu thật; lần chạy cuối ghi nhận 36 pass, 1 skipped/fixme và 0 failed.
 
 ### 1.1. Điểm mạnh
 
 - Phân chia actor rõ ràng, gồm Guest, Patient, Doctor và Administrator.
-- Backend có cấu trúc module tương đối đầy đủ cho MVP: appointment, question, consultation, prescription, rating, admin và reports.
+- Backend có cấu trúc module tương đối đầy đủ cho phạm vi cuối kỳ: appointment, question, consultation, prescription, rating, admin và reports.
 - Cơ chế JWT/RBAC/ownership giúp giảm rủi ro patient/doctor xem nhầm dữ liệu ngoài phạm vi.
-- Frontend có route và layout theo role, phù hợp demo cuối kỳ và chụp hình báo cáo.
+- Frontend có route và layout theo role, đủ cho demo cuối kỳ và chụp hình báo cáo.
 - API contract FE-BE đã được rà soát và cập nhật cho các endpoint quan trọng.
 - Playwright E2E được tổ chức theo Page Object, có seed dữ liệu nghiệp vụ riêng và đã chạy qua các nhóm UC01-UC06.
-- Tài liệu traceability giữa use case, màn hình, API và test case đã được tạo ở nhiều file checklist/summary.
+- Tài liệu liên kết giữa use case, màn hình, API và test case đã được tạo ở các file checklist/summary.
 
 ### 1.2. Điểm hạn chế
 
-- Email verification và gửi email thật qua SMTP/SendGrid chưa được tích hợp; MVP chỉ xử lý ở mức mock/log phù hợp demo.
+- Email verification và gửi email thật qua SMTP/SendGrid chưa được tích hợp; phạm vi hiện tại chỉ xử lý ở mức mock/log cho demo.
 - SMS thật chưa được tích hợp do cần provider, chi phí và dữ liệu số điện thoại thật.
-- Video call thật bằng WebRTC/Jitsi/Agora chưa có; hệ thống hiện ưu tiên chat fallback và video mock cho phiên tư vấn.
+- Video call thật bằng WebRTC/Jitsi/Agora chưa có; phạm vi hiện tại dùng chat fallback và video mock cho phiên tư vấn.
 - File upload thật chưa triển khai, vì cần xử lý storage, quyền truy cập file và kiểm soát an toàn nội dung.
 - Một số màn hình admin nâng cao còn phụ thuộc endpoint backend chưa có, ví dụ unified moderation list, doctor patient list và báo cáo nâng cao.
-- Playwright còn 1 test skipped/fixme cho negative case doctor truy cập trực tiếp question ngoài phạm vi vì frontend MVP chưa có direct question detail route/API.
+- Playwright còn 1 test skipped/fixme cho negative case doctor truy cập trực tiếp question ngoài phạm vi vì frontend chưa có direct question detail route/API.
 - Backend Jest hiện pass theo `--passWithNoTests`, chưa có bộ unit/integration test backend thực sự.
 - Kiểm thử performance, security chuyên sâu, rate limiting và audit log UI nâng cao chưa nằm trong phạm vi triển khai cuối kỳ.
 
@@ -1251,7 +1253,7 @@ Trong các giai đoạn tiếp theo, hệ thống có thể được mở rộng
 - Bổ sung pagination/filter thống nhất cho toàn bộ các màn hình danh sách có dữ liệu lớn.
 - Bổ sung workflow nâng cao như NO_SHOW appointment, doctor cancel appointment, patient close question và password change.
 
-Nhìn chung, hệ thống hiện đạt mức MVP phù hợp cho mục tiêu demo cuối kỳ, minh họa kiến trúc full-stack, tích hợp API thật và quy trình QA bằng test case/Playwright. Tuy nhiên, hệ thống chưa nên được xem là production-ready cho môi trường y tế thật nếu chưa hoàn thiện các phần bảo mật nâng cao, provider thật, CI/CD E2E ổn định và kiểm thử phi chức năng chuyên sâu.
+Nhìn chung, hệ thống đã đáp ứng phạm vi đồ án cuối kỳ: có backend, frontend, seed dữ liệu và kiểm thử E2E bằng Playwright. Hệ thống chưa được xem là sẵn sàng cho môi trường y tế thật nếu chưa hoàn thiện bảo mật nâng cao, provider thật, CI/CD E2E ổn định và kiểm thử phi chức năng chuyên sâu.
 
 # TÀI LIỆU THAM KHẢO
 

@@ -608,6 +608,15 @@ async function main() {
       notes: 'Ưu tiên tư vấn thói quen ngủ, quản lý thời gian học và dấu hiệu cần hỗ trợ thêm.',
     },
     {
+      id: '019ee031-6b61-75a1-8d75-4dbd72ad5d83',
+      patientKey: 'patient-minh',
+      doctorKey: 'doctor-an',
+      scheduledAt: addDays(2, 8, 30),
+      status: AppointmentStatus.PENDING_CONFIRMATION,
+      reason: 'Đau âm ỉ vùng thượng vị vào buổi sáng, muốn được tư vấn trước khi đi khám trực tiếp.',
+      notes: 'Bệnh nhân có tiền sử viêm dạ dày nhẹ, chưa ghi nhận dấu hiệu báo động.',
+    },
+    {
       patientKey: 'patient-lan',
       doctorKey: 'doctor-an',
       scheduledAt: addDays(-2, 11, 0),
@@ -780,6 +789,16 @@ async function main() {
         score: 5,
         comment:
           'Tư vấn nhẹ nhàng, dễ hiểu. Các hướng dẫn về sắt, canxi và chế độ ăn rất thực tế.',
+        status: RatingStatus.VISIBLE,
+      },
+      {
+        id: uuidv7(),
+        patientId: patientByKey.get('patient-lan')!.profile.id,
+        doctorId: doctorByKey.get('doctor-an')!.profile.id,
+        appointmentId: '019ee02d-586e-707b-87c4-4c199322765a',
+        score: 5,
+        comment:
+          'Bác sĩ An tư vấn dễ hiểu, hỏi kỹ triệu chứng đau thượng vị và đưa hướng dẫn ăn uống rất thực tế.',
         status: RatingStatus.VISIBLE,
       },
     ],

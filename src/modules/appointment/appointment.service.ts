@@ -227,6 +227,17 @@ export class AppointmentService {
                 lastName: true,
               },
             },
+            specialties: {
+              include: {
+                specialty: {
+                  select: {
+                    id: true,
+                    nameEn: true,
+                    nameVi: true,
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -300,6 +311,21 @@ export class AppointmentService {
                 id: true,
                 firstName: true,
                 lastName: true,
+              },
+            },
+          },
+        },
+        doctor: {
+          include: {
+            specialties: {
+              include: {
+                specialty: {
+                  select: {
+                    id: true,
+                    nameEn: true,
+                    nameVi: true,
+                  },
+                },
               },
             },
           },
@@ -426,6 +452,117 @@ export class AppointmentService {
           action: 'APPOINTMENT_COMPLETED_BY_DOCTOR',
           resource: 'APPOINTMENT',
           resourceId: appointmentId,
+        },
+      });
+
+      return updated;
+    });
+  }
+
+  async rescheduleAppointment(userId: string, appointmentId: string, scheduledAt: string) {
+    const doctor = await this.prisma.doctorProfile.findUnique({ where: { userId } });
+    if (!doctor) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+
+    const appointment = await this.prisma.appointment.findUnique({ where: { id: appointmentId } });
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (appointment.doctorId !== doctor.id) {
+      throw new ForbiddenException('Cannot reschedule appointment of another doctor');
+    }
+
+    if (
+      appointment.status !== AppointmentStatus.PENDING_CONFIRMATION &&
+      appointment.status !== AppointmentStatus.CONFIRMED
+    ) {
+      throw new BadRequestException('Appointment cannot be rescheduled in current status');
+    }
+
+    const start = new Date(scheduledAt);
+    if (Number.isNaN(start.getTime()) || start <= new Date()) {
+      throw new BadRequestException('New appointment time must be in the future');
+    }
+
+    const durationMinutes = appointment.durationMinutes;
+    const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+    const windowStart = new Date(start.getTime() - 24 * 60 * 60 * 1000);
+    const windowEnd = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+
+    const [doctorConflicts, patientConflicts] = await this.prisma.$transaction([
+      this.prisma.appointment.findMany({
+        where: {
+          id: { not: appointment.id },
+          doctorId: doctor.id,
+          status: { in: [AppointmentStatus.PENDING_CONFIRMATION, AppointmentStatus.CONFIRMED] },
+          scheduledAt: { gte: windowStart, lte: windowEnd },
+        },
+        select: { scheduledAt: true, durationMinutes: true },
+      }),
+      this.prisma.appointment.findMany({
+        where: {
+          id: { not: appointment.id },
+          patientId: appointment.patientId,
+          status: { in: [AppointmentStatus.PENDING_CONFIRMATION, AppointmentStatus.CONFIRMED] },
+          scheduledAt: { gte: windowStart, lte: windowEnd },
+        },
+        select: { scheduledAt: true, durationMinutes: true },
+      }),
+    ]);
+
+    const hasOverlap = (items: { scheduledAt: Date; durationMinutes: number }[]) =>
+      items.some((item) => {
+        const existingStart = item.scheduledAt;
+        const existingEnd = new Date(
+          existingStart.getTime() + item.durationMinutes * 60 * 1000,
+        );
+        return start < existingEnd && end > existingStart;
+      });
+
+    if (hasOverlap(doctorConflicts)) {
+      throw new BadRequestException('Doctor already has an appointment at this time');
+    }
+
+    if (hasOverlap(patientConflicts)) {
+      throw new BadRequestException('Patient already has an appointment at this time');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const updated = await tx.appointment.update({
+        where: { id: appointmentId },
+        data: { scheduledAt: start },
+        include: this.getAppointmentDetailInclude(),
+      });
+
+      await tx.auditLog.create({
+        data: {
+          id: uuidv7(),
+          actorUserId: userId,
+          action: 'APPOINTMENT_RESCHEDULED_BY_DOCTOR',
+          resource: 'APPOINTMENT',
+          resourceId: appointmentId,
+          metadata: {
+            previousScheduledAt: appointment.scheduledAt.toISOString(),
+            nextScheduledAt: start.toISOString(),
+          },
+        },
+      });
+
+      await tx.outboxEvent.create({
+        data: {
+          id: uuidv7(),
+          aggregateType: 'APPOINTMENT',
+          aggregateId: appointment.id,
+          eventType: 'APPOINTMENT_RESCHEDULED',
+          payload: {
+            appointmentId: appointment.id,
+            patientId: appointment.patientId,
+            doctorId: appointment.doctorId,
+            previousScheduledAt: appointment.scheduledAt.toISOString(),
+            scheduledAt: start.toISOString(),
+          },
         },
       });
 

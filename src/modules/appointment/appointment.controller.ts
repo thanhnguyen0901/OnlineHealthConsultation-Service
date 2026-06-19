@@ -10,6 +10,7 @@ import { AppointmentService } from './appointment.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { AdminUpdateAppointmentStatusDto } from './dto/admin-update-appointment-status.dto';
 import { ListAppointmentQueryDto } from './dto/list-appointment-query.dto';
+import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
 
 @ApiTags('Appointments')
 @ApiBearerAuth()
@@ -68,6 +69,17 @@ export class AppointmentController {
   @ApiOperation({ summary: 'Doctor completes an appointment' })
   completeAppointment(@CurrentUser() user: { sub: string }, @Param('id') appointmentId: string) {
     return this.appointmentService.completeAppointment(user.sub, appointmentId);
+  }
+
+  @Roles(Role.DOCTOR)
+  @Patch(':id/reschedule')
+  @ApiOperation({ summary: 'Doctor reschedules a pending or confirmed appointment' })
+  rescheduleAppointment(
+    @CurrentUser() user: { sub: string },
+    @Param('id') appointmentId: string,
+    @Body() dto: RescheduleAppointmentDto,
+  ) {
+    return this.appointmentService.rescheduleAppointment(user.sub, appointmentId, dto.scheduledAt);
   }
 }
 

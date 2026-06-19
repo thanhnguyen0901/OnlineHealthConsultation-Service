@@ -53,6 +53,17 @@ export class QuestionService {
       where: { patientId: patientProfile.id },
       orderBy: { createdAt: 'desc' },
       include: {
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
         answers: {
           orderBy: { createdAt: 'asc' },
         },
@@ -78,6 +89,17 @@ export class QuestionService {
       },
       orderBy: { createdAt: 'desc' },
       include: {
+        patient: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+              },
+            },
+          },
+        },
         answers: true,
       },
     });

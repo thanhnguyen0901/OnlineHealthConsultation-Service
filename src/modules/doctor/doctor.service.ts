@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
-import { ApprovalStatus, Prisma } from '@prisma/client';
+import { ApprovalStatus, Prisma, RatingStatus } from '@prisma/client';
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '../../prisma/prisma.service';
@@ -8,6 +8,7 @@ import { UpdateDoctorScheduleDto } from './dto/update-doctor-schedule.dto';
 import { UpdateDoctorSpecialtiesDto } from './dto/update-doctor-specialties.dto';
 import { UpdateDoctorApprovalDto } from './dto/update-doctor-approval.dto';
 import { AdminListDoctorsQueryDto } from './dto/admin-list-doctors-query.dto';
+import { ListDoctorPatientsQueryDto } from './dto/list-doctor-patients-query.dto';
 
 @Injectable()
 export class DoctorService {
@@ -39,7 +40,37 @@ export class DoctorService {
       throw new NotFoundException('Doctor profile not found');
     }
 
-    return profile;
+    const [questionCount, appointmentCount, ratingAggregate] = await this.prisma.$transaction([
+      this.prisma.question.count({ where: { doctorId: profile.id } }),
+      this.prisma.appointment.count({ where: { doctorId: profile.id } }),
+      this.prisma.rating.aggregate({
+        where: {
+          doctorId: profile.id,
+          status: RatingStatus.VISIBLE,
+        },
+        _avg: {
+          score: true,
+        },
+        _count: {
+          _all: true,
+        },
+      }),
+    ]);
+
+    const ratingAverage = ratingAggregate._avg.score ?? 0;
+    const ratingCount = ratingAggregate._count._all;
+
+    return {
+      ...profile,
+      ratingAverage,
+      ratingCount,
+      stats: {
+        questionCount,
+        appointmentCount,
+        ratingAverage,
+        ratingCount,
+      },
+    };
   }
 
   async updateMyProfile(userId: string, dto: UpdateDoctorProfileDto) {
@@ -128,6 +159,84 @@ export class DoctorService {
     });
 
     return this.getMyProfile(userId);
+  }
+
+  async listMyPatients(userId: string, query: ListDoctorPatientsQueryDto) {
+    const doctor = await this.prisma.doctorProfile.findUnique({ where: { userId } });
+    if (!doctor) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+
+    const page = query.page ?? 1;
+    const limit = Math.min(query.limit ?? 10, 100);
+    const skip = (page - 1) * limit;
+    const search = query.search?.trim();
+
+    const where: Prisma.PatientProfileWhereInput = {
+      OR: [
+        {
+          appointments: {
+            some: {
+              doctorId: doctor.id,
+            },
+          },
+        },
+        {
+          questions: {
+            some: {
+              doctorId: doctor.id,
+            },
+          },
+        },
+      ],
+      ...(search
+        ? {
+            AND: [
+              {
+                OR: [
+                  { phone: { contains: search, mode: 'insensitive' } },
+                  { user: { email: { contains: search, mode: 'insensitive' } } },
+                  { user: { firstName: { contains: search, mode: 'insensitive' } } },
+                  { user: { lastName: { contains: search, mode: 'insensitive' } } },
+                ],
+              },
+            ],
+          }
+        : {}),
+    };
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.patientProfile.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: {
+          updatedAt: 'desc',
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+              isActive: true,
+            },
+          },
+        },
+      }),
+      this.prisma.patientProfile.count({ where }),
+    ]);
+
+    return {
+      data: items,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(Math.ceil(total / limit), 1),
+      },
+    };
   }
 
   async listDoctorsForAdmin(query: AdminListDoctorsQueryDto) {

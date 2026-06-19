@@ -591,6 +591,15 @@ async function main() {
       notes: 'Bệnh nhân cần theo dõi cân nặng và lịch khám thai định kỳ.',
     },
     {
+      id: '019ee02d-586e-707b-87c4-4c199322765a',
+      patientKey: 'patient-lan',
+      doctorKey: 'doctor-an',
+      scheduledAt: addDays(-3, 10, 0),
+      status: AppointmentStatus.COMPLETED,
+      reason: 'Đau thượng vị sau ăn tối, ợ chua và đầy bụng kéo dài khoảng 2 tuần.',
+      notes: 'Buổi tư vấn online đã hoàn tất, có tóm tắt hướng dẫn ăn uống và đơn thuốc hỗ trợ.',
+    },
+    {
       patientKey: 'patient-duc',
       doctorKey: 'doctor-khanh',
       scheduledAt: addDays(4, 19, 0),
@@ -631,6 +640,7 @@ async function main() {
       notes: 'Bệnh nhân không tham gia phiên tư vấn theo lịch.',
     },
   ] satisfies Array<{
+    id?: string;
     patientKey: string;
     doctorKey: string;
     scheduledAt: Date;
@@ -646,7 +656,7 @@ async function main() {
     appointments.push(
       await prisma.appointment.create({
         data: {
-          id: uuidv7(),
+          id: seed.id ?? uuidv7(),
           patientId: patient.profile.id,
           doctorId: doctor.profile.id,
           scheduledAt: seed.scheduledAt,
@@ -717,6 +727,35 @@ async function main() {
         frequency: 'Mỗi tối sau ăn',
         duration: '30 ngày',
         notes: 'Uống cách viên sắt ít nhất 2 giờ.',
+      },
+    ],
+  });
+
+  await createConsultation({
+    appointmentId: completedAppointments[2].id,
+    patientUserId: patientByKey.get('patient-lan')!.user.id,
+    doctorUserId: doctorByKey.get('doctor-an')!.user.id,
+    status: ConsultationStatus.COMPLETED,
+    startedAt: addDays(-3, 10, 0),
+    endedAt: addDays(-3, 10, 40),
+    summary:
+      'Bệnh nhân đau thượng vị mức độ nhẹ đến trung bình, thường xuất hiện sau bữa tối và kèm ợ chua. Chưa ghi nhận dấu hiệu báo động như nôn ra máu, đi ngoài phân đen hoặc sụt cân nhanh. Hướng dẫn ăn bữa nhỏ, tránh đồ cay, cà phê, rượu bia và không nằm ngay sau ăn.',
+    prescriptionNotes:
+      'Theo dõi triệu chứng trong 2 tuần. Nếu đau tăng, nôn ói nhiều, đi ngoài phân đen hoặc sụt cân không rõ nguyên nhân, cần khám chuyên khoa tiêu hóa trực tiếp.',
+    prescriptionItems: [
+      {
+        medicationName: 'Omeprazole 20mg',
+        dosage: '1 viên',
+        frequency: 'Mỗi sáng trước ăn 30 phút',
+        duration: '14 ngày',
+        notes: 'Uống nguyên viên, không tự ý kéo dài quá thời gian tư vấn.',
+      },
+      {
+        medicationName: 'Gaviscon gói',
+        dosage: '1 gói',
+        frequency: 'Sau ăn tối hoặc khi ợ chua',
+        duration: '7 ngày',
+        notes: 'Dùng cách các thuốc khác ít nhất 2 giờ.',
       },
     ],
   });

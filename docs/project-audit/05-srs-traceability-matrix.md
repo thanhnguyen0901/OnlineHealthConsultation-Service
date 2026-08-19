@@ -115,7 +115,7 @@ Status hợp lệ: `COMPLETED`, `PARTIAL`, `NOT_IMPLEMENTED`, `IMPLEMENTED_DIFFE
 | Finding | Evidence | Severity | Recommendation |
 | --- | --- | --- | --- |
 | Frontend import cycles quanh API/store/sagas. | `GRAPH_REPORT.md`: `apiClient -> store -> rootSaga -> saga -> api -> apiClient`; tương tự `refreshManager`. | Medium | Decouple `apiClient`/`refreshManager` khỏi direct store imports; inject token/logout handlers. |
-| Refresh contract mismatch. | FE `refreshManager` gửi body rỗng với cookies; BE expect `RefreshTokenDto`. | High | Align token transport. |
+| Refresh cookie deployment behavior cần verify. | FE `refreshManager` gửi body rỗng với `withCredentials`; BE đọc refresh token từ HttpOnly cookie, rotate `UserSession`, set cookie mới và clear cookie khi logout. | Medium | Verify HTTPS, `Secure`, `SameSite`, CORS credentials và cookie path/domain trên môi trường deploy. |
 | Thiếu admin moderation list. | `admin.api.ts` có `TODO_BACKEND_API`, `getModerationItems` trả empty list. | High | Thêm list endpoint/UI data source cho questions/ratings cần review. |
 | Reporting API gaps. | `reports.api.ts` TODOs cho question chart, top doctors, specialty distribution. | Medium | Thêm endpoints hoặc bỏ UI placeholders. |
 | Admin doctor creation gap. | `admin.api.ts` TODO: chưa có dedicated admin endpoint tạo matching doctor profile với specialty/bio. | Medium | Thêm admin doctor profile create/update contract hoặc chỉnh UI. |

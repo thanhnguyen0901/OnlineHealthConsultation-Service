@@ -11,6 +11,22 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { AdminUpdateAppointmentStatusDto } from './dto/admin-update-appointment-status.dto';
 import { ListAppointmentQueryDto } from './dto/list-appointment-query.dto';
 import { RescheduleAppointmentDto } from './dto/reschedule-appointment.dto';
+import { DoctorAvailabilityQueryDto } from './dto/doctor-availability-query.dto';
+
+@ApiTags('Public')
+@Controller('public/doctors')
+export class PublicDoctorAvailabilityController {
+  constructor(private readonly appointmentService: AppointmentService) {}
+
+  @Get(':doctorId/availability')
+  @ApiOperation({ summary: 'Get available appointment slots for a public doctor on a date' })
+  getDoctorAvailability(
+    @Param('doctorId') doctorId: string,
+    @Query() query: DoctorAvailabilityQueryDto,
+  ) {
+    return this.appointmentService.getDoctorAvailability(doctorId, query);
+  }
+}
 
 @ApiTags('Appointments')
 @ApiBearerAuth()

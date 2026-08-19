@@ -11,7 +11,6 @@ import { uuidv7 } from 'uuidv7';
 
 import { UsersService } from './users.service';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -59,10 +58,14 @@ export class AuthService {
     return tokens;
   }
 
-  async refresh(dto: RefreshTokenDto, userAgent?: string, ipAddress?: string) {
+  async refresh(refreshToken: string | undefined, userAgent?: string, ipAddress?: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token is missing');
+    }
+
     let payload: JwtPayload;
     try {
-      payload = await this.jwtService.verifyAsync<JwtPayload>(dto.refreshToken, {
+      payload = await this.jwtService.verifyAsync<JwtPayload>(refreshToken, {
         secret: this.refreshSecret,
       });
     } catch {
@@ -73,7 +76,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token payload');
     }
 
-    const refreshTokenHash = this.hashToken(dto.refreshToken);
+    const refreshTokenHash = this.hashToken(refreshToken);
     const session = await this.prisma.userSession.findFirst({
       where: {
         id: payload.sid,
@@ -223,6 +226,7 @@ export class AuthService {
     return {
       accessToken,
       refreshToken,
+      refreshTokenExpiresAt: expiresAt,
       user: {
         id: user.id,
         email: user.email,

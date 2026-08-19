@@ -4,6 +4,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { randomUUID } from 'crypto';
 import { Request, Response, NextFunction } from 'express';
+import cookieParser from 'cookie-parser';
 import { validateEnv } from './common/config/validate-env';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
@@ -11,6 +12,8 @@ async function bootstrap() {
   const env = validateEnv(process.env);
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
 
   app.setGlobalPrefix('api');
   app.enableCors({

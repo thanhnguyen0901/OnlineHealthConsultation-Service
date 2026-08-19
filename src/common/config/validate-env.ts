@@ -9,6 +9,13 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRE: z.string().min(2).default('15m'),
   JWT_REFRESH_EXPIRE: z.string().min(2).default('7d'),
   CORS_ORIGIN: z.string().optional(),
+  AUTH_REFRESH_COOKIE_NAME: z.string().min(1).default('ohc_refresh_token'),
+  AUTH_REFRESH_COOKIE_PATH: z.string().min(1).default('/api/auth'),
+  AUTH_REFRESH_COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
+  AUTH_REFRESH_COOKIE_SECURE: z
+    .union([z.literal('true'), z.literal('false')])
+    .optional()
+    .transform((value) => (value === undefined ? undefined : value === 'true')),
   BCRYPT_ROUNDS: z.coerce.number().int().min(8).max(15).default(10),
   CONSULTATION_EARLY_JOIN_MINUTES: z.coerce.number().int().min(0).max(120).default(15),
   CONSULTATION_LATE_JOIN_MINUTES: z.coerce.number().int().min(0).max(240).default(30),

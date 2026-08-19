@@ -1,6 +1,6 @@
 # Software Requirements Specification (SRS)
 
-## Nền tảng Tư vấn Sức khỏe Trực tuyến – MVP
+## Thiết kế và xây dựng hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến
 
 ---
 
@@ -8,7 +8,7 @@
 
 ### 1.1 Mục đích
 
-Tài liệu này mô tả các yêu cầu phần mềm cho phiên bản MVP của **Nền tảng Tư vấn Sức khỏe Trực tuyến (Online Health Consultation Platform)**, là một hệ thống web cho phép bệnh nhân đặt lịch tư vấn sức khỏe trực tuyến với bác sĩ, gửi câu hỏi sức khỏe, tham gia buổi tư vấn từ xa, nhận phản hồi chuyên môn và theo dõi lịch sử tư vấn trong một môi trường an toàn và bảo mật.
+Tài liệu này mô tả các yêu cầu phần mềm cho **Hệ thống Hỗ trợ Tư vấn Sức khỏe và Quản lý Lịch hẹn Trực tuyến** thuộc đề tài **"Thiết kế và xây dựng hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến"**. Hệ thống là một ứng dụng web cho phép bệnh nhân đặt lịch tư vấn sức khỏe trực tuyến với bác sĩ, gửi câu hỏi sức khỏe, tham gia buổi tư vấn từ xa, nhận phản hồi chuyên môn và theo dõi lịch sử tư vấn trong một môi trường an toàn và bảo mật.
 
 ---
 
@@ -30,9 +30,11 @@ Hệ thống cung cấp các chức năng cốt lõi sau:
 
 ---
 
-### 1.3 Trong phạm vi MVP
+### 1.3 Phạm vi chức năng của hệ thống
 
-Các chức năng nằm trong phạm vi MVP bao gồm:
+Các chức năng thuộc phạm vi hệ thống được phân loại thành **Bắt buộc** và **Tùy chọn / mở rộng** như sau:
+
+**Bắt buộc:**
 
 * Xem trang chủ và các nội dung công khai mà không cần đăng nhập.
 * Xem danh sách chuyên khoa và danh sách bác sĩ công khai.
@@ -58,11 +60,20 @@ Các chức năng nằm trong phạm vi MVP bao gồm:
 * Gửi email hoặc thông báo nhắc lịch hẹn.
 * Giao diện responsive cho desktop, tablet và mobile.
 
+**Tùy chọn / mở rộng:**
+
+* Phiên tư vấn video nâng cao hoặc tích hợp dịch vụ video bên ngoài.
+* Nhắc lịch bằng SMS khi có dịch vụ gửi tin nhắn phù hợp.
+* Chatbot mô phỏng tư vấn sức khỏe cơ bản.
+* Giao diện đa ngôn ngữ.
+* Dark Mode.
+* Biểu đồ và bộ lọc phân tích nâng cao.
+
 ---
 
-### 1.4 Ngoài phạm vi MVP
+### 1.4 Ngoài phạm vi hệ thống
 
-Các nội dung sau không thuộc phạm vi MVP:
+Các nội dung sau được xác định là **Ngoài phạm vi của hệ thống hiện tại**:
 
 * Chẩn đoán y khoa bằng AI ở mức production.
 * Tích hợp với bệnh viện, phòng khám hoặc hệ thống EHR bên ngoài.
@@ -72,10 +83,8 @@ Các nội dung sau không thuộc phạm vi MVP:
 * Cuộc gọi video chất lượng cao có ghi hình, lưu trữ và phát lại.
 * Ứng dụng di động native.
 * Telemedicine workflow nâng cao như e-consent, referral management, triage engine.
-* Tích hợp SMS ở mức production nếu hạ tầng chưa sẵn sàng.
-* Dark Mode và đa ngôn ngữ trong MVP, trừ khi nhóm quyết định đưa vào như một tính năng mở rộng.
 
-> **Ghi chú:** Nếu nhóm muốn triển khai **Dark Mode**, **đa ngôn ngữ** hoặc **chatbot mô phỏng**, các mục này nên được xếp vào phần **tính năng chức năng mở rộng (optional functional features)** hoặc **future enhancements**, không nên xếp vào **non-functional requirements**.
+> **Ghi chú:** Các chức năng như **Dark Mode**, **đa ngôn ngữ**, **chatbot mô phỏng**, nhắc lịch bằng SMS và tư vấn video nâng cao được phân loại là **Tùy chọn / mở rộng**. Chúng là yêu cầu chức năng, không phải yêu cầu phi chức năng.
 
 ---
 
@@ -141,10 +150,10 @@ Dịch vụ gửi email và/hoặc SMS để:
 
 #### Video Communication Service
 
-Dịch vụ hỗ trợ phiên tư vấn video, có thể là:
+Dịch vụ hỗ trợ phiên tư vấn video, bao gồm một trong các cơ chế phù hợp với phạm vi hệ thống:
 
 * WebRTC tích hợp trực tiếp,
-* hoặc iframe/video mock cho MVP.
+* iframe hoặc video mock.
 
 #### File Storage Service
 
@@ -253,7 +262,7 @@ Dịch vụ lưu trữ tệp đính kèm như:
 3. System hiển thị danh sách bác sĩ phù hợp cùng thông tin cơ bản và lịch trống.
 4. Patient chọn một bác sĩ để xem chi tiết.
 5. Patient chọn ngày và khung giờ tư vấn còn khả dụng.
-6. Patient nhập mô tả vấn đề sức khỏe và, nếu được hỗ trợ, tải lên tệp liên quan.
+6. Patient nhập mô tả vấn đề sức khỏe và tải lên tệp liên quan khi chức năng tải tệp được áp dụng.
 7. System kiểm tra tính hợp lệ của dữ liệu và tính khả dụng của khung giờ.
 8. Nếu khung giờ hợp lệ, system tạo bản ghi appointment với trạng thái ban đầu là `PENDING_CONFIRMATION` hoặc `CONFIRMED`, tùy quy tắc nghiệp vụ.
 9. System gửi thông báo xác nhận lịch hẹn cho patient.
@@ -310,7 +319,7 @@ Dịch vụ lưu trữ tệp đính kèm như:
 **Luồng thay thế:**
 
 * Nếu video không khởi tạo thành công, system cho phép fallback sang chat.
-* Nếu patient không tham gia, doctor có thể đánh dấu `NO_SHOW` nếu trạng thái này được hỗ trợ trong MVP.
+* Nếu patient không tham gia, doctor có thể đánh dấu `NO_SHOW` khi trạng thái này được áp dụng trong quy tắc nghiệp vụ.
 
 ---
 
@@ -382,7 +391,7 @@ Dịch vụ lưu trữ tệp đính kèm như:
 
 * Hệ thống phải cho phép khởi tạo phiên tư vấn cho một lịch hẹn hợp lệ.
 * Hệ thống phải hỗ trợ chat thời gian thực cho phiên tư vấn.
-* Hệ thống có thể hỗ trợ tư vấn video thông qua tích hợp WebRTC hoặc cơ chế video mô phỏng trong MVP.
+* **Yêu cầu tùy chọn / mở rộng:** Hệ thống hỗ trợ tư vấn video thông qua WebRTC, dịch vụ video bên ngoài hoặc cơ chế mô phỏng phù hợp với phạm vi hệ thống.
 * Hệ thống phải giới hạn quyền truy cập phiên tư vấn cho bệnh nhân tham gia, bác sĩ phụ trách và quản trị viên được ủy quyền nếu có.
 * Hệ thống phải lưu thông tin tóm tắt phiên tư vấn sau khi phiên kết thúc.
 * Hệ thống phải hỗ trợ fallback từ video sang chat nếu dịch vụ video không khả dụng.
@@ -408,8 +417,9 @@ Dịch vụ lưu trữ tệp đính kèm như:
 * Hệ thống phải gửi thông báo nhắc lịch trước thời gian hẹn.
 * Hệ thống phải thông báo cho bệnh nhân khi bác sĩ đã phản hồi câu hỏi đã gửi.
 * Hệ thống phải hỗ trợ thông báo qua email.
-* Hệ thống có thể hỗ trợ nhắc lịch bằng SMS nếu tích hợp được dịch vụ bên ngoài.
-* Hệ thống phải ghi nhận lịch sử gửi thông báo và trạng thái gửi khi có thể.
+* **Yêu cầu tùy chọn / mở rộng:** Hệ thống hỗ trợ nhắc lịch bằng SMS khi có dịch vụ gửi tin nhắn phù hợp.
+* Hệ thống phải ghi nhận lịch sử gửi thông báo.
+* Khi notification provider cung cấp trạng thái gửi, hệ thống phải lưu trạng thái gửi tương ứng.
 
 ### 5.12 Quản trị hệ thống
 
@@ -424,12 +434,12 @@ Dịch vụ lưu trữ tệp đính kèm như:
 
 * Hệ thống phải cung cấp các số liệu thống kê về hoạt động tư vấn theo thời gian.
 * Hệ thống phải hiển thị xu hướng tư vấn dưới dạng biểu đồ hoặc đồ thị.
-* Hệ thống phải cho phép quản trị viên lọc dữ liệu thống kê theo khoảng thời gian nếu được hỗ trợ.
-* Hệ thống có thể cung cấp số liệu theo bác sĩ, chuyên khoa hoặc trạng thái lịch hẹn nếu được đưa vào phạm vi MVP.
+* Hệ thống phải cho phép quản trị viên lọc dữ liệu thống kê theo khoảng thời gian.
+* **Yêu cầu tùy chọn / mở rộng:** Hệ thống cung cấp số liệu theo bác sĩ, chuyên khoa hoặc trạng thái lịch hẹn.
 
-### 5.14 Các tính năng chức năng mở rộng cho Extended MVP
+### 5.14 Các tính năng chức năng mở rộng
 
-Các mục sau là **functional features**, không phải **non-functional requirements**. Chỉ nên đưa vào nếu nhóm quyết định mở rộng phạm vi MVP:
+Các mục sau là yêu cầu chức năng **Tùy chọn / mở rộng**, không phải **non-functional requirements**. Các chức năng này không thuộc nhóm yêu cầu bắt buộc của hệ thống hiện tại:
 
 * Chatbot mô phỏng tư vấn sức khỏe cơ bản.
 * Giao diện đa ngôn ngữ.
@@ -464,14 +474,14 @@ Các mục sau là **functional features**, không phải **non-functional requi
 ### 6.3 Hiệu năng
 
 * Hệ thống nên trả về phản hồi API chuẩn trong thời gian chấp nhận được dưới tải thông thường.
-* Đối với các thao tác thông thường, không bao gồm upload file và media thời gian thực, mục tiêu thời gian phản hồi là dưới 3 giây cho 95% request trong môi trường MVP.
+* Đối với các thao tác thông thường, không bao gồm upload file và media thời gian thực, mục tiêu thời gian phản hồi là dưới 3 giây cho 95% request trong môi trường triển khai mục tiêu.
 * Hệ thống nên hỗ trợ mức sử dụng đồng thời phù hợp với quy mô triển khai ban đầu.
-* Dashboard thống kê nên tải trong thời gian chấp nhận được với khối lượng dữ liệu dự kiến của MVP.
+* Dashboard thống kê nên tải trong thời gian chấp nhận được với khối lượng dữ liệu dự kiến của hệ thống.
 
 ### 6.4 Khả năng mở rộng
 
 * Hệ thống phải được thiết kế để cho phép tách biệt mối quan tâm giữa các module quản lý người dùng, quản lý tư vấn, thông báo và báo cáo.
-* Hệ thống nên hỗ trợ khả năng scale ngang trong tương lai đối với các application service theo hướng stateless.
+* Hệ thống nên hỗ trợ khả năng scale ngang đối với các application service theo hướng stateless.
 * Kiến trúc hệ thống nên cho phép thay thế hoặc nâng cấp các dịch vụ bên ngoài như notification provider và video provider với tác động tối thiểu lên business logic lõi.
 
 ### 6.5 Tính sẵn sàng và độ tin cậy
@@ -501,7 +511,7 @@ Các mục sau là **functional features**, không phải **non-functional requi
 
 * Ứng dụng web phải hỗ trợ các trình duyệt hiện đại phổ biến trong môi trường mục tiêu.
 * Giao diện responsive phải thích ứng với các kích thước màn hình phổ biến mà không làm mất các chức năng chính.
-* Nếu sau này hỗ trợ đa ngôn ngữ, hệ thống nên hỗ trợ externalized text resources để dễ dàng localization.
+* Khi chức năng đa ngôn ngữ được áp dụng, hệ thống nên hỗ trợ externalized text resources để dễ dàng localization.
 
 ---
 
@@ -509,9 +519,9 @@ Các mục sau là **functional features**, không phải **non-functional requi
 
 ### 7.1 Ràng buộc nghiệp vụ
 
-* Nền tảng được xác định là một MVP, do đó ưu tiên các luồng tư vấn cốt lõi hơn các khả năng telemedicine nâng cao.
+* Phạm vi hệ thống ưu tiên các luồng tư vấn sức khỏe và quản lý lịch hẹn cốt lõi hơn các khả năng telemedicine nâng cao.
 * Tư vấn y tế được cung cấp qua nền tảng mang tính chất tham khảo và không thay thế cho cấp cứu hoặc khám trực tiếp khi cần.
-* Nền tảng vận hành với bốn vai trò chính trong MVP: **Guest User, Patient, Doctor và Administrator**.
+* Hệ thống vận hành với bốn vai trò chính: **Guest User, Patient, Doctor và Administrator**.
 
 ### 7.2 Ràng buộc kỹ thuật
 
@@ -520,14 +530,14 @@ Các mục sau là **functional features**, không phải **non-functional requi
 * Backend phải được phát triển bằng công nghệ dựa trên Node.js.
 * Ứng dụng phải sử dụng cơ sở dữ liệu quan hệ.
 * Nền tảng phải sử dụng xác thực và phân quyền theo vai trò.
-* MVP có thể sử dụng khả năng video tư vấn mô phỏng hoặc đơn giản thay vì hạ tầng telehealth cấp doanh nghiệp.
+* Chức năng tư vấn video có thể sử dụng WebRTC, dịch vụ video bên ngoài hoặc cơ chế mô phỏng phù hợp với phạm vi hệ thống.
 * Các tích hợp bên ngoài như SMS hoặc video nâng cao có thể phụ thuộc vào mức độ sẵn sàng của nhà cung cấp dịch vụ và ràng buộc triển khai của dự án.
 
 ### 7.3 Ràng buộc dự án
 
-* Phạm vi MVP phải được kiểm soát để đảm bảo bàn giao được các luồng nghiệp vụ cốt lõi từ đầu đến cuối.
+* Phạm vi hệ thống phải được kiểm soát để đảm bảo bàn giao được các luồng nghiệp vụ cốt lõi từ đầu đến cuối.
 * Các tính năng tùy chọn không được làm ảnh hưởng đến tính hoàn chỉnh và chất lượng của quy trình tư vấn chính.
-* Các tính năng mở rộng chỉ nên được thêm vào sau khi các luồng bắt buộc đã ổn định và có thể kiểm thử đầy đủ.
+* Các tính năng mở rộng phải được xem xét theo mức độ ưu tiên, khả năng kiểm thử và tác động đến các luồng bắt buộc.
 
 ---
 

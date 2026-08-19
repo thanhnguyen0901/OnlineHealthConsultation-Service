@@ -146,6 +146,46 @@ export class NotificationService {
     };
   }
 
+  async createPasswordResetNotification(input: {
+    userId: string;
+    email: string;
+    resetUrl: string;
+    tokenId: string;
+    expiresAt: Date;
+  }) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const provider =
+      process.env.PASSWORD_RESET_NOTIFICATION_PROVIDER ??
+      (isProduction ? 'EMAIL_PROVIDER_NOT_CONFIGURED' : 'DEV_NOTIFICATION');
+    const canStoreResetLink = !isProduction;
+    const content = canStoreResetLink
+      ? [
+          `Password reset requested for ${input.email}.`,
+          `Reset link: ${input.resetUrl}`,
+          `This link expires at ${input.expiresAt.toISOString()}.`,
+        ].join('\n')
+      : [
+          `Password reset requested for ${input.email}.`,
+          'A reset link was generated but not stored because production email delivery is not configured.',
+        ].join('\n');
+
+    return this.prisma.notificationLog.upsert({
+      where: { externalRef: `PASSWORD_RESET:${input.tokenId}` },
+      create: {
+        id: uuidv7(),
+        userId: input.userId,
+        type: NotificationType.EMAIL,
+        content,
+        externalRef: `PASSWORD_RESET:${input.tokenId}`,
+        status: canStoreResetLink ? NotificationStatus.SENT : NotificationStatus.FAILED,
+        provider,
+        errorCode: canStoreResetLink ? undefined : 'EMAIL_PROVIDER_NOT_CONFIGURED',
+        errorMsg: canStoreResetLink ? undefined : 'Configure password reset email delivery.',
+      },
+      update: {},
+    });
+  }
+
   private async dispatchOutboxEvent(event: {
     id: string;
     aggregateType: string;

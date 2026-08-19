@@ -17,6 +17,9 @@ const envSchema = z.object({
     .optional()
     .transform((value) => (value === undefined ? undefined : value === 'true')),
   BCRYPT_ROUNDS: z.coerce.number().int().min(8).max(15).default(10),
+  PASSWORD_RESET_TOKEN_TTL_MINUTES: z.coerce.number().int().min(5).max(120).default(15),
+  PASSWORD_RESET_FRONTEND_URL: z.string().url().default('http://localhost:5173/reset-password'),
+  PASSWORD_RESET_NOTIFICATION_PROVIDER: z.string().min(1).optional(),
   CONSULTATION_EARLY_JOIN_MINUTES: z.coerce.number().int().min(0).max(120).default(15),
   CONSULTATION_LATE_JOIN_MINUTES: z.coerce.number().int().min(0).max(240).default(30),
   VIDEO_PROVIDER_ENABLED: z

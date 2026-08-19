@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
+  Optional,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -15,6 +17,7 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { maskIp, sanitizeAuditMetadata } from '../../common/privacy/privacy.util';
+import { NotificationService } from '../notification/notification.service';
 
 type JwtPayload = {
   sub: string;
@@ -26,6 +29,7 @@ type JwtPayload = {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private readonly refreshSecret = process.env.JWT_REFRESH_SECRET ?? 'refresh-secret-dev';
   private readonly refreshExpire = process.env.JWT_REFRESH_EXPIRE ?? '7d';
 
@@ -33,6 +37,7 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
+    @Optional() private readonly notificationService?: NotificationService,
   ) {}
 
   async login(dto: LoginDto, userAgent?: string, ipAddress?: string) {
@@ -130,17 +135,35 @@ export class AuthService {
 
     const plainToken = randomBytes(32).toString('hex');
     const tokenHash = this.hashToken(plainToken);
+    const tokenId = uuidv7();
+    const expiresAt = new Date(Date.now() + this.passwordResetTokenTtlMinutes * 60 * 1000);
 
     await this.prisma.passwordResetToken.create({
       data: {
-        id: uuidv7(),
+        id: tokenId,
         userId: user.id,
         tokenHash,
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+        expiresAt,
       },
     });
 
-    await this.createAuditLog(user.id, 'PASSWORD_RESET_REQUESTED', 'AUTH', user.id);
+    await this.createAuditLog(user.id, 'PASSWORD_RESET_REQUESTED', 'AUTH', user.id, {
+      email: dto.email,
+    });
+
+    try {
+      await this.notificationService?.createPasswordResetNotification({
+        userId: user.id,
+        email: user.email,
+        resetUrl: this.buildPasswordResetUrl(plainToken),
+        tokenId,
+        expiresAt,
+      });
+    } catch (error: any) {
+      this.logger.warn(
+        `Password reset notification creation failed for token ${tokenId}: ${error?.message ?? 'Unknown error'}`,
+      );
+    }
 
     return {
       message: 'If the email exists, reset instructions have been generated',
@@ -239,6 +262,18 @@ export class AuthService {
 
   private hashToken(token: string) {
     return createHash('sha256').update(token).digest('hex');
+  }
+
+  private get passwordResetTokenTtlMinutes() {
+    const parsed = parseInt(process.env.PASSWORD_RESET_TOKEN_TTL_MINUTES ?? '15', 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 15;
+  }
+
+  private buildPasswordResetUrl(token: string) {
+    const baseUrl = process.env.PASSWORD_RESET_FRONTEND_URL ?? 'http://localhost:5173/reset-password';
+    const url = new URL(baseUrl);
+    url.searchParams.set('token', token);
+    return url.toString();
   }
 
   private async createAuditLog(

@@ -8,6 +8,7 @@ import { AdminUserController } from './admin-user.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { OwnershipGuard } from '../../common/guards/ownership.guard';
+import { NotificationModule } from '../notification/notification.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { OwnershipGuard } from '../../common/guards/ownership.guard';
       secret: process.env.JWT_SECRET || 'super-secret-key-for-dev',
       signOptions: { expiresIn: (process.env.JWT_ACCESS_EXPIRE || '15m') as any },
     }),
+    NotificationModule,
   ],
   controllers: [AuthController, AdminUserController],
   providers: [UsersService, AuthService, JwtStrategy, RolesGuard, OwnershipGuard],

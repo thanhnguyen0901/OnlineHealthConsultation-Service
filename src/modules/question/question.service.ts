@@ -50,7 +50,10 @@ export class QuestionService {
     }
 
     return this.prisma.question.findMany({
-      where: { patientId: patientProfile.id },
+      where: {
+        patientId: patientProfile.id,
+        status: { not: QuestionStatus.MODERATED },
+      },
       orderBy: { createdAt: 'desc' },
       include: {
         patient: {
@@ -65,6 +68,7 @@ export class QuestionService {
           },
         },
         answers: {
+          where: { isApproved: true },
           orderBy: { createdAt: 'asc' },
         },
       },
@@ -79,6 +83,7 @@ export class QuestionService {
 
     return this.prisma.question.findMany({
       where: {
+        status: { not: QuestionStatus.MODERATED },
         OR: [
           { doctorId: doctorProfile.id },
           {
@@ -100,7 +105,9 @@ export class QuestionService {
             },
           },
         },
-        answers: true,
+        answers: {
+          where: { isApproved: true },
+        },
       },
     });
   }

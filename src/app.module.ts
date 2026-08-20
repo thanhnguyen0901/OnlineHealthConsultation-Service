@@ -12,6 +12,7 @@ import { ReportingModule } from './modules/reporting/reporting.module';
 import { SpecialtyModule } from './modules/specialty/specialty.module';
 import { DiscoveryModule } from './modules/discovery/discovery.module';
 import { OperationsModule } from './modules/operations/operations.module';
+import { ModerationModule } from './modules/moderation/moderation.module';
 // code change
 import { PrismaModule } from './prisma/prisma.module';
 
@@ -30,6 +31,7 @@ import { PrismaModule } from './prisma/prisma.module';
     SpecialtyModule,
     DiscoveryModule,
     OperationsModule,
+    ModerationModule,
   ],
   controllers: [],
   providers: [],

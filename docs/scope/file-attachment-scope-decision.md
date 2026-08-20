@@ -119,7 +119,7 @@ Từ thời điểm này, tài liệu nộp bài nên mô tả file attachment n
 - `Current implementation`: dormant schema only; no user-facing upload API/UI/storage provider
 - `Submitted feature claim`: no attachment support
 
-Không ghi rằng booking attachments, health-question attachments hoặc consultation attachments đã hoạt động.
+Không ghi rằng booking attachments, health-question attachments hoặc consultation attachments là functional submitted features.
 
 ## 8. Minimal Future Implementation Plan
 

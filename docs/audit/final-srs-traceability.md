@@ -8,20 +8,20 @@ Các giá trị status:
 
 | Status | Ý nghĩa |
 |---|---|
-| `COMPLETED` | Requirement đã được triển khai và có bằng chứng FE và/hoặc BE cụ thể. |
-| `PARTIAL` | Requirement đã được triển khai một phần, phụ thuộc môi trường, hoặc còn thiếu phần production-grade. |
+| `COMPLETED` | Requirement có implementation và có bằng chứng FE và/hoặc BE cụ thể. |
+| `PARTIAL` | Requirement có implementation một phần, phụ thuộc môi trường, hoặc còn thiếu phần production-grade. |
 | `NOT_IMPLEMENTED` | Không tìm thấy triển khai có ý nghĩa. |
 | `IMPLEMENTED_DIFFERENTLY` | Requirement được đáp ứng bằng cấu trúc hoặc workflow khác với cách diễn đạt trong SRS. |
 | `NOT_APPLICABLE` | SRS đánh dấu mục này là optional/out-of-scope hoặc phụ thuộc external provider chưa bắt buộc. |
 
 ## Tóm tắt
 
-Phần lớn core flows bắt buộc đã được triển khai end-to-end: public doctor discovery, auth, patient profile, health questions, doctor schedule availability, appointment booking/conflict prevention, consultation session, realtime chat, result/prescription, rating, admin management, moderation, notification outbox và reporting.
+Phần lớn core flows bắt buộc có implementation end-to-end: public doctor discovery, auth, patient profile, health questions, doctor schedule availability, appointment booking/conflict prevention, consultation session, realtime chat, result/prescription, rating, admin management, moderation, notification outbox và reporting.
 
-Các rủi ro còn lại trước khi nộp tập trung vào kiểm chứng vận hành và external provider:
+Các điểm cần lưu ý trước khi nộp tập trung vào test automation và external provider:
 
-1. Cần chạy seeded E2E suite khi backend và database đang chạy; graduation suite mới nhất chưa chạy hoàn tất trong môi trường hiện tại vì backend `localhost:4000` không hoạt động.
-2. Nếu yêu cầu nộp bài cần gửi email thật, cần cấu hình hoặc hoàn thiện production email provider; hiện tại đã có email provider abstraction nhưng concrete provider là dry-run nếu chưa bật `NOTIFICATION_EMAIL_PROVIDER_ENABLED=true`.
+1. E2E verification local có kết quả riêng tại `docs/testing/final-e2e-results.md`; graduation suite còn một số test-data/test-interaction issues nếu muốn claim full automated PASS.
+2. Nếu yêu cầu nộp bài cần gửi email thật, cần cấu hình hoặc hoàn thiện production email provider; hiện tại provider abstraction tồn tại nhưng concrete provider là dry-run nếu chưa bật `NOTIFICATION_EMAIL_PROVIDER_ENABLED=true`.
 3. HTTPS là cấu hình deployment/platform nên không thể xác minh chỉ bằng local source.
 4. Performance, availability và browser compatibility có hỗ trợ ở mức kiến trúc nhưng chưa có load/cross-browser test evidence trong audit này.
 
@@ -208,15 +208,15 @@ Các rủi ro còn lại trước khi nộp tập trung vào kiểm chứng vậ
 
 | SRS constraint | Status | Bằng chứng / lý do |
 |---|---|---|
-| Ưu tiên core consultation/appointment hơn advanced telemedicine. | `COMPLETED` | Core flows đã triển khai; advanced video/SMS vẫn là optional/fallback. |
-| Medical advice chỉ mang tính tham khảo, không thay thế emergency/direct care. | `PARTIAL` | Product copy/SRS nêu điều này; chưa verify explicit in-app emergency disclaimer trong audit này. |
+| Ưu tiên core consultation/appointment hơn advanced telemedicine. | `COMPLETED` | Core flows có implementation; advanced video/SMS vẫn là optional/fallback. |
+| Medical advice chỉ mang tính tham khảo, không thay thế emergency/direct care. | `COMPLETED` | Medical disclaimer có trong public home, health question submission và consultation UI; wording nhấn mạnh hệ thống hỗ trợ tư vấn online, không thay thế cấp cứu hoặc khám trực tiếp khi cần. |
 | Bốn main roles: Guest, Patient, Doctor, Administrator. | `COMPLETED` | Schema `Role`; guards/routes/controllers dùng four-role model. |
 | Web platform. | `COMPLETED` | React frontend và Nest backend. |
 | Frontend là ReactJS. | `COMPLETED` | `OnlineHealthConsultation-Web` là Vite React app. |
 | Backend dựa trên Node.js. | `COMPLETED` | NestJS backend. |
 | Relational database. | `COMPLETED` | Prisma schema với PostgreSQL-oriented relational models. |
 | Role-based authentication/authorization. | `COMPLETED` | JWT, guards, roles. |
-| Video có thể dùng WebRTC/external/mock mechanism. | `IMPLEMENTED_DIFFERENTLY` | Mock/channel fallback đã triển khai; chưa có real WebRTC/external provider. |
+| Video có thể dùng WebRTC/external/mock mechanism. | `IMPLEMENTED_DIFFERENTLY` | UI có mock/channel fallback; chưa có real WebRTC/external provider. |
 | SMS/video advanced providers phụ thuộc provider readiness. | `NOT_APPLICABLE` | SRS explicit đây là provider-dependent optional integrations. |
 | Scope được kiểm soát để deliver core end-to-end. | `COMPLETED` | Mandatory workflows có mặt; optional advanced features không block core flows. |
 | Optional features không ảnh hưởng core quality. | `COMPLETED` | Optional SMS/video được isolate sau providers/flags/fallbacks. |
@@ -233,7 +233,7 @@ Các rủi ro còn lại trước khi nộp tập trung vào kiểm chứng vậ
 | Multi-language UI. | `COMPLETED` | FE i18n resources tồn tại cho English/Vietnamese. |
 | Dark mode. | `COMPLETED` | FE pages dùng dark-mode Tailwind classes. |
 | Advanced video. | `NOT_APPLICABLE` | Optional, không bắt buộc trong current scope. |
-| Advanced analytics filters/charts. | `PARTIAL` | Required reporting đã triển khai; optional advanced doctor/specialty/status analytics còn limited/hidden nếu chưa trivial. |
+| Advanced analytics filters/charts. | `PARTIAL` | Required reporting có implementation; optional advanced doctor/specialty/status analytics còn limited/hidden nếu chưa trivial. |
 
 ## C. Out-of-Scope Functionality
 
@@ -261,22 +261,22 @@ Các rủi ro còn lại trước khi nộp tập trung vào kiểm chứng vậ
 | 9. Result + prescription | `COMPLETED` | Summary và prescription service/UI; patient result view. |
 | 10. Patient consultation history | `COMPLETED` | Patient history page kết hợp appointments, questions, result/prescription/rating actions. |
 | 11. Rating | `COMPLETED` | Rating controller/service, patient rating UI, doctor visible ratings, moderation. |
-| 12. Notification/reminder | `PARTIAL` | Outbox, reminders, logs, dev/email provider abstraction đã triển khai; real production email provider vẫn cần configuration/provider wiring. |
+| 12. Notification/reminder | `PARTIAL` | Outbox, reminders, logs, dev/email provider abstraction có implementation; real production email provider vẫn cần configuration/provider wiring. |
 | 13. Admin management | `COMPLETED` | Users, doctors, patients, specialties, appointments, moderation pages/APIs. |
 | 14. Reporting | `COMPLETED` | Admin reports dashboard, trend chart, date range và group-by filtering. |
 
-## Test Evidence cụ thể đã tìm thấy
+## Test Evidence cụ thể
 
 | Area | Bằng chứng |
 |---|---|
 | Backend unit tests | `appointment.service.spec.ts`, `auth.service.spec.ts`, `notification.service.spec.ts`, `moderation.service.spec.ts`, `reporting.service.spec.ts`, `validate-env.spec.ts`, `http-exception.filter.spec.ts`. |
 | Frontend E2E coverage | Existing Playwright specs cộng với `e2e/specs/graduation-flows.spec.ts` cho core graduation flows. |
-| Giới hạn audit hiện tại | Graduation E2E suite mới nhất cần backend ở `localhost:4000`; lần chạy local ở task trước fail vì backend chưa chạy. |
+| Final E2E evidence | Xem `docs/testing/final-e2e-results.md`; core smoke/auth/appointment/question/doctor/admin/socket suites phần lớn pass, graduation suite còn test-data/test-interaction defects cần chỉnh nếu muốn claim full PASS. |
 
-## Cần fix trước khi nộp
+## Cần lưu ý trước khi nộp
 
-1. Start backend + database, chạy seed/migrations, sau đó chạy critical E2E suite, đặc biệt `e2e/specs/graduation-flows.spec.ts`; đính kèm hoặc báo cáo kết quả.
-2. Nếu cần actual email delivery, configure/implement concrete production email provider phía sau `EmailNotificationProvider`; nếu không, document rõ development notification logs là cơ chế verification.
-3. Thêm visible emergency/non-substitution medical disclaimer nếu giảng viên/evaluator kỳ vọng business constraint của SRS xuất hiện trong app, không chỉ trong documentation.
-4. Quyết định file attachment support có nằm trong submitted scope không. Nếu có, implement upload/storage; nếu không, giữ documented là conditional/out-of-scope.
-5. Với production deployment evidence, verify HTTPS, CORS origins, secure refresh cookie settings và non-development notification provider configuration.
+1. Nếu cần claim full automated graduation PASS, chỉnh test-data/test-interaction issues trong `e2e/specs/graduation-flows.spec.ts` rồi rerun suite.
+2. Nếu cần actual production email delivery, configure/implement concrete provider phía sau `EmailNotificationProvider`; nếu không, dùng `docs/deployment/production-readiness.md` để giải thích provider-dependent delivery.
+3. Medical disclaimer có mặt ở public/question/consultation UI; vẫn nên demo trực tiếp nếu evaluator hỏi business constraint này.
+4. File attachment thuộc optional/conditional future capability, không thuộc submitted scope; xem `docs/scope/file-attachment-scope-decision.md`.
+5. Với production deployment evidence, verify thực tế HTTPS, CORS origins, secure refresh cookie settings và non-development notification provider configuration theo `docs/deployment/production-readiness.md`.

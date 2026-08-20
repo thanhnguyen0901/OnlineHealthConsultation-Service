@@ -8,13 +8,13 @@ Review này kiểm tra deployment configuration readiness mà không redesign h�
 
 ## 2. Kết luận tổng quan
 
-Hệ thống đã có nền tảng production-ready ở mức cấu hình:
+Hệ thống có nền tảng production-ready ở mức cấu hình:
 
-- JWT secrets không còn hard-coded unsafe fallback ở runtime.
+- JWT secrets được đọc từ required environment variables và production validation yêu cầu secret mạnh.
 - Refresh token dùng HttpOnly cookie, có Secure mặc định theo production.
 - CORS cho HTTP và Socket.IO đọc từ `CORS_ORIGIN`.
-- Production env validation đã chặn JWT secret yếu, thiếu CORS, notification provider `development`, refresh cookie không secure và reset-password URL localhost.
-- `.env.example` đã có các key cấu hình chính cho backend và frontend.
+- Production env validation chặn JWT secret yếu, thiếu CORS, notification provider `development`, refresh cookie không secure và reset-password URL localhost.
+- `.env.example` liệt kê các key cấu hình chính cho backend và frontend.
 
 Các phần vẫn phụ thuộc môi trường triển khai:
 
@@ -35,7 +35,7 @@ Evidence:
 - `src/common/config/env.util.ts`
 - `src/common/config/validate-env.ts`
 
-Runtime dùng `getRequiredEnv('JWT_SECRET')` và `getRequiredEnv('JWT_REFRESH_SECRET')`, không fallback sang dev secret.
+Runtime đọc `JWT_SECRET` và `JWT_REFRESH_SECRET` qua `getRequiredEnv(...)`, nên các secret này phải có trong environment khi app khởi động.
 
 Production validation:
 
@@ -255,13 +255,13 @@ Frontend `.env.example` includes:
 
 Decision: `READY`.
 
-## 9. Changes Made In This Review
+## 9. Current Configuration State
 
-- Added production validation rejecting `AUTH_REFRESH_COOKIE_SECURE=false`.
-- Added production validation rejecting `PASSWORD_RESET_FRONTEND_URL` pointing to localhost.
-- Expanded backend `.env.example` with consultation/video/notification scheduler keys.
-- Cleaned frontend `.env.example` so only one active `VITE_API_BASE_URL` is present.
-- Documented production readiness in this file.
+- Production validation reject `AUTH_REFRESH_COOKIE_SECURE=false`.
+- Production validation reject `PASSWORD_RESET_FRONTEND_URL` trỏ về localhost.
+- Backend `.env.example` có consultation/video/notification scheduler keys.
+- Frontend `.env.example` có một active `VITE_API_BASE_URL`.
+- Review production readiness được ghi nhận trong tài liệu này.
 
 ## 10. Final Readiness Conclusion
 

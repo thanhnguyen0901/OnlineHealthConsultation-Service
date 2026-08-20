@@ -1,10 +1,10 @@
 # Doctor Availability Design
 
-Tài liệu này thiết kế mô hình availability nhỏ nhất để thỏa SRS cho các yêu cầu liên quan đến doctor schedule, doctor discovery, appointment availability, appointment booking và duplicate/conflict prevention.
+Tài liệu này ghi nhận mô hình availability nhỏ nhất để thỏa SRS cho các yêu cầu liên quan đến doctor schedule, doctor discovery, appointment availability, appointment booking và duplicate/conflict prevention.
 
-Phạm vi của tài liệu là thiết kế. Không implement code trong bước này.
+Phạm vi của tài liệu là design record và implementation reference cho availability flow hiện tại.
 
-## 1. Hiện trạng đã kiểm tra
+## 1. Cơ sở yêu cầu và implementation hiện tại
 
 ### SRS liên quan
 
@@ -17,18 +17,18 @@ SRS yêu cầu:
 * System ngăn đặt trùng lịch cho cùng bác sĩ và cùng khung giờ.
 * System tránh mất nhất quán dữ liệu trong thao tác đặt lịch và cập nhật lịch hẹn.
 
-### Source hiện tại
+### Source implementation hiện tại
 
 | Area | Hiện trạng |
 | --- | --- |
-| Prisma schema | `DoctorProfile.schedule` là `Json?`; `scheduleUpdatedAt` đã có. `Appointment` có `scheduledAt`, `durationMinutes`, `status` và index theo `doctorId/scheduledAt`, `patientId/scheduledAt`. |
-| Doctor schedule backend | `UpdateDoctorScheduleDto.schedule?: unknown[]`; `DoctorService.updateMySchedule()` lưu JSON trực tiếp. |
-| Doctor schedule frontend | `SchedulePage` và `ScheduleTable` đang dùng slot theo ngày cụ thể: `{ date, startTime, endTime, available }`. |
-| Discovery API | Public doctor list/detail filter `isActive`, `APPROVED`, user active. Detail hiện chưa include `schedule`. |
-| AppointmentService | `createAppointment()` và `rescheduleAppointment()` đã check doctor active/approved và overlap với appointment có status `PENDING_CONFIRMATION`, `CONFIRMED`. Chưa check `DoctorProfile.schedule`. |
-| Appointment DTO/controller | `CreateAppointmentDto` nhận `doctorId`, `scheduledAt`, optional `durationMinutes`, `reason`, `notes`; `RescheduleAppointmentDto` nhận `scheduledAt`. Chưa có availability endpoint. |
-| BookAppointmentPage | Time slots đang hard-code `08:00` đến `16:30`; không fetch availability theo doctor/date. |
-| patient.api | `bookAppointment()` gọi `POST /appointments`; chưa có API lấy available slots. |
+| Prisma schema | `DoctorProfile.schedule` là `Json?`; `scheduleUpdatedAt` tồn tại. `Appointment` có `scheduledAt`, `durationMinutes`, `status` và index theo `doctorId/scheduledAt`, `patientId/scheduledAt`. |
+| Doctor schedule backend | `DoctorService` lưu working schedule theo JSON hiện có và dùng validation ở service/DTO boundary. |
+| Doctor schedule frontend | `SchedulePage` và schedule components quản lý slot theo ngày cụ thể: `{ date, startTime, endTime, available }`. |
+| Discovery API | Public doctor list/detail filter `isActive`, `APPROVED`, user active và expose thông tin public profile/schedule phù hợp. |
+| AppointmentService | `createAppointment()`, `rescheduleAppointment()` và availability API dùng cùng rule: doctor active/approved, working schedule, appointment duration, doctor conflict và patient conflict. |
+| Appointment DTO/controller | `CreateAppointmentDto` nhận `doctorId`, `scheduledAt`, optional `durationMinutes`, `reason`, `notes`; `RescheduleAppointmentDto` nhận `scheduledAt`; `DoctorAvailabilityQueryDto` validate availability query. |
+| BookAppointmentPage | Fetch available slots từ backend theo doctor/date, hiển thị loading/empty/error states và submit `slot.start` ISO từ backend. |
+| patient.api | `bookAppointment()` gọi `POST /appointments`; `getDoctorAvailability(...)` gọi `GET /public/doctors/:doctorId/availability`. |
 
 ## 2. Quyết định thiết kế
 
@@ -37,8 +37,8 @@ SRS yêu cầu:
 Thiết kế sử dụng lại `DoctorProfile.schedule Json?` thay vì tạo bảng mới. Lý do:
 
 * SRS chỉ yêu cầu lịch làm việc và khung giờ khả dụng, chưa yêu cầu recurring schedule phức tạp, override nhiều tầng, nghỉ lễ hoặc multi-location.
-* Frontend doctor schedule hiện đã lưu danh sách slot theo ngày cụ thể.
-* Appointment đã có `scheduledAt`, `durationMinutes` và index phù hợp để tính conflict.
+* Frontend doctor schedule lưu danh sách slot theo ngày cụ thể.
+* Appointment có `scheduledAt`, `durationMinutes` và index phù hợp để tính conflict.
 * Tạo bảng mới sẽ kéo theo migration, admin tooling và data migration không cần thiết cho bước nhỏ nhất.
 
 Schema change chỉ nên cân nhắc sau này nếu cần recurring weekly schedule dài hạn, audit lịch thay đổi chi tiết, hoặc rule nghỉ/bận ngoài appointment.
@@ -167,7 +167,7 @@ Request giữ nguyên:
 }
 ```
 
-Thay đổi hành vi backend:
+Backend behavior:
 
 * Trước khi tạo appointment, service kiểm tra `scheduledAt + duration` có nằm trong schedule slot khả dụng của doctor hay không.
 * Sau đó kiểm tra doctor/patient conflicts trong cùng transaction.
@@ -189,7 +189,7 @@ Request giữ nguyên:
 }
 ```
 
-Thay đổi hành vi backend:
+Backend behavior:
 
 * Dùng `durationMinutes` hiện có của appointment.
 * Kiểm tra schedule của doctor giống booking.
@@ -356,31 +356,32 @@ where: {
 | Timezone lệch client/server | Client dùng `start` ISO từ availability response để book; backend convert theo `APP_TIMEZONE` khi validate. |
 | `durationMinutes` không truyền | Backend dùng default env; availability endpoint cũng dùng cùng default để UI và booking đồng bộ. |
 
-## 8. Affected files
+## 8. Implemented touchpoints
 
 ### Backend
 
-| File | Thay đổi dự kiến |
+| File | Vai trò hiện tại |
 | --- | --- |
-| `src/modules/appointment/appointment.service.ts` | Thêm shared helpers: normalize schedule, build day bounds, generate slots, remove conflicts, assert availability. Dùng lại trong availability API, create và reschedule. |
-| `src/modules/appointment/appointment.controller.ts` hoặc `src/modules/discovery/discovery.controller.ts` | Thêm endpoint public availability. Recommendation: đặt trong `DiscoveryController` với path `/public/doctors/:doctorId/availability`, service có thể gọi method từ `AppointmentService` hoặc tách `AvailabilityService`. |
-| `src/modules/appointment/dto/create-appointment.dto.ts` | Giữ contract; có thể thêm max duration nếu cần. |
-| `src/modules/appointment/dto/reschedule-appointment.dto.ts` | Giữ contract. |
-| `src/modules/doctor/dto/update-doctor-schedule.dto.ts` | Bổ sung validation cho slot items hoặc validate trong `DoctorService`. |
-| `src/modules/doctor/doctor.service.ts` | Validate schedule trước khi lưu; không cần đổi schema. |
-| `src/modules/discovery/discovery.service.ts` | Include `schedule` trong doctor detail nếu muốn public detail tiếp tục hiển thị lịch làm việc; hoặc chỉ expose qua availability endpoint. |
-| `prisma/schema.prisma` | Không đổi ở phase này. |
+| `src/modules/appointment/appointment.service.ts` | Chứa shared availability logic: normalize schedule, build day bounds, generate slots, remove conflicts, assert availability. Logic này được dùng lại trong availability API, create và reschedule. |
+| `src/modules/appointment/appointment.controller.ts` | Public endpoint `GET /public/doctors/:doctorId/availability`. |
+| `src/modules/appointment/dto/doctor-availability-query.dto.ts` | Validate `date` và optional `durationMinutes` cho availability query. |
+| `src/modules/appointment/dto/create-appointment.dto.ts` | Giữ booking contract và dựa vào service để re-validate availability. |
+| `src/modules/appointment/dto/reschedule-appointment.dto.ts` | Giữ reschedule contract và dựa vào service để re-validate availability. |
+| `src/modules/doctor/dto/update-doctor-schedule.dto.ts` | Validate working schedule input trước khi lưu. |
+| `src/modules/doctor/doctor.service.ts` | Lưu schedule theo schema hiện có. |
+| `src/modules/discovery/discovery.service.ts` | Public doctor detail tiếp tục expose thông tin public profile/schedule phù hợp. |
+| `prisma/schema.prisma` | Dùng `DoctorProfile.schedule` JSON hiện có; không cần schema change cho availability model. |
 
 ### Frontend
 
-| File | Thay đổi dự kiến |
+| File | Vai trò hiện tại |
 | --- | --- |
-| `src/features/patient/apis/patient.api.ts` | Thêm `getDoctorAvailability(doctorId, date, durationMinutes?)`. |
-| `src/features/patient/pages/BookAppointmentPage.tsx` | Bỏ hard-coded `timeSlots`; fetch slots khi doctor/date thay đổi; submit bằng `slot.start` ISO từ backend. |
-| `src/features/doctor/pages/SchedulePage.tsx` | Giữ UI hiện tại; đảm bảo save schedule theo canonical slot format. |
-| `src/features/doctor/components/ScheduleTable.tsx` | Có thể bổ sung validation/visual warning overlap nếu cần. |
-| `src/features/public/apis/public.api.ts` | Có thể thêm public availability API nếu muốn dùng ở doctor detail. |
-| `src/features/public/pages/DoctorDetailPage.tsx` | Optional: hiển thị lịch làm việc/availability theo endpoint mới. |
+| `src/features/patient/apis/patient.api.ts` | Có `getDoctorAvailability(...)` gọi backend availability API. |
+| `src/features/patient/redux/patient.saga.ts` | Fetch availability khi doctor/date thay đổi và cập nhật loading/error/data state. |
+| `src/features/patient/redux/patient.slice.ts` | Quản lý `availability`, `availabilityLoading`, `availabilityError`. |
+| `src/features/patient/pages/BookAppointmentPage.tsx` | Hiển thị slots từ backend, loading/empty/error states, submit bằng `slot.start` ISO từ backend. |
+| `src/features/doctor/pages/SchedulePage.tsx` | Doctor cấu hình working schedule theo canonical slot format. |
+| `src/features/public/pages/DoctorDetailPage.tsx` | Hiển thị thông tin public profile/schedule phù hợp cho doctor detail. |
 
 ## 9. Implementation plan
 
@@ -482,7 +483,7 @@ Frontend tests nên cover:
 * availability fetch when doctor/date changes.
 * loading and empty state.
 * selected slot submits backend ISO `start`.
-* hard-coded slot list removed.
+* slot list source is the backend availability API.
 * API error displayed.
 
 ## 10. Answers to required design questions

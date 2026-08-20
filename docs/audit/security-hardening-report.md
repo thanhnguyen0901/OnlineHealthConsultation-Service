@@ -21,7 +21,7 @@
 
 ### Global validation
 
-Backend đã dùng `ValidationPipe` toàn cục với `whitelist` và `transform`. Đã siết thêm:
+Backend dùng `ValidationPipe` toàn cục với `whitelist` và `transform`. Cấu hình hiện tại gồm:
 
 - `forbidNonWhitelisted: true`: reject field ngoài DTO thay vì âm thầm bỏ qua.
 - `forbidUnknownValues: true`: reject payload không hợp lệ ở cấp object.
@@ -30,7 +30,7 @@ Backend đã dùng `ValidationPipe` toàn cục với `whitelist` và `transform
 
 ### Exception handling
 
-Backend đã có `HttpExceptionFilter` toàn cục. Đã harden thêm:
+Backend có `HttpExceptionFilter` toàn cục với behavior hiện tại:
 
 - Giữ response envelope thống nhất dạng `error.code`, `error.message`, `error.details`, `error.requestId`.
 - Map Prisma known errors sang lỗi ứng dụng an toàn:
@@ -41,7 +41,7 @@ Backend đã có `HttpExceptionFilter` toàn cục. Đã harden thêm:
 
 ### Security headers
 
-Đã thêm middleware header cơ bản:
+Middleware security header cơ bản:
 
 - `x-content-type-options: nosniff`
 - `x-frame-options: DENY`
@@ -53,40 +53,29 @@ Không thêm `helmet` để tránh đưa thêm infrastructure/package ngoài ph�
 
 ### CORS
 
-Trước hardening, CORS fallback là `origin: true` khi thiếu `CORS_ORIGIN`. Điều này không phù hợp production.
-
-Đã sửa:
-
-- Production bắt buộc cấu hình `CORS_ORIGIN`.
-- Runtime chỉ mở CORS tự do trong non-production.
-- Socket.IO consultation gateway dùng cùng nguyên tắc origin.
+Production bắt buộc cấu hình `CORS_ORIGIN`. Runtime chỉ mở CORS tự do trong non-production. Socket.IO consultation gateway dùng cùng nguyên tắc origin.
 
 ### JWT configuration
 
-Phát hiện fallback hard-coded:
-
-- `super-secret-key-for-dev`
-- `refresh-secret-dev`
-
-Đã loại bỏ fallback khỏi:
+Runtime đọc JWT secret qua `getRequiredEnv()` trong:
 
 - `IdentityModule`
 - `JwtStrategy`
 - `AuthService`
 - `ConsultationGateway`
 
-Runtime hiện đọc JWT secret qua `getRequiredEnv()`. Production env validation cũng reject secret yếu hoặc secret dev mẫu.
+Production env validation reject secret yếu hoặc secret dev mẫu như `super-secret-key-for-dev`, `refresh-secret-dev`, `change-me`, `changeme`.
 
 ### Refresh token cookie
 
-Refresh token flow hiện dùng HttpOnly cookie. Đã bổ sung production validation:
+Refresh token flow dùng HttpOnly cookie với production validation:
 
 - `AUTH_REFRESH_COOKIE_SAME_SITE=none` bắt buộc `AUTH_REFRESH_COOKIE_SECURE=true`.
 - Production vẫn mặc định secure cookie nếu biến secure không override.
 
 ### Authorization
 
-Các controller chính đã enforce backend authorization bằng `JwtAuthGuard`, `RolesGuard`, và service-level ownership checks:
+Các controller chính enforce backend authorization bằng `JwtAuthGuard`, `RolesGuard`, và service-level ownership checks:
 
 - Appointment APIs phân quyền `PATIENT`, `DOCTOR`, `ADMIN`.
 - Consultation APIs phân biệt hành động của doctor/patient/admin.
@@ -108,17 +97,17 @@ Một số ownership rule nằm trong service thay vì guard. Đây là chấp n
 
 Request logging hiện chỉ ghi method/path/status/duration/requestId, không log body hay token.
 
-Audit metadata đã có `sanitizeAuditMetadata()` để redact:
+Audit metadata dùng `sanitizeAuditMetadata()` để redact:
 
 - password/token/refreshToken
 - email/phone/address/ipAddress/userAgent
 - medicalHistory
 
-Đã giữ nguyên nguyên tắc không log plain password reset token. Password reset notification failure chỉ log `tokenId`, không log token thật.
+Password reset flow không log plain reset token. Password reset notification failure chỉ log `tokenId`, không log token thật.
 
 ### Audit logging
 
-Đã xác nhận các hành động quan trọng có audit log:
+Các hành động quan trọng có audit log:
 
 - Login success
 - Token refresh
@@ -131,7 +120,7 @@ Audit metadata đã có `sanitizeAuditMetadata()` để redact:
 - Consultation summary/prescription/session actions
 - Moderation actions
 
-Không thêm audit subsystem mới vì schema hiện tại đã có `AuditLog` và đang được dùng nhất quán.
+Schema hiện tại có `AuditLog` và đang được dùng nhất quán; không cần audit subsystem riêng trong phạm vi hiện tại.
 
 ### Appointment transaction safety
 
@@ -148,16 +137,16 @@ Appointment booking và doctor reschedule đang dùng `Prisma.TransactionIsolati
 
 Development provider vẫn được giữ cho local/test. Production validation hiện reject `NOTIFICATION_PROVIDER=development` để tránh hệ thống production chạy mà không có email provider thật.
 
-## Thay đổi đã thực hiện
+## Trạng thái bảo mật hiện tại
 
-- Thêm `src/common/config/env.util.ts` cho `getRequiredEnv()` và `parseCsvEnv()`.
-- Siết `validateEnv()` cho production JWT/CORS/cookie/notification config.
-- Bỏ fallback JWT secret hard-coded khỏi auth và Socket.IO gateway.
-- Thêm security headers cơ bản trong `main.ts`.
-- Siết global `ValidationPipe`.
-- Map Prisma known errors trong `HttpExceptionFilter`.
-- Cập nhật `.env.example`.
-- Thêm test cho env validation và exception filter.
+- `src/common/config/env.util.ts` cung cấp `getRequiredEnv()` và `parseCsvEnv()`.
+- `validateEnv()` kiểm tra production JWT/CORS/cookie/notification config.
+- JWT secrets được đọc từ required environment variables trong auth và Socket.IO gateway.
+- `main.ts` cấu hình security headers cơ bản.
+- Global `ValidationPipe` reject field ngoài DTO và unknown object values.
+- `HttpExceptionFilter` map Prisma known errors sang application errors nhất quán.
+- `.env.example` liệt kê các configuration keys cần thiết.
+- Test coverage có env validation và exception filter specs.
 
 ## Giới hạn còn lại
 
@@ -168,7 +157,7 @@ Development provider vẫn được giữ cho local/test. Production validation 
 
 ## Verification
 
-Đã chạy:
+Verification command:
 
 - `npm run type-check`
 

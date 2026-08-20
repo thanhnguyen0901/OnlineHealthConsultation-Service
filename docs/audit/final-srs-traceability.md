@@ -228,7 +228,7 @@ Các rủi ro còn lại trước khi nộp tập trung vào kiểm chứng vậ
 |---|---|---|
 | Video consultation qua WebRTC/external/mock. | `IMPLEMENTED_DIFFERENTLY` | Có mock/fallback; real WebRTC/external video chưa triển khai. |
 | SMS reminders. | `NOT_APPLICABLE` | `SmsNotificationProvider` tồn tại nhưng disabled nếu chưa configure; SRS đánh dấu SMS optional. |
-| File upload / file storage. | `NOT_IMPLEMENTED` | Schema có `FileAttachment`, nhưng chưa verify FE upload flow hoặc storage provider implementation cho booking/question attachments. SRS xem file storage là external/conditional. |
+| File upload / file storage. | `NOT_IMPLEMENTED` | Không thuộc submitted scope hiện tại. Schema có dormant `FileAttachment`, nhưng không có upload API/UI/storage provider; SRS xem file storage là external/conditional. Xem `docs/scope/file-attachment-scope-decision.md`. |
 | Chatbot basic health simulation. | `NOT_APPLICABLE` | SRS 5.14 explicit optional/extended. |
 | Multi-language UI. | `COMPLETED` | FE i18n resources tồn tại cho English/Vietnamese. |
 | Dark mode. | `COMPLETED` | FE pages dùng dark-mode Tailwind classes. |

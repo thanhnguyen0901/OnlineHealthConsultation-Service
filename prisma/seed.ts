@@ -48,6 +48,8 @@ type PatientSeed = UserSeed & {
 
 type DoctorSeed = UserSeed & {
   bio: string;
+  qualificationSummary?: string;
+  consultationDescription?: string;
   yearsOfExperience: number;
   approvalStatus: ApprovalStatus;
   isActive: boolean;
@@ -142,6 +144,12 @@ async function createDoctor(input: DoctorSeed) {
       id: uuidv7(),
       userId: user.id,
       bio: input.bio,
+      qualificationSummary:
+        input.qualificationSummary ??
+        `Bác sĩ có ${input.yearsOfExperience} năm kinh nghiệm tư vấn và theo dõi người bệnh trong chuyên khoa liên quan.`,
+      consultationDescription:
+        input.consultationDescription ??
+        'Tư vấn trực tuyến tập trung vào khai thác triệu chứng, đánh giá dấu hiệu cần khám trực tiếp, hướng dẫn chăm sóc tại nhà và lập kế hoạch theo dõi phù hợp.',
       yearsOfExperience: input.yearsOfExperience,
       approvalStatus: input.approvalStatus,
       isActive: input.isActive,
@@ -263,10 +271,10 @@ const specialties: SpecialtySeed[] = [
   },
   {
     key: 'mental',
-    nameEn: 'Mental Health',
-    nameVi: 'Sức khỏe tinh thần',
+    nameEn: 'Psychiatry',
+    nameVi: 'Tâm thần học',
     description:
-      'Tư vấn căng thẳng, mất ngủ, lo âu, cân bằng công việc - cuộc sống và định hướng khi cần gặp chuyên gia tâm lý.',
+      'Tư vấn mất ngủ, căng thẳng, rối loạn lo âu mức độ nhẹ, theo dõi triệu chứng tâm thần kinh và định hướng khi cần khám trực tiếp.',
   },
   {
     key: 'nutrition',
@@ -383,6 +391,10 @@ const doctors: DoctorSeed[] = [
     role: Role.DOCTOR,
     bio:
       'Bác sĩ chuyên khoa Nội tổng quát với kinh nghiệm khám bệnh mạn tính, tư vấn dùng thuốc an toàn và theo dõi sức khỏe gia đình. Phong cách tư vấn rõ ràng, dễ hiểu, ưu tiên kế hoạch chăm sóc thực tế.',
+    qualificationSummary:
+      'Bác sĩ Chuyên khoa I Nội tổng quát, có kinh nghiệm theo dõi bệnh mạn tính, bệnh tiêu hóa thường gặp và tư vấn chăm sóc sức khỏe ban đầu.',
+    consultationDescription:
+      'Tư vấn các triệu chứng thường gặp, đọc hiểu thông tin theo dõi tại nhà, hướng dẫn chăm sóc ban đầu và nhận diện dấu hiệu cần khám trực tiếp.',
     yearsOfExperience: 12,
     approvalStatus: ApprovalStatus.APPROVED,
     isActive: true,
@@ -398,6 +410,10 @@ const doctors: DoctorSeed[] = [
     role: Role.DOCTOR,
     bio:
       'Bác sĩ Tim mạch, tập trung tư vấn tăng huyết áp, đau ngực, rối loạn nhịp và kiểm soát yếu tố nguy cơ tim mạch. Có kinh nghiệm theo dõi bệnh nhân sau đặt stent và bệnh nhân lớn tuổi.',
+    qualificationSummary:
+      'Bác sĩ Chuyên khoa II Tim mạch, nhiều năm kinh nghiệm quản lý tăng huyết áp, rối loạn lipid máu và theo dõi bệnh tim mạch mạn tính.',
+    consultationDescription:
+      'Tư vấn chỉ số huyết áp, triệu chứng hồi hộp/đau ngực không cấp cứu, kế hoạch theo dõi tại nhà và dấu hiệu cần đi cấp cứu hoặc khám chuyên khoa.',
     yearsOfExperience: 15,
     approvalStatus: ApprovalStatus.APPROVED,
     isActive: true,
@@ -413,6 +429,10 @@ const doctors: DoctorSeed[] = [
     role: Role.DOCTOR,
     bio:
       'Bác sĩ Nhi khoa tư vấn bệnh hô hấp, sốt, tiêu hóa và dinh dưỡng trẻ em. Luôn giải thích kỹ dấu hiệu cần đưa trẻ đi khám trực tiếp để phụ huynh yên tâm theo dõi tại nhà.',
+    qualificationSummary:
+      'Bác sĩ Chuyên khoa I Nhi khoa, kinh nghiệm tư vấn bệnh hô hấp, sốt, tiêu hóa và dinh dưỡng trẻ em.',
+    consultationDescription:
+      'Hỗ trợ phụ huynh theo dõi triệu chứng của trẻ, chăm sóc tại nhà khi phù hợp và nhận biết dấu hiệu cảnh báo cần đưa trẻ đi khám trực tiếp.',
     yearsOfExperience: 10,
     approvalStatus: ApprovalStatus.APPROVED,
     isActive: true,
@@ -428,6 +448,10 @@ const doctors: DoctorSeed[] = [
     role: Role.DOCTOR,
     bio:
       'Bác sĩ Da liễu tư vấn mụn, viêm da, dị ứng và chăm sóc da theo từng loại da. Có kinh nghiệm xây dựng phác đồ bôi ngoài da đơn giản, dễ tuân thủ.',
+    qualificationSummary:
+      'Bác sĩ Da liễu, có kinh nghiệm tư vấn mụn trứng cá, viêm da cơ địa, dị ứng da và chăm sóc da y khoa.',
+    consultationDescription:
+      'Tư vấn tình trạng da thường gặp, hướng dẫn chăm sóc da an toàn và khuyến nghị khám trực tiếp khi có tổn thương lan rộng, nhiễm trùng hoặc triệu chứng kéo dài.',
     yearsOfExperience: 8,
     approvalStatus: ApprovalStatus.APPROVED,
     isActive: true,
@@ -443,6 +467,10 @@ const doctors: DoctorSeed[] = [
     role: Role.DOCTOR,
     bio:
       'Bác sĩ Nội tiết chuyên tư vấn đái tháo đường, rối loạn tuyến giáp và kiểm soát chuyển hóa. Hỗ trợ người bệnh xây dựng mục tiêu đường huyết phù hợp lối sống.',
+    qualificationSummary:
+      'Bác sĩ Chuyên khoa Nội tiết, kinh nghiệm quản lý đái tháo đường type 2, rối loạn tuyến giáp và các vấn đề chuyển hóa thường gặp.',
+    consultationDescription:
+      'Tư vấn nhật ký đường huyết, thói quen ăn uống/vận động, tuân thủ thuốc và dấu hiệu cần khám trực tiếp để điều chỉnh điều trị.',
     yearsOfExperience: 14,
     approvalStatus: ApprovalStatus.APPROVED,
     isActive: true,
@@ -458,6 +486,10 @@ const doctors: DoctorSeed[] = [
     role: Role.DOCTOR,
     bio:
       'Bác sĩ Sản phụ khoa tư vấn chăm sóc thai kỳ, dinh dưỡng trước sinh, rối loạn kinh nguyệt và sức khỏe phụ nữ. Ưu tiên hướng dẫn nhẹ nhàng, phù hợp từng giai đoạn.',
+    qualificationSummary:
+      'Bác sĩ Sản phụ khoa, kinh nghiệm tư vấn chăm sóc thai kỳ, sức khỏe phụ nữ và các vấn đề phụ khoa thường gặp.',
+    consultationDescription:
+      'Tư vấn theo dõi thai kỳ, dinh dưỡng, triệu chứng phụ khoa không cấp cứu và dấu hiệu cần khám trực tiếp tại cơ sở y tế.',
     yearsOfExperience: 11,
     approvalStatus: ApprovalStatus.APPROVED,
     isActive: true,
@@ -472,7 +504,11 @@ const doctors: DoctorSeed[] = [
     lastName: 'Hoàng',
     role: Role.DOCTOR,
     bio:
-      'Chuyên gia tư vấn sức khỏe tinh thần, hỗ trợ mất ngủ, căng thẳng, lo âu nhẹ và cân bằng cảm xúc. Các buổi tư vấn tập trung vào kỹ thuật tự theo dõi và thay đổi thói quen.',
+      'Bác sĩ Tâm thần học hỗ trợ tư vấn mất ngủ, căng thẳng, lo âu nhẹ và cân bằng cảm xúc. Các buổi tư vấn tập trung vào tự theo dõi triệu chứng, vệ sinh giấc ngủ và định hướng hỗ trợ phù hợp.',
+    qualificationSummary:
+      'Bác sĩ chuyên khoa Tâm thần học, kinh nghiệm tư vấn mất ngủ, căng thẳng, lo âu nhẹ và các vấn đề sức khỏe tinh thần không cấp cứu.',
+    consultationDescription:
+      'Tư vấn thói quen ngủ, quản lý căng thẳng, theo dõi triệu chứng và nhận diện dấu hiệu cần gặp chuyên gia tâm thần/tâm lý trực tiếp.',
     yearsOfExperience: 9,
     approvalStatus: ApprovalStatus.APPROVED,
     isActive: true,
@@ -488,6 +524,10 @@ const doctors: DoctorSeed[] = [
     role: Role.DOCTOR,
     bio:
       'Bác sĩ Dinh dưỡng lâm sàng tư vấn thực đơn cho người bệnh tiểu đường, tăng huyết áp, thừa cân và phụ nữ mang thai. Mục tiêu là thực đơn dễ áp dụng trong bữa ăn Việt Nam.',
+    qualificationSummary:
+      'Bác sĩ Dinh dưỡng lâm sàng, kinh nghiệm xây dựng thực đơn cho người bệnh đái tháo đường, tăng huyết áp, thừa cân và thai phụ.',
+    consultationDescription:
+      'Tư vấn khẩu phần ăn, lựa chọn thực phẩm, theo dõi cân nặng/chỉ số đường huyết và điều chỉnh bữa ăn theo thói quen sinh hoạt.',
     yearsOfExperience: 7,
     approvalStatus: ApprovalStatus.APPROVED,
     isActive: true,
@@ -503,6 +543,10 @@ const doctors: DoctorSeed[] = [
     role: Role.DOCTOR,
     bio:
       'Hồ sơ bác sĩ đang chờ quản trị viên duyệt. Dữ liệu dùng để minh họa màn hình quản lý và duyệt bác sĩ.',
+    qualificationSummary:
+      'Bác sĩ mới đăng ký hồ sơ chuyên môn, đang chờ quản trị viên kiểm tra giấy tờ và phê duyệt.',
+    consultationDescription:
+      'Hồ sơ chưa được công khai cho bệnh nhân đặt lịch cho đến khi admin duyệt và kích hoạt.',
     yearsOfExperience: 4,
     approvalStatus: ApprovalStatus.PENDING,
     isActive: false,
@@ -571,7 +615,7 @@ async function main() {
       doctorKey: 'doctor-dung',
       scheduledAt: addDays(3, 14, 30),
       status: AppointmentStatus.CONFIRMED,
-      reason: 'Da mặt nổi mụn viêm kéo dài, muốn tư vấn routine chăm sóc da phù hợp.',
+      reason: 'Da mặt nổi mụn viêm kéo dài, muốn tư vấn quy trình chăm sóc da phù hợp.',
       notes: 'Đã dùng một số sản phẩm bôi ngoài da nhưng chưa cải thiện ổn định.',
     },
     {

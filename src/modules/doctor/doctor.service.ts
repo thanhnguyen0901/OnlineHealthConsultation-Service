@@ -7,12 +7,29 @@ import { UpdateDoctorProfileDto } from './dto/update-doctor-profile.dto';
 import { UpdateDoctorScheduleDto } from './dto/update-doctor-schedule.dto';
 import { UpdateDoctorSpecialtiesDto } from './dto/update-doctor-specialties.dto';
 import { UpdateDoctorApprovalDto } from './dto/update-doctor-approval.dto';
+import { AdminUpdateDoctorProfileDto } from './dto/admin-update-doctor-profile.dto';
 import { AdminListDoctorsQueryDto } from './dto/admin-list-doctors-query.dto';
 import { ListDoctorPatientsQueryDto } from './dto/list-doctor-patients-query.dto';
 
 @Injectable()
 export class DoctorService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private buildProfileUpdateData(dto: UpdateDoctorProfileDto): Prisma.DoctorProfileUpdateInput {
+    return {
+      ...(dto.bio !== undefined ? { bio: dto.bio } : {}),
+      ...(dto.qualificationSummary !== undefined
+        ? { qualificationSummary: dto.qualificationSummary }
+        : {}),
+      ...(dto.consultationDescription !== undefined
+        ? { consultationDescription: dto.consultationDescription }
+        : {}),
+      ...(dto.yearsOfExperience !== undefined
+        ? { yearsOfExperience: dto.yearsOfExperience }
+        : {}),
+      ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
+    };
+  }
 
   async getMyProfile(userId: string) {
     const profile = await this.prisma.doctorProfile.findUnique({
@@ -81,13 +98,7 @@ export class DoctorService {
 
     return this.prisma.doctorProfile.update({
       where: { userId },
-      data: {
-        ...(dto.bio !== undefined ? { bio: dto.bio } : {}),
-        ...(dto.yearsOfExperience !== undefined
-          ? { yearsOfExperience: dto.yearsOfExperience }
-          : {}),
-        ...(dto.isActive !== undefined ? { isActive: dto.isActive } : {}),
-      },
+      data: this.buildProfileUpdateData(dto),
       include: {
         user: {
           select: {
@@ -137,28 +148,32 @@ export class DoctorService {
       throw new NotFoundException('Doctor profile not found');
     }
 
+    await this.replaceDoctorSpecialties(doctor.id, dto.specialtyIds);
+
+    return this.getMyProfile(userId);
+  }
+
+  private async replaceDoctorSpecialties(doctorId: string, specialtyIds: string[]) {
     const specialties = await this.prisma.specialty.findMany({
-      where: { id: { in: dto.specialtyIds }, isActive: true },
+      where: { id: { in: specialtyIds }, isActive: true },
       select: { id: true },
     });
 
-    if (specialties.length !== dto.specialtyIds.length) {
+    if (specialties.length !== specialtyIds.length) {
       throw new BadRequestException('One or more specialties are invalid or inactive');
     }
 
     await this.prisma.$transaction(async (tx) => {
-      await tx.doctorSpecialty.deleteMany({ where: { doctorId: doctor.id } });
+      await tx.doctorSpecialty.deleteMany({ where: { doctorId } });
 
       await tx.doctorSpecialty.createMany({
-        data: dto.specialtyIds.map((specialtyId) => ({
+        data: specialtyIds.map((specialtyId) => ({
           id: uuidv7(),
-          doctorId: doctor.id,
+          doctorId,
           specialtyId,
         })),
       });
     });
-
-    return this.getMyProfile(userId);
   }
 
   async listMyPatients(userId: string, query: ListDoctorPatientsQueryDto) {
@@ -348,6 +363,101 @@ export class DoctorService {
     });
 
     return updated;
+  }
+
+  async updateDoctorProfileForAdmin(
+    doctorId: string,
+    dto: AdminUpdateDoctorProfileDto,
+    adminId: string,
+  ) {
+    const doctor = await this.prisma.doctorProfile.findUnique({ where: { id: doctorId } });
+    if (!doctor) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+
+    const updated = await this.prisma.doctorProfile.update({
+      where: { id: doctorId },
+      data: this.buildProfileUpdateData(dto),
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            isActive: true,
+          },
+        },
+        specialties: {
+          include: {
+            specialty: true,
+          },
+        },
+      },
+    });
+
+    await this.prisma.auditLog.create({
+      data: {
+        id: uuidv7(),
+        actorUserId: adminId,
+        action: 'DOCTOR_PROFILE_UPDATED_BY_ADMIN',
+        resource: 'DOCTOR_PROFILE',
+        resourceId: doctorId,
+        metadata: {
+          updatedFields: Object.keys(dto),
+        },
+      },
+    });
+
+    return updated;
+  }
+
+  async updateDoctorSpecialtiesForAdmin(
+    doctorId: string,
+    dto: UpdateDoctorSpecialtiesDto,
+    adminId: string,
+  ) {
+    const doctor = await this.prisma.doctorProfile.findUnique({ where: { id: doctorId } });
+    if (!doctor) {
+      throw new NotFoundException('Doctor profile not found');
+    }
+
+    await this.replaceDoctorSpecialties(doctorId, dto.specialtyIds);
+
+    await this.prisma.auditLog.create({
+      data: {
+        id: uuidv7(),
+        actorUserId: adminId,
+        action: 'DOCTOR_SPECIALTIES_UPDATED_BY_ADMIN',
+        resource: 'DOCTOR_PROFILE',
+        resourceId: doctorId,
+        metadata: {
+          specialtyIds: dto.specialtyIds,
+        },
+      },
+    });
+
+    return this.prisma.doctorProfile.findUnique({
+      where: { id: doctorId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: true,
+            isActive: true,
+          },
+        },
+        specialties: {
+          include: {
+            specialty: true,
+          },
+        },
+      },
+    });
   }
 
   getPublicFilter() {

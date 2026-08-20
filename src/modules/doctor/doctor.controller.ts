@@ -7,6 +7,7 @@ import { UpdateDoctorProfileDto } from './dto/update-doctor-profile.dto';
 import { UpdateDoctorScheduleDto } from './dto/update-doctor-schedule.dto';
 import { UpdateDoctorSpecialtiesDto } from './dto/update-doctor-specialties.dto';
 import { UpdateDoctorApprovalDto } from './dto/update-doctor-approval.dto';
+import { AdminUpdateDoctorProfileDto } from './dto/admin-update-doctor-profile.dto';
 import { AdminListDoctorsQueryDto } from './dto/admin-list-doctors-query.dto';
 import { ListDoctorPatientsQueryDto } from './dto/list-doctor-patients-query.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -84,5 +85,27 @@ export class DoctorController {
     @CurrentUser() user: { sub: string },
   ) {
     return this.doctorService.updateDoctorApproval(doctorId, dto, user.sub);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch('admin/doctors/:doctorId/profile')
+  @ApiOperation({ summary: 'Admin updates doctor professional profile fields' })
+  async updateDoctorProfileForAdmin(
+    @Param('doctorId') doctorId: string,
+    @Body() dto: AdminUpdateDoctorProfileDto,
+    @CurrentUser() user: { sub: string },
+  ) {
+    return this.doctorService.updateDoctorProfileForAdmin(doctorId, dto, user.sub);
+  }
+
+  @Roles(Role.ADMIN)
+  @Patch('admin/doctors/:doctorId/specialties')
+  @ApiOperation({ summary: 'Admin updates doctor specialties' })
+  async updateDoctorSpecialtiesForAdmin(
+    @Param('doctorId') doctorId: string,
+    @Body() dto: UpdateDoctorSpecialtiesDto,
+    @CurrentUser() user: { sub: string },
+  ) {
+    return this.doctorService.updateDoctorSpecialtiesForAdmin(doctorId, dto, user.sub);
   }
 }

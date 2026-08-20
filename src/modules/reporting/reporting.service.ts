@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { AppointmentStatus, Role } from '@prisma/client';
+import { Prisma, Role } from '@prisma/client';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { ReportQueryDto, TrendGroupBy } from './dto/report-query.dto';
@@ -41,32 +41,66 @@ export class ReportingService {
     };
   }
 
+  private buildConsultationDateWhere(range: TimeRange): Prisma.ConsultationSessionWhereInput {
+    const dateFilter = this.buildDateFilter(range);
+    if (!dateFilter) return {};
+
+    return {
+      OR: [
+        { startedAt: dateFilter },
+        {
+          startedAt: null,
+          createdAt: dateFilter,
+        },
+      ],
+    };
+  }
+
   async getDashboard(query: ReportQueryDto) {
     const range = this.parseTimeRange(query);
-    const dateFilter = this.buildDateFilter(range);
+    const appointmentDateFilter = this.buildDateFilter(range);
+    const consultationWhere = this.buildConsultationDateWhere(range);
 
     const [
       totalConsultations,
+      consultationsByStatus,
       totalAppointments,
+      totalUsers,
       totalActiveUsers,
+      totalDoctors,
       totalActiveDoctors,
+      totalPatients,
       totalActivePatients,
+      totalSpecialties,
+      totalQuestions,
+      pendingQuestions,
+      answeredQuestions,
+      totalRatings,
       appointmentsByStatus,
     ] = await Promise.all([
-      this.prisma.appointment.count({
-        where: {
-          status: AppointmentStatus.COMPLETED,
-          scheduledAt: dateFilter,
+      this.prisma.consultationSession.count({ where: consultationWhere }),
+      this.prisma.consultationSession.groupBy({
+        by: ['status'],
+        where: consultationWhere,
+        _count: {
+          _all: true,
         },
       }),
       this.prisma.appointment.count({
         where: {
-          scheduledAt: dateFilter,
+          scheduledAt: appointmentDateFilter,
+        },
+      }),
+      this.prisma.user.count({ where: { deletedAt: null } }),
+      this.prisma.user.count({
+        where: {
+          isActive: true,
+          deletedAt: null,
         },
       }),
       this.prisma.user.count({
         where: {
-          isActive: true,
+          role: Role.DOCTOR,
           deletedAt: null,
         },
       }),
@@ -74,14 +108,25 @@ export class ReportingService {
       this.prisma.user.count({
         where: {
           role: Role.PATIENT,
+          deletedAt: null,
+        },
+      }),
+      this.prisma.user.count({
+        where: {
+          role: Role.PATIENT,
           isActive: true,
           deletedAt: null,
         },
       }),
+      this.prisma.specialty.count(),
+      this.prisma.question.count(),
+      this.prisma.question.count({ where: { status: 'PENDING' } }),
+      this.prisma.question.count({ where: { status: 'ANSWERED' } }),
+      this.prisma.rating.count(),
       this.prisma.appointment.groupBy({
         by: ['status'],
         where: {
-          scheduledAt: dateFilter,
+          scheduledAt: appointmentDateFilter,
         },
         _count: {
           _all: true,
@@ -91,10 +136,22 @@ export class ReportingService {
 
     return {
       totalConsultations,
+      consultationsByStatus: consultationsByStatus.map((item) => ({
+        status: item.status,
+        count: item._count._all,
+      })),
       totalAppointments,
+      totalUsers,
       totalActiveUsers,
+      totalDoctors,
       totalActiveDoctors,
+      totalPatients,
       totalActivePatients,
+      totalSpecialties,
+      totalQuestions,
+      pendingQuestions,
+      answeredQuestions,
+      totalRatings,
       appointmentsByStatus: appointmentsByStatus.map((item) => ({
         status: item.status,
         count: item._count._all,
@@ -109,22 +166,20 @@ export class ReportingService {
   async getConsultationTrend(query: ReportQueryDto) {
     const range = this.parseTimeRange(query);
     const groupBy: TrendGroupBy = query.groupBy ?? 'day';
-    const dateFilter = this.buildDateFilter(range);
+    const consultationWhere = this.buildConsultationDateWhere(range);
 
-    const appointments = await this.prisma.appointment.findMany({
-      where: {
-        status: AppointmentStatus.COMPLETED,
-        scheduledAt: dateFilter,
-      },
+    const consultations = await this.prisma.consultationSession.findMany({
+      where: consultationWhere,
       select: {
-        scheduledAt: true,
+        startedAt: true,
+        createdAt: true,
       },
-      orderBy: { scheduledAt: 'asc' },
+      orderBy: { createdAt: 'asc' },
     });
 
     const bucketMap = new Map<string, number>();
-    for (const appointment of appointments) {
-      const key = this.toBucketKey(appointment.scheduledAt, groupBy);
+    for (const consultation of consultations) {
+      const key = this.toBucketKey(consultation.startedAt ?? consultation.createdAt, groupBy);
       bucketMap.set(key, (bucketMap.get(key) ?? 0) + 1);
     }
 

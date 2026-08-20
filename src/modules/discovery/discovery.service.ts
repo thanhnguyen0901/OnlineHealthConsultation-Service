@@ -50,6 +50,8 @@ export class DiscoveryService {
         ? {
             OR: [
               { bio: { contains: keyword, mode: 'insensitive' } },
+              { qualificationSummary: { contains: keyword, mode: 'insensitive' } },
+              { consultationDescription: { contains: keyword, mode: 'insensitive' } },
               {
                 user: {
                   OR: [

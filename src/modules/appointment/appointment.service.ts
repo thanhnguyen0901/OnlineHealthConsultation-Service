@@ -881,35 +881,55 @@ export class AppointmentService {
     }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
   }
 
-  listAllAppointments(query?: ListAppointmentQueryDto) {
-    return this.prisma.appointment.findMany({
-      where: this.buildAppointmentFilters(query),
-      orderBy: { scheduledAt: 'desc' },
-      include: {
-        patient: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
+  async listAllAppointments(query?: ListAppointmentQueryDto) {
+    const page = query?.page ?? 1;
+    const limit = Math.min(query?.limit ?? 10, 100);
+    const skip = (page - 1) * limit;
+    const where = this.buildAppointmentFilters(query);
+
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.appointment.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { scheduledAt: 'desc' },
+        include: {
+          patient: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                },
+              },
+            },
+          },
+          doctor: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                },
               },
             },
           },
         },
-        doctor: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                firstName: true,
-                lastName: true,
-              },
-            },
-          },
-        },
+      }),
+      this.prisma.appointment.count({ where }),
+    ]);
+
+    return {
+      data: items,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(Math.ceil(total / limit), 1),
       },
-    });
+    };
   }
 
   async adminUpdateAppointmentStatus(

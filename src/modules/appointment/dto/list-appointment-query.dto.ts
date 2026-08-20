@@ -1,6 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { AppointmentStatus } from '@prisma/client';
-import { IsDateString, IsEnum, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsDateString, IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 
 export class ListAppointmentQueryDto {
   @ApiPropertyOptional({ enum: AppointmentStatus })
@@ -17,4 +18,19 @@ export class ListAppointmentQueryDto {
   @IsOptional()
   @IsDateString()
   toDate?: string;
+
+  @ApiPropertyOptional({ example: 1, default: 1 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @ApiPropertyOptional({ example: 10, default: 10 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
 }

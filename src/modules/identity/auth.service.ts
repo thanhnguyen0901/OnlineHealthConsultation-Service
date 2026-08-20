@@ -16,6 +16,7 @@ import { LoginDto } from './dto/login.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { getRequiredEnv } from '../../common/config/env.util';
 import { maskIp, sanitizeAuditMetadata } from '../../common/privacy/privacy.util';
 import { NotificationService } from '../notification/notification.service';
 
@@ -30,7 +31,7 @@ type JwtPayload = {
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-  private readonly refreshSecret = process.env.JWT_REFRESH_SECRET ?? 'refresh-secret-dev';
+  private readonly refreshSecret = getRequiredEnv('JWT_REFRESH_SECRET');
   private readonly refreshExpire = process.env.JWT_REFRESH_EXPIRE ?? '7d';
 
   constructor(

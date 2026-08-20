@@ -12,16 +12,19 @@ import * as jwt from 'jsonwebtoken';
 import { Server, Socket } from 'socket.io';
 
 import { ConsultationService } from './consultation.service';
+import { getRequiredEnv, parseCsvEnv } from '../../common/config/env.util';
 
 type JwtPayload = {
   sub: string;
   role: Role;
 };
 
+const socketCorsOrigin = parseCsvEnv(process.env.CORS_ORIGIN) ?? (process.env.NODE_ENV === 'production' ? false : true);
+
 @WebSocketGateway({
   namespace: '/consultations',
   cors: {
-    origin: true,
+    origin: socketCorsOrigin,
     credentials: true,
   },
 })
@@ -39,10 +42,7 @@ export class ConsultationGateway implements OnGatewayConnection {
     }
 
     try {
-      const payload = jwt.verify(
-        token,
-        process.env.JWT_SECRET || 'super-secret-key-for-dev',
-      ) as JwtPayload;
+      const payload = jwt.verify(token, getRequiredEnv('JWT_SECRET')) as JwtPayload;
       client.data.user = {
         sub: payload.sub,
         role: payload.role,

@@ -9,13 +9,16 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { OwnershipGuard } from '../../common/guards/ownership.guard';
 import { NotificationModule } from '../notification/notification.module';
+import { getRequiredEnv } from '../../common/config/env.util';
 
 @Module({
   imports: [
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'super-secret-key-for-dev',
-      signOptions: { expiresIn: (process.env.JWT_ACCESS_EXPIRE || '15m') as any },
+    JwtModule.registerAsync({
+      useFactory: () => ({
+        secret: getRequiredEnv('JWT_SECRET'),
+        signOptions: { expiresIn: (process.env.JWT_ACCESS_EXPIRE || '15m') as any },
+      }),
     }),
     NotificationModule,
   ],

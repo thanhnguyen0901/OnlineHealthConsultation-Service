@@ -9,6 +9,9 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRE: z.string().min(2).default('15m'),
   JWT_REFRESH_EXPIRE: z.string().min(2).default('7d'),
   CORS_ORIGIN: z.string().optional(),
+  APP_TIMEZONE: z.string().min(1).default('Asia/Ho_Chi_Minh'),
+  APPOINTMENT_DURATION_MINUTES: z.coerce.number().int().min(15).max(240).default(60),
+  APPOINTMENT_SLOT_STEP_MINUTES: z.coerce.number().int().min(5).max(120).default(30),
   AUTH_REFRESH_COOKIE_NAME: z.string().min(1).default('ohc_refresh_token'),
   AUTH_REFRESH_COOKIE_PATH: z.string().min(1).default('/api/auth'),
   AUTH_REFRESH_COOKIE_SAME_SITE: z.enum(['lax', 'strict', 'none']).default('lax'),
@@ -41,6 +44,57 @@ const envSchema = z.object({
     .union([z.literal('true'), z.literal('false')])
     .default('false')
     .transform((v) => v === 'true'),
+}).superRefine((env, ctx) => {
+  if (env.NODE_ENV !== 'production') {
+    return;
+  }
+
+  const forbiddenJwtSecrets = new Set([
+    'super-secret-key-for-dev',
+    'refresh-secret-dev',
+    'change-me',
+    'changeme',
+  ]);
+
+  if (env.JWT_SECRET.length < 32 || forbiddenJwtSecrets.has(env.JWT_SECRET)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['JWT_SECRET'],
+      message: 'JWT_SECRET must be a strong production secret',
+    });
+  }
+
+  if (env.JWT_REFRESH_SECRET.length < 32 || forbiddenJwtSecrets.has(env.JWT_REFRESH_SECRET)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['JWT_REFRESH_SECRET'],
+      message: 'JWT_REFRESH_SECRET must be a strong production secret',
+    });
+  }
+
+  if (!env.CORS_ORIGIN) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['CORS_ORIGIN'],
+      message: 'CORS_ORIGIN is required in production',
+    });
+  }
+
+  if (env.AUTH_REFRESH_COOKIE_SAME_SITE === 'none' && env.AUTH_REFRESH_COOKIE_SECURE !== true) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['AUTH_REFRESH_COOKIE_SECURE'],
+      message: 'AUTH_REFRESH_COOKIE_SECURE must be true when SameSite=None',
+    });
+  }
+
+  if (env.NOTIFICATION_PROVIDER === 'development') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['NOTIFICATION_PROVIDER'],
+      message: 'NOTIFICATION_PROVIDER must not be development in production',
+    });
+  }
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

@@ -6,6 +6,7 @@ import { randomUUID } from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 import cookieParser from 'cookie-parser';
 import { validateEnv } from './common/config/validate-env';
+import { parseCsvEnv } from './common/config/env.util';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 
 async function bootstrap() {
@@ -13,19 +14,27 @@ async function bootstrap() {
   const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
 
+  app.getHttpAdapter().getInstance().disable('x-powered-by');
   app.use(cookieParser());
+  app.use((_req: Request, res: Response, next: NextFunction) => {
+    res.setHeader('x-content-type-options', 'nosniff');
+    res.setHeader('x-frame-options', 'DENY');
+    res.setHeader('referrer-policy', 'no-referrer');
+    res.setHeader('permissions-policy', 'camera=(), microphone=(), geolocation=()');
+    next();
+  });
 
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: env.CORS_ORIGIN
-      ? env.CORS_ORIGIN.split(',').map((origin) => origin.trim())
-      : true,
+    origin: parseCsvEnv(env.CORS_ORIGIN) ?? (env.NODE_ENV === 'production' ? false : true),
     credentials: true,
   });
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      forbidNonWhitelisted: true,
+      forbidUnknownValues: true,
       transform: true,
     }),
   );

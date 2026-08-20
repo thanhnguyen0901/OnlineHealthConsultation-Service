@@ -9,12 +9,21 @@ import {
 import { uuidv7 } from 'uuidv7';
 
 import { PrismaService } from '../../prisma/prisma.service';
+import { DevelopmentNotificationProvider } from './providers/development-notification.provider';
+import { EmailNotificationProvider } from './providers/email-notification.provider';
+import { SmsNotificationProvider } from './providers/sms-notification.provider';
+import { NotificationProvider } from './providers/notification-provider';
 
 @Injectable()
 export class NotificationService {
   private readonly logger = new Logger(NotificationService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly developmentProvider: DevelopmentNotificationProvider,
+    private readonly emailProvider: EmailNotificationProvider,
+    private readonly smsProvider: SmsNotificationProvider,
+  ) {}
 
   listMyNotifications(userId: string) {
     return this.prisma.notificationLog.findMany({
@@ -131,11 +140,13 @@ export class NotificationService {
         userId: appointment.patient.userId,
         content: `Reminder: appointment at ${appointment.scheduledAt.toISOString()}.`,
         externalRef: `APPOINTMENT_REMINDER:${appointment.id}:PATIENT`,
+        throwOnFailure: false,
       });
       await this.createNotificationIdempotent({
         userId: appointment.doctor.userId,
         content: `Reminder: appointment at ${appointment.scheduledAt.toISOString()}.`,
         externalRef: `APPOINTMENT_REMINDER:${appointment.id}:DOCTOR`,
+        throwOnFailure: false,
       });
     }
 
@@ -156,7 +167,7 @@ export class NotificationService {
     const isProduction = process.env.NODE_ENV === 'production';
     const provider =
       process.env.PASSWORD_RESET_NOTIFICATION_PROVIDER ??
-      (isProduction ? 'EMAIL_PROVIDER_NOT_CONFIGURED' : 'DEV_NOTIFICATION');
+      (isProduction ? this.emailProvider.name : this.developmentProvider.name);
     const canStoreResetLink = !isProduction;
     const content = canStoreResetLink
       ? [
@@ -169,20 +180,13 @@ export class NotificationService {
           'A reset link was generated but not stored because production email delivery is not configured.',
         ].join('\n');
 
-    return this.prisma.notificationLog.upsert({
-      where: { externalRef: `PASSWORD_RESET:${input.tokenId}` },
-      create: {
-        id: uuidv7(),
-        userId: input.userId,
-        type: NotificationType.EMAIL,
-        content,
-        externalRef: `PASSWORD_RESET:${input.tokenId}`,
-        status: canStoreResetLink ? NotificationStatus.SENT : NotificationStatus.FAILED,
-        provider,
-        errorCode: canStoreResetLink ? undefined : 'EMAIL_PROVIDER_NOT_CONFIGURED',
-        errorMsg: canStoreResetLink ? undefined : 'Configure password reset email delivery.',
-      },
-      update: {},
+    return this.createNotificationIdempotent({
+      userId: input.userId,
+      type: NotificationType.EMAIL,
+      content,
+      externalRef: `PASSWORD_RESET:${input.tokenId}`,
+      provider,
+      throwOnFailure: false,
     });
   }
 
@@ -282,19 +286,78 @@ export class NotificationService {
     externalRef: string;
     type?: NotificationType;
     provider?: string;
+    throwOnFailure?: boolean;
   }) {
-    return this.prisma.notificationLog.upsert({
+    const type = input.type ?? NotificationType.EMAIL;
+    const provider = this.resolveProvider(type, input.provider);
+    const log = await this.prisma.notificationLog.upsert({
       where: { externalRef: input.externalRef },
       create: {
         id: uuidv7(),
         userId: input.userId,
-        type: input.type ?? NotificationType.EMAIL,
+        type,
         content: input.content,
         externalRef: input.externalRef,
-        status: NotificationStatus.SENT,
-        provider: input.provider ?? 'OUTBOX_WORKER',
+        status: NotificationStatus.PENDING,
+        provider: provider.name,
       },
       update: {},
     });
+
+    if (log.status === NotificationStatus.SENT) {
+      return log;
+    }
+
+    const result = await provider.send({
+      type,
+      recipientUserId: input.userId,
+      content: input.content,
+      externalRef: input.externalRef,
+    });
+
+    const updated = await this.prisma.notificationLog.update({
+      where: { id: log.id },
+      data: {
+        status: result.success ? NotificationStatus.SENT : NotificationStatus.FAILED,
+        provider: result.provider,
+        errorCode: result.success ? null : result.errorCode ?? 'NOTIFICATION_DELIVERY_FAILED',
+        errorMsg: result.success ? null : result.errorMsg ?? 'Notification delivery failed',
+      },
+    });
+
+    if (!result.success && input.throwOnFailure !== false) {
+      throw new Error(result.errorMsg ?? 'Notification delivery failed');
+    }
+
+    return updated;
+  }
+
+  private resolveProvider(type: NotificationType, preferredProvider?: string): NotificationProvider {
+    if (preferredProvider === this.developmentProvider.name || preferredProvider === 'development') {
+      return this.developmentProvider;
+    }
+
+    if (preferredProvider === this.emailProvider.name || preferredProvider === 'email') {
+      return this.emailProvider;
+    }
+
+    if (preferredProvider && type === NotificationType.EMAIL) {
+      return this.emailProvider;
+    }
+
+    if (type === NotificationType.SMS) {
+      return process.env.NOTIFICATION_SMS_PROVIDER_ENABLED === 'true'
+        ? this.smsProvider
+        : this.developmentProvider;
+    }
+
+    const configuredProvider =
+      process.env.NOTIFICATION_PROVIDER ??
+      (process.env.NODE_ENV === 'production' ? 'email' : 'development');
+    if (configuredProvider === 'email') {
+      return this.emailProvider;
+    }
+
+    return this.developmentProvider;
   }
 }

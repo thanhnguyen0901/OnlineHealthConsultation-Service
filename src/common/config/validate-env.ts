@@ -30,6 +30,17 @@ const envSchema = z.object({
   NOTIFICATION_REMINDER_CRON: z.string().optional(),
   NOTIFICATION_OUTBOX_BATCH_LIMIT: z.coerce.number().int().min(1).max(500).default(100),
   NOTIFICATION_REMINDER_WINDOW_MINUTES: z.coerce.number().int().min(1).max(1440).default(60),
+  NOTIFICATION_PROVIDER: z.enum(['development', 'email']).default('development'),
+  NOTIFICATION_EMAIL_PROVIDER: z.string().min(1).optional(),
+  NOTIFICATION_EMAIL_PROVIDER_ENABLED: z
+    .union([z.literal('true'), z.literal('false')])
+    .default('false')
+    .transform((v) => v === 'true'),
+  NOTIFICATION_SMS_PROVIDER: z.string().min(1).optional(),
+  NOTIFICATION_SMS_PROVIDER_ENABLED: z
+    .union([z.literal('true'), z.literal('false')])
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 export type AppEnv = z.infer<typeof envSchema>;

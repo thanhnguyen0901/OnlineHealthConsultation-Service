@@ -88,6 +88,22 @@ const envSchema = z.object({
     });
   }
 
+  if (env.AUTH_REFRESH_COOKIE_SECURE === false) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['AUTH_REFRESH_COOKIE_SECURE'],
+      message: 'AUTH_REFRESH_COOKIE_SECURE must not be false in production',
+    });
+  }
+
+  if (env.PASSWORD_RESET_FRONTEND_URL.includes('localhost')) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['PASSWORD_RESET_FRONTEND_URL'],
+      message: 'PASSWORD_RESET_FRONTEND_URL must point to the deployed frontend in production',
+    });
+  }
+
   if (env.NOTIFICATION_PROVIDER === 'development') {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,

@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+actor "Patient" as Patient
+actor "Notification Service" as NotifySvc
+
+rectangle "Patient Capabilities" {
+  usecase "UC-P-01\nĐăng ký tài khoản" as UCP01
+  usecase "UC-P-02\nĐăng nhập" as UCP02
+  usecase "UC-P-03\nĐăng xuất" as UCP03
+  usecase "UC-P-04\nQuản lý hồ sơ sức khỏe cá nhân" as UCP04
+  usecase "UC-P-05\nTìm kiếm bác sĩ theo chuyên khoa" as UCP05
+  usecase "UC-P-06\nXem chi tiết bác sĩ" as UCP06
+  usecase "UC-P-07\nGửi câu hỏi sức khỏe" as UCP07
+  usecase "UC-P-08\nĐặt lịch hẹn tư vấn" as UCP08
+  usecase "UC-P-09\nXem danh sách lịch hẹn sắp tới" as UCP09
+  usecase "UC-P-10\nTham gia phiên tư vấn" as UCP10
+  usecase "UC-P-11\nXem phản hồi của bác sĩ" as UCP11
+  usecase "UC-P-12\nXem lịch sử tư vấn" as UCP12
+  usecase "UC-P-13\nXem đơn thuốc và tóm tắt tư vấn" as UCP13
+  usecase "UC-P-14\nĐánh giá chất lượng tư vấn" as UCP14
+  usecase "UC-P-15\nNhận nhắc lịch và thông báo" as UCP15
+}
+
+rectangle "External Notification" {
+  usecase "UC-E-01\nGửi email nhắc lịch" as UCE01
+  usecase "UC-E-02\nGửi SMS nhắc lịch" as UCE02
+}
+
+Patient --> UCP01
+Patient --> UCP02
+Patient --> UCP03
+Patient --> UCP04
+Patient --> UCP05
+Patient --> UCP06
+Patient --> UCP07
+Patient --> UCP08
+Patient --> UCP09
+Patient --> UCP10
+Patient --> UCP11
+Patient --> UCP12
+Patient --> UCP13
+Patient --> UCP14
+Patient --> UCP15
+
+NotifySvc --> UCE01
+NotifySvc --> UCE02
+
+UCP13 ..> UCP12 : <<extend>>
+UCP14 ..> UCP12 : <<extend>>
+UCP08 ..> UCP05 : <<include>>
+UCP08 ..> UCP06 : <<include>>
+UCP15 ..> UCE01 : <<include>>
+UCP15 ..> UCE02 : <<extend>>
+@enduml

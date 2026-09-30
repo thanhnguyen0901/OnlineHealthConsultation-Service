@@ -1,0 +1,217 @@
+<mxfile host="app.diagrams.net" modified="2026-08-21T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="architecture-overview-diagram-design-editable" name="Architecture Overview">
+    <mxGraphModel dx="1600" dy="1040" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="1040" math="0" shadow="0" background="#f5f5f5">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1600" height="1040" as="geometry"/>
+        </mxCell>
+        <mxCell id="title" value="Online Health Consultation" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Georgia;fontSize=34;fontColor=#2d3142;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="72" y="34" width="520" height="42" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="Architecture overview · current modular monolith implementation" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=15;fontColor=#4f5d75;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="74" y="74" width="520" height="24" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="usersZone" value="" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#f3f3f3;strokeColor=#d9dce3;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="64" y="128" width="260" height="316" as="geometry"/>
+        </mxCell>
+        <mxCell id="webZone" value="" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#f3f3f3;strokeColor=#d9dce3;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="380" y="156" width="276" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="appZone" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f3f3f3;strokeColor=#d9dce3;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="96" width="596" height="596" as="geometry"/>
+        </mxCell>
+        <mxCell id="dataZone" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f3f3f3;strokeColor=#d9dce3;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="760" width="372" height="206" as="geometry"/>
+        </mxCell>
+        <mxCell id="externalZone" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f3f3f3;strokeColor=#d9dce3;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="1192" y="724" width="320" height="242" as="geometry"/>
+        </mxCell>
+        <mxCell id="entryZone" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f1f1f3;strokeColor=#d9dce3;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="752" y="144" width="532" height="172" as="geometry"/>
+        </mxCell>
+        <mxCell id="modulesZone" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f1f1f3;strokeColor=#d9dce3;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="752" y="348" width="532" height="188" as="geometry"/>
+        </mxCell>
+        <mxCell id="backgroundZone" value="" style="rounded=1;arcSize=4;whiteSpace=wrap;html=1;fillColor=#f1f1f3;strokeColor=#d9dce3;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="752" y="560" width="532" height="96" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="edgeUsersReact" value="uses" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#4f5d75;strokeWidth=1.4;fontColor=#4f5d75;fontFamily=Courier New;fontSize=11;labelBackgroundColor=#f5f5f5;" edge="1" parent="1" source="usersZone" target="reactSpa">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeReactRest" value="REST /api" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#2e5aa8;strokeWidth=1.4;fontColor=#4f5d75;fontFamily=Courier New;fontSize=11;labelBackgroundColor=#f5f5f5;" edge="1" parent="1" source="reactSpa" target="restControllers">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeReactGateway" value="Socket.IO /consultations" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=classic;startFill=1;endArrow=classic;endFill=1;strokeColor=#2e5aa8;strokeWidth=1.4;fontColor=#4f5d75;fontFamily=Courier New;fontSize=11;labelBackgroundColor=#f5f5f5;" edge="1" parent="1" source="reactSpa" target="consultationGateway">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="668" y="124"/>
+              <mxPoint x="1136" y="124"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edgeRestModules" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#4f5d75;strokeWidth=1.4;" edge="1" parent="1" source="restControllers" target="modulesZone">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeGatewayConsultation" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#4f5d75;strokeWidth=1.1;" edge="1" parent="1" source="consultationGateway" target="moduleConsultation">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1136" y="332"/>
+              <mxPoint x="1024" y="450"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edgeSchedulerNotification" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#4f5d75;strokeWidth=1.1;" edge="1" parent="1" source="notificationScheduler" target="moduleNotification">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="990" y="544"/>
+              <mxPoint x="1146" y="450"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edgeModulesPrisma" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#4f5d75;strokeWidth=1.4;" edge="1" parent="1" source="modulesZone" target="prismaService">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1018" y="692"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edgePrismaPostgres" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#4f5d75;strokeWidth=1.1;" edge="1" parent="1" source="prismaService" target="postgresql">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+        <mxCell id="edgeNotificationEmail" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;strokeColor=#4f5d75;strokeWidth=1.1;" edge="1" parent="1" source="moduleNotification" target="emailSms">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1084" y="368"/>
+              <mxPoint x="1350" y="368"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="edgeConsultationVideo" value="optional" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;endFill=1;dashed=1;dashPattern=5 4;strokeColor=#4f5d75;strokeWidth=1.1;fontColor=#4f5d75;fontFamily=Courier New;fontSize=11;labelBackgroundColor=#f5f5f5;" edge="1" parent="1" source="moduleConsultation" target="videoProvider">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1022" y="544"/>
+              <mxPoint x="1472" y="544"/>
+              <mxPoint x="1472" y="914"/>
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <mxCell id="labelUsersMask" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="98" y="122" width="124" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelUsers" value="USERS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=11;fontColor=#7a8399;fontStyle=1;spacing=0;" vertex="1" parent="1">
+          <mxGeometry x="98" y="124" width="124" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelWebMask" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="430" y="150" width="132" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelWeb" value="WEB CLIENT" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=11;fontColor=#7a8399;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="430" y="152" width="132" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelAppMask" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="780" y="90" width="172" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelApp" value="APPLICATION LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=11;fontColor=#7a8399;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="780" y="92" width="172" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="railway" value="Railway" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Courier New;fontSize=10;fontColor=#7a8399;fontStyle=0;" vertex="1" parent="1">
+          <mxGeometry x="1168" y="112" width="88" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelDataMask" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="782" y="754" width="112" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelData" value="DATA LAYER" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=11;fontColor=#7a8399;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="782" y="756" width="112" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelExternalMask" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="1234" y="718" width="210" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelExternal" value="EXTERNAL BOUNDARIES" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=11;fontColor=#7a8399;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1234" y="720" width="210" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelEntryMask" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="794" y="138" width="118" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelEntry" value="ENTRY POINTS" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=11;fontColor=#7a8399;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="794" y="140" width="118" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelModulesMask" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="794" y="342" width="168" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelModules" value="APPLICATION MODULES" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=11;fontColor=#7a8399;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="794" y="344" width="168" height="16" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelBackgroundMask" value="" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="794" y="554" width="178" height="20" as="geometry"/>
+        </mxCell>
+        <mxCell id="labelBackground" value="BACKGROUND PROCESSING" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Arial;fontSize=11;fontColor=#7a8399;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="794" y="556" width="178" height="16" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="guest" value="Guest" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#bfc0c0;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="96" y="172" width="196" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="patientUser" value="Patient" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#bfc0c0;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="96" y="236" width="196" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="doctorUser" value="Doctor" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#bfc0c0;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="96" y="300" width="196" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="administratorUser" value="Administrator" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#bfc0c0;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="96" y="364" width="196" height="48" as="geometry"/>
+        </mxCell>
+        <mxCell id="reactSpa" value="React SPA&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-family: Courier New; font-weight: normal; color: #4f5d75;&quot;&gt;Vite / browser app&lt;/font&gt;" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2d3142;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="420" y="204" width="196" height="88" as="geometry"/>
+        </mxCell>
+        <mxCell id="vercelHosting" value="Vercel hosting" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#bfc0c0;strokeWidth=1.1;dashed=1;dashPattern=5 4;fontFamily=Courier New;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="444" y="314" width="148" height="34" as="geometry"/>
+        </mxCell>
+        <mxCell id="restControllers" value="REST Controllers&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-family: Courier New; font-weight: normal; color: #4f5d75;&quot;&gt;global prefix /api&lt;/font&gt;" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#2d3142;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="792" y="208" width="188" height="84" as="geometry"/>
+        </mxCell>
+        <mxCell id="consultationGateway" value="ConsultationGateway&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-family: Courier New; font-weight: normal; color: #4f5d75;&quot;&gt;Socket.IO namespace&lt;/font&gt;" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#fdf0eb;strokeColor=#eb6c36;strokeWidth=1.4;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1040" y="208" width="192" height="84" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="moduleIdentity" value="Identity" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="780" y="384" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleDoctor" value="Doctor" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="904" y="384" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="modulePatient" value="Patient" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="1028" y="384" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleAppointment" value="Appointment" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="1152" y="384" width="104" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleQuestion" value="Question" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="780" y="432" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleConsultation" value="Consultation" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="904" y="432" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleNotification" value="Notification" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="1028" y="432" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleReporting" value="Reporting" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="1152" y="432" width="104" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleSpecialty" value="Specialty" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="780" y="480" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleDiscovery" value="Discovery" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="904" y="480" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleOperations" value="Operations" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="1028" y="480" width="112" height="36" as="geometry"/></mxCell>
+        <mxCell id="moduleModeration" value="Moderation" style="rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#aeb8c6;strokeWidth=1;fontFamily=Arial;fontSize=12;fontColor=#4f5d75;align=center;verticalAlign=middle;" vertex="1" parent="1"><mxGeometry x="1152" y="480" width="104" height="36" as="geometry"/></mxCell>
+
+        <mxCell id="notificationScheduler" value="NotificationScheduler" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#bfc0c0;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="848" y="596" width="284" height="36" as="geometry"/>
+        </mxCell>
+        <mxCell id="nodeCron" value="node-cron" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Courier New;fontSize=12;fontColor=#4f5d75;" vertex="1" parent="1">
+          <mxGeometry x="1140" y="604" width="88" height="24" as="geometry"/>
+        </mxCell>
+        <mxCell id="prismaService" value="PrismaService&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-family: Courier New; font-weight: normal; color: #4f5d75;&quot;&gt;Prisma ORM&lt;/font&gt;" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#fdf0eb;strokeColor=#eb6c36;strokeWidth=1.4;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="792" y="804" width="228" height="76" as="geometry"/>
+        </mxCell>
+        <mxCell id="postgresql" value="PostgreSQL" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#e9eaed;strokeColor=#4f5d75;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;" vertex="1" parent="1">
+          <mxGeometry x="792" y="892" width="228" height="54" as="geometry"/>
+        </mxCell>
+        <mxCell id="emailSms" value="Email / SMS&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-family: Courier New; font-weight: normal; color: #4f5d75;&quot;&gt;Provider Boundary&lt;/font&gt;" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#eeeeef;strokeColor=#9da3af;strokeWidth=1.2;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1248" y="772" width="204" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="videoProvider" value="Video&lt;br&gt;&lt;font style=&quot;font-size: 12px; font-family: Courier New; font-weight: normal; color: #4f5d75;&quot;&gt;Provider Boundary&lt;/font&gt;" style="rounded=1;arcSize=7;whiteSpace=wrap;html=1;fillColor=#fafafa;strokeColor=#bfc0c0;strokeWidth=1.1;dashed=1;dashPattern=5 4;fontFamily=Arial;fontSize=17;fontColor=#2d3142;fontStyle=1;align=center;verticalAlign=middle;spacingTop=8;" vertex="1" parent="1">
+          <mxGeometry x="1248" y="880" width="204" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="footer" value="Current state only: one NestJS runtime, modular monolith, PostgreSQL via Prisma, no Redis/message broker/vendor-specific provider in source." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontFamily=Courier New;fontSize=10;fontColor=#7a8399;" vertex="1" parent="1">
+          <mxGeometry x="72" y="988" width="1040" height="28" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

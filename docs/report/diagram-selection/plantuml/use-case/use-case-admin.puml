@@ -1,0 +1,26 @@
+@startuml
+left to right direction
+actor "Administrator" as Admin
+
+rectangle "Administration Capabilities" {
+  usecase "UC-A-01\nĐăng nhập" as UCA01
+  usecase "UC-A-02\nQuản lý tài khoản bác sĩ" as UCA02
+  usecase "UC-A-03\nQuản lý tài khoản bệnh nhân" as UCA03
+  usecase "UC-A-04\nQuản lý chuyên khoa" as UCA04
+  usecase "UC-A-05\nQuản lý lịch hẹn" as UCA05
+  usecase "UC-A-06\nKiểm duyệt nội dung tư vấn và phản hồi" as UCA06
+  usecase "UC-A-07\nXem dashboard thống kê hệ thống" as UCA07
+  usecase "UC-A-08\nTheo dõi người dùng đang hoạt động và số lượng phiên tư vấn" as UCA08
+}
+
+Admin --> UCA01
+Admin --> UCA02
+Admin --> UCA03
+Admin --> UCA04
+Admin --> UCA05
+Admin --> UCA06
+Admin --> UCA07
+Admin --> UCA08
+
+UCA08 ..> UCA07 : <<extend>>
+@enduml

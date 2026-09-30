@@ -1,0 +1,24 @@
+@startuml
+left to right direction
+actor "Guest User" as Guest
+
+rectangle "Public Area" {
+  usecase "UC-G-01\nXem trang chủ hệ thống" as UCG01
+  usecase "UC-G-02\nXem danh sách chuyên khoa" as UCG02
+  usecase "UC-G-03\nTìm kiếm bác sĩ theo chuyên khoa hoặc từ khóa" as UCG03
+  usecase "UC-G-04\nXem chi tiết hồ sơ công khai của bác sĩ" as UCG04
+  usecase "UC-G-05\nXem danh sách bác sĩ nổi bật hoặc đang hoạt động" as UCG05
+  usecase "UC-G-06\nChuyển đến trang đăng ký hoặc đăng nhập khi muốn đặt lịch hoặc gửi câu hỏi" as UCG06
+}
+
+Guest --> UCG01
+Guest --> UCG02
+Guest --> UCG03
+Guest --> UCG04
+Guest --> UCG05
+Guest --> UCG06
+
+UCG03 ..> UCG02 : <<include>>
+UCG04 ..> UCG03 : <<extend>>
+UCG06 ..> UCG04 : <<extend>>
+@enduml

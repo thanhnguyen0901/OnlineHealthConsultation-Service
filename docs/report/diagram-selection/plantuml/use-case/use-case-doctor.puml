@@ -1,0 +1,44 @@
+@startuml
+left to right direction
+actor "Doctor" as Doctor
+actor "Video Communication Service" as VideoSvc
+
+rectangle "Doctor Capabilities" {
+  usecase "UC-D-01\nĐăng nhập" as UCD01
+  usecase "UC-D-02\nQuản lý hồ sơ bác sĩ" as UCD02
+  usecase "UC-D-03\nXem các câu hỏi sức khỏe được phân công hoặc có thể xử lý" as UCD03
+  usecase "UC-D-04\nPhản hồi câu hỏi của bệnh nhân" as UCD04
+  usecase "UC-D-05\nQuản lý lịch tư vấn" as UCD05
+  usecase "UC-D-06\nXem các lịch hẹn đã được đặt" as UCD06
+  usecase "UC-D-07\nBắt đầu phiên tư vấn" as UCD07
+  usecase "UC-D-08\nThực hiện tư vấn qua chat hoặc video" as UCD08
+  usecase "UC-D-09\nGhi nhận kết quả tư vấn" as UCD09
+  usecase "UC-D-10\nCấp đơn thuốc điện tử cơ bản" as UCD10
+  usecase "UC-D-11\nXem lịch sử tư vấn của bệnh nhân" as UCD11
+}
+
+rectangle "External Video" {
+  usecase "UC-E-03\nThiết lập phiên tư vấn video" as UCE03
+}
+
+Doctor --> UCD01
+Doctor --> UCD02
+Doctor --> UCD03
+Doctor --> UCD04
+Doctor --> UCD05
+Doctor --> UCD06
+Doctor --> UCD07
+Doctor --> UCD08
+Doctor --> UCD09
+Doctor --> UCD10
+Doctor --> UCD11
+
+VideoSvc --> UCE03
+
+UCD04 ..> UCD03 : <<include>>
+UCD07 ..> UCD06 : <<include>>
+UCD08 ..> UCD07 : <<include>>
+UCD08 ..> UCE03 : <<extend>>
+UCD09 ..> UCD08 : <<extend>>
+UCD10 ..> UCD09 : <<extend>>
+@enduml

@@ -50,7 +50,7 @@
 |---|---|---|
 | Bảng 1.1 | Các tác nhân chính của hệ thống | Mục 1.4 |
 | Bảng 1.2 | Các nhóm chức năng chính của hệ thống | Mục 1.6 |
-| Bảng 2.1 | Công nghệ chính sử dụng trong hệ thống | Mục 2.12 |
+| Bảng 2.1 | Công nghệ chính sử dụng trong hệ thống | Mục 2.17 |
 | Bảng 3.1 | Tác nhân và vai trò trong hệ thống | Mục 3.2 |
 | Bảng 3.2 | Tóm tắt yêu cầu chức năng theo nhóm | Mục 3.3 |
 | Bảng 4.1 | Vai trò thiết kế của các module backend | Mục 4.2 |
@@ -63,32 +63,46 @@
 
 # CHƯƠNG 1. TỔNG QUAN ĐỀ TÀI
 
-## 1.1 Bối cảnh và lý do chọn đề tài
+## 1.1. Bối cảnh và lý do chọn đề tài
 
-Nhu cầu tiếp cận thông tin chăm sóc sức khỏe, tìm kiếm bác sĩ phù hợp và đặt lịch tư vấn trực tuyến ngày càng tăng. Nếu quy trình tìm bác sĩ, gửi câu hỏi, đặt lịch, tham gia tư vấn và lưu kết quả được thực hiện rời rạc, người bệnh khó theo dõi tiến trình tư vấn, còn bác sĩ và người quản trị khó kiểm soát lịch hẹn, nội dung trao đổi và trạng thái xử lý.
+Trong những năm gần đây, nhu cầu tiếp cận thông tin chăm sóc sức khỏe và đặt lịch tư vấn y tế trực tuyến ngày càng tăng. Người dùng có xu hướng tìm kiếm thông tin bác sĩ, chuyên khoa, thời gian tư vấn phù hợp và mong muốn nhận được phản hồi chuyên môn nhanh chóng hơn thông qua các nền tảng trực tuyến. Bên cạnh đó, việc quản lý lịch hẹn, theo dõi lịch sử tư vấn và nhắc lịch cũng là những nhu cầu thiết thực đối với cả người bệnh và nhân viên y tế.
 
-Đề tài **“Thiết kế và xây dựng hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến”** được thực hiện nhằm xây dựng một hệ thống web hỗ trợ các nghiệp vụ trên trong một quy trình thống nhất. Hệ thống là công cụ hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn, không thay thế chẩn đoán y khoa chuyên nghiệp, cấp cứu y tế hoặc việc khám trực tiếp khi cần thiết.
+Trong thực tế, quy trình tìm kiếm bác sĩ, đặt lịch tư vấn và trao đổi thông tin sức khỏe nếu thực hiện rời rạc có thể gây mất thời gian, khó theo dõi và thiếu tính tập trung. Bệnh nhân có thể gặp khó khăn trong việc biết bác sĩ nào phù hợp với chuyên khoa cần tư vấn, thời gian nào còn trống, hoặc lịch sử tư vấn trước đó được lưu ở đâu. Về phía bác sĩ và người quản trị, việc tiếp nhận câu hỏi, quản lý lịch hẹn, theo dõi trạng thái tư vấn và kiểm duyệt nội dung cũng cần một công cụ hỗ trợ có tổ chức.
 
-## 1.2 Bài toán cần giải quyết
+Xuất phát từ bối cảnh trên, đề tài **“Thiết kế và xây dựng hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến”** được lựa chọn nhằm xây dựng một hệ thống web hỗ trợ người dùng tra cứu bác sĩ, đặt lịch tư vấn, gửi câu hỏi sức khỏe, tham gia tư vấn trực tuyến và theo dõi kết quả tư vấn. Hệ thống được định hướng là công cụ hỗ trợ tư vấn và quản lý lịch hẹn, không thay thế cho chẩn đoán y khoa chuyên nghiệp, cấp cứu y tế hoặc việc khám trực tiếp khi cần thiết.
 
-Bài toán đặt ra là xây dựng một nền tảng trực tuyến kết nối bốn nhóm người dùng: khách truy cập, bệnh nhân, bác sĩ và quản trị viên. Hệ thống cần cho phép người dùng xem thông tin công khai, tìm kiếm bác sĩ/chuyên khoa, đăng ký hoặc đăng nhập, quản lý hồ sơ, gửi câu hỏi, đặt lịch tư vấn, tham gia phiên tư vấn, xem kết quả, đánh giá và thực hiện các tác vụ quản trị.
+## 1.2. Bài toán cần giải quyết
 
-Ngoài yêu cầu chức năng, hệ thống phải bảo đảm phân quyền theo vai trò, kiểm soát quyền sở hữu dữ liệu, bảo vệ thông tin cá nhân và thông tin sức khỏe, đồng thời có cơ chế hỗ trợ thông báo, kiểm duyệt và thống kê hoạt động.
+Bài toán đặt ra là xây dựng một hệ thống trực tuyến có khả năng kết nối các nhóm người dùng chính gồm khách truy cập, bệnh nhân, bác sĩ và quản trị viên trong cùng một quy trình tư vấn sức khỏe. Hệ thống cần hỗ trợ người dùng chưa đăng nhập xem thông tin công khai, tìm kiếm bác sĩ và chuyên khoa; đồng thời cho phép bệnh nhân sau khi đăng nhập có thể quản lý hồ sơ sức khỏe, gửi câu hỏi, đặt lịch hẹn và tham gia phiên tư vấn.
 
-## 1.3 Mục tiêu đề tài
+Đối với bác sĩ, hệ thống cần cung cấp công cụ quản lý hồ sơ chuyên môn, lịch làm việc, danh sách câu hỏi và lịch hẹn, cũng như ghi nhận kết quả tư vấn và đơn thuốc điện tử cơ bản. Đối với quản trị viên, hệ thống cần hỗ trợ quản lý người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, nội dung tư vấn và thống kê hoạt động.
 
-Mục tiêu tổng quát là phân tích, thiết kế và xây dựng một ứng dụng web hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến theo phạm vi đã xác định trong SRS.
+Ngoài các luồng nghiệp vụ chính, hệ thống còn cần đảm bảo phân quyền theo vai trò, bảo vệ dữ liệu cá nhân và dữ liệu sức khỏe, hỗ trợ giao diện phù hợp trên nhiều kích thước màn hình, đồng thời có cơ chế thông báo hoặc nhắc lịch cho các sự kiện quan trọng trong quá trình tư vấn.
 
-Các mục tiêu cụ thể gồm:
+## 1.3. Mục tiêu đề tài
 
-- Xây dựng khu vực công khai để xem chuyên khoa, bác sĩ và hồ sơ công khai của bác sĩ.
-- Hỗ trợ đăng ký, đăng nhập, đăng xuất, khôi phục mật khẩu và phân quyền theo vai trò.
-- Cho phép bệnh nhân quản lý hồ sơ sức khỏe, gửi câu hỏi, đặt lịch, tham gia tư vấn, xem kết quả và đánh giá.
-- Cho phép bác sĩ quản lý hồ sơ chuyên môn, lịch làm việc, câu hỏi, lịch hẹn, phiên tư vấn, kết quả tư vấn và đơn thuốc cơ bản.
-- Cung cấp công cụ quản trị người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt và báo cáo.
-- Đảm bảo các yêu cầu cơ bản về bảo mật, kiểm soát truy cập, tính nhất quán dữ liệu và khả năng sử dụng.
+Mục tiêu tổng quát của đề tài là phân tích, thiết kế và xây dựng một hệ thống web hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến, đáp ứng các nghiệp vụ cốt lõi trong phạm vi đã xác định.
 
-## 1.4 Đối tượng sử dụng
+Các mục tiêu cụ thể bao gồm:
+
+- Xây dựng khu vực công khai để người dùng xem thông tin nền tảng, danh sách chuyên khoa, danh sách bác sĩ và hồ sơ công khai của bác sĩ.
+- Hỗ trợ đăng ký, đăng nhập, đăng xuất và phân quyền theo các vai trò Guest User, Patient, Doctor và Administrator.
+- Cho phép bệnh nhân quản lý hồ sơ sức khỏe cá nhân, tìm kiếm bác sĩ, gửi câu hỏi sức khỏe, đặt lịch tư vấn và theo dõi lịch sử tư vấn.
+- Cho phép bác sĩ quản lý hồ sơ chuyên môn, lịch làm việc, trả lời câu hỏi, xử lý lịch hẹn, tham gia tư vấn trực tuyến và ghi nhận kết quả tư vấn.
+- Hỗ trợ phiên tư vấn trực tuyến qua chat và cơ chế video ở mức mô phỏng hoặc tích hợp cơ bản theo phạm vi đề tài.
+- Hỗ trợ ghi nhận tóm tắt tư vấn, đơn thuốc điện tử cơ bản và đánh giá chất lượng tư vấn.
+- Cung cấp chức năng quản trị người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt nội dung và thống kê hoạt động hệ thống.
+- Đảm bảo các yêu cầu cơ bản về bảo mật, phân quyền, kiểm soát truy cập và tính dễ sử dụng của giao diện.
+
+## 1.4. Đối tượng sử dụng
+
+Hệ thống hướng đến bốn nhóm người dùng chính:
+
+- **Khách truy cập (Guest User):** Người dùng chưa đăng nhập, có thể xem trang chủ, danh sách chuyên khoa, danh sách bác sĩ và hồ sơ công khai của bác sĩ. Khi muốn đặt lịch hoặc gửi câu hỏi, người dùng được chuyển đến luồng đăng nhập hoặc đăng ký.
+- **Bệnh nhân (Patient):** Người dùng đăng ký tài khoản để quản lý hồ sơ sức khỏe, gửi câu hỏi, đặt lịch tư vấn, tham gia phiên tư vấn, xem phản hồi, xem lịch sử tư vấn, xem đơn thuốc và đánh giá chất lượng tư vấn.
+- **Bác sĩ (Doctor):** Người dùng chuyên môn y tế có thể quản lý hồ sơ bác sĩ, lịch làm việc, tiếp nhận và trả lời câu hỏi, quản lý lịch hẹn, thực hiện tư vấn trực tuyến và ghi nhận kết quả tư vấn.
+- **Quản trị viên (Administrator):** Người vận hành hệ thống, có quyền quản lý tài khoản, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, nội dung cần kiểm duyệt và theo dõi các thống kê hoạt động.
+
 
 Bảng 1.1. Các tác nhân chính của hệ thống
 
@@ -99,13 +113,27 @@ Bảng 1.1. Các tác nhân chính của hệ thống
 | Bác sĩ | Quản lý hồ sơ chuyên môn, lịch làm việc, câu hỏi, lịch hẹn và kết quả tư vấn. |
 | Quản trị viên | Quản lý tài khoản, chuyên khoa, lịch hẹn, nội dung kiểm duyệt và báo cáo. |
 
-## 1.5 Phạm vi đề tài
+Ngoài ra, hệ thống có thể liên quan đến một số ranh giới tích hợp bên ngoài như dịch vụ thông báo, dịch vụ hỗ trợ video hoặc dịch vụ lưu trữ tệp. Trong phạm vi đề tài đã xác định, các nội dung này được xem xét theo mức độ cần thiết của hệ thống; những phần phụ thuộc nhà cung cấp bên ngoài hoặc chưa thuộc phạm vi triển khai chính được trình bày như giới hạn hoặc hướng mở rộng, không được xem là năng lực cốt lõi thay thế cho các chức năng tư vấn và quản lý lịch hẹn.
 
-Phạm vi đề tài tập trung vào ứng dụng web hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn. Các chức năng trong phạm vi gồm truy cập công khai, xác thực, hồ sơ bệnh nhân/bác sĩ, chuyên khoa, tìm kiếm bác sĩ, hỏi đáp sức khỏe, đặt lịch, quản lý lịch hẹn, chat tư vấn, kết quả tư vấn, đơn thuốc cơ bản, đánh giá, thông báo, kiểm duyệt và báo cáo.
+## 1.5. Phạm vi đề tài
 
-Một số nội dung như video trong môi trường vận hành thực tế, SMS trong môi trường vận hành thực tế, lưu trữ đối tượng cho tệp đính kèm, chatbot, tích hợp bệnh viện, thanh toán bảo hiểm, thiết bị y tế IoT hoặc chẩn đoán tự động không được trình bày như chức năng hiện có. Các nội dung này chỉ được xem là hướng phát triển hoặc ngoài phạm vi tùy theo SRS và ma trận truy vết.
+Phạm vi đề tài tập trung vào việc xây dựng một ứng dụng web phục vụ các nghiệp vụ tư vấn sức khỏe trực tuyến và quản lý lịch hẹn. Các chức năng bắt buộc trong phạm vi bao gồm truy cập nội dung công khai, quản lý tài khoản và phân quyền, quản lý hồ sơ bệnh nhân và bác sĩ, quản lý chuyên khoa, tìm kiếm bác sĩ, gửi câu hỏi sức khỏe, đặt lịch tư vấn, quản lý lịch hẹn, tư vấn trực tuyến qua chat, ghi nhận kết quả tư vấn, đơn thuốc điện tử cơ bản, đánh giá tư vấn, quản trị hệ thống, kiểm duyệt nội dung, thống kê hoạt động và thông báo nhắc lịch.
 
-## 1.6 Các chức năng chính
+Một số chức năng được xác định là mở rộng hoặc phụ thuộc điều kiện tích hợp, chẳng hạn như tư vấn video nâng cao, nhắc lịch bằng SMS, chatbot mô phỏng, giao diện đa ngôn ngữ, Dark Mode, biểu đồ và bộ lọc phân tích nâng cao. Các chức năng này không làm thay đổi mục tiêu cốt lõi của hệ thống là hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến.
+
+Đề tài không bao gồm chẩn đoán y khoa bằng trí tuệ nhân tạo ở mức sử dụng thực tế, tích hợp với hệ thống bệnh viện hoặc hồ sơ sức khỏe điện tử bên ngoài, kết nối thiết bị IoT hoặc thiết bị đeo, thanh toán bảo hiểm y tế, quản lý giao thuốc, ứng dụng di động native, hoặc các quy trình telemedicine nâng cao như e-consent, referral management và triage engine.
+
+## 1.6. Các chức năng chính
+
+Các chức năng chính của hệ thống được phân nhóm như sau:
+
+- **Chức năng công khai:** Xem trang chủ, xem danh sách chuyên khoa, tìm kiếm bác sĩ, xem hồ sơ công khai của bác sĩ và chuyển sang đăng nhập hoặc đăng ký khi thực hiện hành động yêu cầu xác thực.
+- **Chức năng xác thực và phân quyền:** Đăng ký, đăng nhập, đăng xuất, khôi phục mật khẩu và giới hạn quyền truy cập theo vai trò người dùng.
+- **Chức năng dành cho bệnh nhân:** Cập nhật hồ sơ sức khỏe, tìm kiếm bác sĩ, gửi câu hỏi sức khỏe, đặt lịch tư vấn, xem lịch hẹn, tham gia tư vấn, xem phản hồi, xem lịch sử tư vấn, xem tóm tắt tư vấn và đơn thuốc, đánh giá chất lượng tư vấn.
+- **Chức năng dành cho bác sĩ:** Quản lý hồ sơ chuyên môn, quản lý lịch làm việc, xem và trả lời câu hỏi, xem và xử lý lịch hẹn, tham gia phiên tư vấn, ghi nhận kết quả tư vấn và tạo đơn thuốc điện tử cơ bản.
+- **Chức năng dành cho quản trị viên:** Quản lý tài khoản, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt nội dung tư vấn và phản hồi, theo dõi dashboard và thống kê hoạt động.
+- **Chức năng hỗ trợ:** Gửi thông báo, nhắc lịch hẹn, lưu lịch sử thông báo và hỗ trợ giao diện responsive cho desktop, tablet và mobile.
+
 
 Bảng 1.2. Các nhóm chức năng chính của hệ thống
 
@@ -118,61 +146,169 @@ Bảng 1.2. Các nhóm chức năng chính của hệ thống
 | Quản trị | Người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt, báo cáo. |
 | Hỗ trợ | Thông báo, nhắc lịch, audit log, giao diện responsive. |
 
-## 1.7 Phương pháp thực hiện
+## 1.7. Phương pháp thực hiện
 
-Đề tài được thực hiện theo các bước: phân tích SRS, xác định actor và use case, thiết kế kiến trúc và dữ liệu, xây dựng frontend/backend, kiểm thử các luồng chính và đối chiếu kết quả với traceability matrix.
+Đề tài được thực hiện theo hướng phân tích yêu cầu, thiết kế hệ thống, xây dựng ứng dụng và kiểm thử đánh giá.
 
-## 1.8 Kết cấu báo cáo
+Trước hết, yêu cầu hệ thống được xác định dựa trên tài liệu đặc tả yêu cầu phần mềm, trong đó làm rõ mục tiêu, phạm vi, tác nhân, ca sử dụng, luồng nghiệp vụ và các yêu cầu chức năng, phi chức năng. Trên cơ sở đó, hệ thống được thiết kế theo hướng ứng dụng web có phân quyền, có các nhóm chức năng cho bệnh nhân, bác sĩ và quản trị viên, đồng thời có cơ chế hỗ trợ tư vấn trực tuyến và quản lý lịch hẹn.
 
-Báo cáo gồm bảy chương: Tổng quan đề tài; Cơ sở lý thuyết và công nghệ; Phân tích yêu cầu hệ thống; Thiết kế hệ thống; Xây dựng và triển khai hệ thống; Kiểm thử và đánh giá; Kết luận và hướng phát triển.
+Sau giai đoạn phân tích và thiết kế, hệ thống được xây dựng thành ứng dụng web với giao diện người dùng, xử lý nghiệp vụ phía máy chủ, lưu trữ dữ liệu và các chức năng hỗ trợ như thông báo, kiểm duyệt và thống kê. Việc kiểm thử được thực hiện nhằm xác minh các luồng chính như truy cập công khai, đăng nhập, đặt lịch, hỏi đáp sức khỏe, tư vấn, quản trị và các kiểm soát truy cập theo vai trò.
+
+## 1.8. Kết cấu báo cáo
+
+Báo cáo được trình bày thành bảy chương:
+
+- **Chương 1. Tổng quan đề tài:** Trình bày bối cảnh, lý do chọn đề tài, bài toán cần giải quyết, mục tiêu, đối tượng sử dụng, phạm vi, chức năng chính, phương pháp thực hiện và kết cấu báo cáo.
+- **Chương 2. Cơ sở lý thuyết và công nghệ:** Trình bày các khái niệm và công nghệ nền tảng được sử dụng trong quá trình xây dựng hệ thống.
+- **Chương 3. Phân tích yêu cầu hệ thống:** Phân tích tác nhân, ca sử dụng, yêu cầu chức năng, yêu cầu phi chức năng và luồng nghiệp vụ tổng thể của hệ thống.
+- **Chương 4. Thiết kế hệ thống:** Trình bày thiết kế kiến trúc, thiết kế dữ liệu, phân quyền, các phân hệ chính và các luồng xử lý đại diện.
+- **Chương 5. Xây dựng và triển khai hệ thống:** Mô tả quá trình xây dựng các chức năng, tổ chức dự án, môi trường vận hành và kết quả triển khai.
+- **Chương 6. Kiểm thử và đánh giá:** Trình bày phạm vi kiểm thử, môi trường kiểm thử, kết quả kiểm thử và đánh giá mức độ đáp ứng yêu cầu.
+- **Chương 7. Kết luận và hướng phát triển:** Tổng kết kết quả đạt được, nêu các hạn chế còn tồn tại và đề xuất hướng phát triển trong tương lai.
 
 # CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG NGHỆ
 
-## 2.1 Kiến trúc ứng dụng web Client-Server
+Chương này trình bày các khái niệm và công nghệ có liên quan trực tiếp đến hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến. Nội dung tập trung vào vai trò của từng công nghệ trong hệ thống đã xây dựng, không trình bày các công nghệ nằm ngoài phạm vi triển khai thực tế.
 
-Hệ thống được xây dựng theo kiến trúc Client-Server. Client là ứng dụng web chạy trên trình duyệt, chịu trách nhiệm hiển thị giao diện và gửi yêu cầu đến server. Server tiếp nhận yêu cầu, xử lý nghiệp vụ, kiểm tra quyền truy cập và lưu trữ dữ liệu. Cách tổ chức này phù hợp với hệ thống vì người dùng thuộc nhiều vai trò khác nhau cần truy cập cùng một nguồn dữ liệu nghiệp vụ.
+## 2.1. Kiến trúc ứng dụng web Client–Server
 
-## 2.2 REST API
+Kiến trúc Client–Server là mô hình trong đó phía người dùng sử dụng một ứng dụng client để gửi yêu cầu, còn phía server chịu trách nhiệm xử lý nghiệp vụ, truy xuất dữ liệu và trả kết quả. Với ứng dụng web, client thường chạy trên trình duyệt, còn server cung cấp API và giao tiếp với cơ sở dữ liệu.
 
-REST API là cơ chế giao tiếp chính giữa frontend và backend cho các chức năng như xác thực, hồ sơ, khám phá bác sĩ, câu hỏi, lịch hẹn, tư vấn, quản trị và báo cáo. Trong hệ thống này, REST giúp các luồng nghiệp vụ có điểm vào rõ ràng, dễ kiểm thử và phù hợp với mô hình frontend SPA.
+Trong hệ thống này, client là ứng dụng web React, phục vụ các nhóm người dùng như khách truy cập, bệnh nhân, bác sĩ và quản trị viên. Server là ứng dụng backend xử lý xác thực, phân quyền, đặt lịch, tư vấn, hỏi đáp sức khỏe, thông báo, kiểm duyệt và thống kê. Dữ liệu được lưu trữ tập trung trong cơ sở dữ liệu quan hệ PostgreSQL.
 
-## 2.3 Modular Monolith
+Mô hình Client–Server phù hợp với hệ thống vì các luồng nghiệp vụ cần được truy cập qua trình duyệt, trong khi các dữ liệu nhạy cảm như tài khoản, hồ sơ sức khỏe, lịch hẹn và kết quả tư vấn cần được xử lý tập trung ở phía server. Cách tổ chức này giúp tách giao diện người dùng khỏi xử lý nghiệp vụ, đồng thời hỗ trợ kiểm soát truy cập và bảo vệ dữ liệu tốt hơn.
 
-Modular Monolith là cách tổ chức backend trong một ứng dụng triển khai duy nhất nhưng chia thành các module nghiệp vụ rõ ràng. Hệ thống sử dụng kiến trúc này vì các phân hệ như lịch hẹn, tư vấn, thông báo và báo cáo có liên quan chặt chẽ đến cùng cơ sở dữ liệu, đồng thời phạm vi đồ án chưa cần vận hành nhiều dịch vụ độc lập.
+## 2.2. REST API
 
-## 2.4 React
+REST API là cách thiết kế giao diện giao tiếp giữa client và server dựa trên các tài nguyên và phương thức HTTP. Client gửi yêu cầu như xem dữ liệu, tạo mới, cập nhật hoặc hủy thông tin; server xử lý và trả về dữ liệu theo định dạng phù hợp.
 
-React được sử dụng để xây dựng giao diện người dùng. Ứng dụng frontend là SPA, có route công khai, route bệnh nhân, route bác sĩ và route quản trị. React phù hợp vì hệ thống có nhiều màn hình, trạng thái tải/lỗi và tương tác biểu mẫu.
+Trong hệ thống, REST API được sử dụng cho phần lớn các chức năng như đăng ký, đăng nhập, xem danh sách bác sĩ, đặt lịch hẹn, quản lý hồ sơ, gửi câu hỏi, xem lịch sử tư vấn, quản trị người dùng, quản lý chuyên khoa và xem báo cáo thống kê. Các yêu cầu từ giao diện web được gửi tới backend qua HTTP, sau đó backend xử lý nghiệp vụ và trả kết quả cho client.
 
-## 2.5 TypeScript
+REST API phù hợp với hệ thống vì các chức năng quản lý dữ liệu như tài khoản, hồ sơ, lịch hẹn và báo cáo có dạng yêu cầu-phản hồi rõ ràng. Mô hình này dễ tích hợp với ứng dụng web, dễ kiểm thử, dễ tài liệu hóa và phù hợp với các thao tác nghiệp vụ thông thường của hệ thống.
 
-TypeScript được sử dụng ở cả frontend và backend để bổ sung kiểu tĩnh cho JavaScript. Điều này giúp giảm lỗi khi truyền dữ liệu giữa các tầng, cải thiện khả năng bảo trì và hỗ trợ kiểm tra type-check trong quá trình phát triển.
+## 2.3. Modular Monolith
 
-## 2.6 Node.js và NestJS
+Modular Monolith là kiểu kiến trúc trong đó toàn bộ backend chạy trong một ứng dụng duy nhất, nhưng bên trong được chia thành các phần chức năng theo từng miền nghiệp vụ. Hệ thống không tách thành nhiều dịch vụ triển khai độc lập, nhưng vẫn giữ ranh giới logic giữa các nhóm chức năng.
 
-Node.js là nền tảng chạy backend. NestJS cung cấp mô hình module, controller, service, guard và dependency injection, phù hợp với ứng dụng có nhiều phân hệ nghiệp vụ. Trong hệ thống này, NestJS giúp tổ chức code theo các module như Identity, Appointment, Consultation, Notification, Moderation và Reporting.
+Backend của hệ thống được tổ chức theo hướng modular monolith. Các nhóm nghiệp vụ như xác thực, bệnh nhân, bác sĩ, lịch hẹn, tư vấn, câu hỏi sức khỏe, thông báo, kiểm duyệt và báo cáo được tách thành các phần chức năng riêng trong cùng một ứng dụng server.
 
-## 2.7 PostgreSQL và Prisma ORM
+Kiến trúc này phù hợp với đề tài vì hệ thống có nhiều nghiệp vụ liên quan chặt chẽ đến nhau, đặc biệt là đặt lịch, tư vấn, hồ sơ người dùng và thông báo. Việc giữ backend trong một ứng dụng giúp đơn giản hóa triển khai, quản lý giao dịch dữ liệu và phát triển trong phạm vi đồ án, trong khi việc chia module vẫn giúp mã nguồn có cấu trúc rõ ràng và dễ bảo trì.
 
-PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ được dùng để lưu người dùng, hồ sơ, chuyên khoa, lịch hẹn, phiên tư vấn, tin nhắn, đơn thuốc, đánh giá, thông báo và audit log. Prisma ORM cung cấp schema, migration và client truy vấn type-safe, giúp backend thao tác dữ liệu rõ ràng và nhất quán.
+## 2.4. React
 
-## 2.8 JWT Authentication, RBAC và bảo mật mật khẩu
+React là thư viện JavaScript dùng để xây dựng giao diện người dùng theo hướng component. Giao diện được chia thành các thành phần nhỏ, có thể tái sử dụng và cập nhật linh hoạt theo trạng thái dữ liệu.
 
-Hệ thống dùng JWT cho access token và refresh token được lưu qua HttpOnly cookie. RBAC giới hạn chức năng theo vai trò Patient, Doctor và Administrator. Mật khẩu được băm bằng bcrypt trước khi lưu. Các cơ chế này phù hợp với hệ thống có nhiều vai trò và dữ liệu sức khỏe cần kiểm soát truy cập.
+Trong hệ thống này, React được sử dụng để xây dựng ứng dụng web phía người dùng. Các màn hình công khai, đăng nhập, đăng ký, đặt lịch, gửi câu hỏi, tư vấn, hồ sơ bệnh nhân, hồ sơ bác sĩ, quản trị và báo cáo đều được thể hiện trên giao diện web. React kết hợp với Vite, React Router, Redux Toolkit, Redux Saga, Axios, Tailwind CSS và một số thư viện giao diện để tổ chức trải nghiệm người dùng.
 
-## 2.9 WebSocket và Socket.IO
+React phù hợp với hệ thống vì ứng dụng có nhiều màn hình và nhiều trạng thái tương tác: đăng nhập theo vai trò, lọc bác sĩ, chọn lịch trống, hiển thị lịch hẹn, gửi tin nhắn tư vấn và quản trị dữ liệu. Cách phát triển theo component giúp giao diện dễ mở rộng, tái sử dụng và duy trì tính nhất quán giữa các khu vực người dùng.
 
-REST API phù hợp với các luồng request-response, nhưng phiên tư vấn cần trao đổi hai chiều theo thời gian thực. Vì vậy hệ thống sử dụng Socket.IO cho chat trong phiên tư vấn. Backend xác thực kết nối bằng JWT và gateway chuyển xử lý nghiệp vụ cho service tư vấn.
+## 2.5. TypeScript
 
-## 2.10 Transaction, tính nhất quán dữ liệu và Outbox Pattern
+TypeScript là ngôn ngữ mở rộng từ JavaScript, bổ sung hệ thống kiểu tĩnh để giúp phát hiện lỗi sớm trong quá trình phát triển. TypeScript đặc biệt hữu ích với các ứng dụng có nhiều lớp dữ liệu, nhiều API và nhiều đối tượng nghiệp vụ.
 
-Transaction được dùng trong các nghiệp vụ cần tính nhất quán, đặc biệt là đặt lịch và đổi lịch. Outbox Pattern được dùng để ghi sự kiện thông báo trong cùng transaction nghiệp vụ, sau đó xử lý bất đồng bộ qua scheduler. Cách tiếp cận này giúp giảm rủi ro nghiệp vụ chính thành công nhưng thông báo bị mất.
+Trong hệ thống, TypeScript được sử dụng ở cả frontend và backend. Phía frontend sử dụng TypeScript cho các màn hình, kiểu dữ liệu, API client và trạng thái ứng dụng. Phía backend sử dụng TypeScript trong ứng dụng Node.js/NestJS, các đối tượng truyền dữ liệu, service nghiệp vụ và cấu hình.
 
-## 2.11 Responsive Web Design
+TypeScript phù hợp với hệ thống vì các dữ liệu như người dùng, bác sĩ, bệnh nhân, lịch hẹn, phiên tư vấn, đơn thuốc và thông báo có cấu trúc rõ ràng. Kiểu dữ liệu giúp giảm lỗi khi truyền dữ liệu giữa các phần của hệ thống, đồng thời tăng khả năng đọc hiểu và bảo trì mã nguồn.
 
-Responsive Web Design giúp giao diện thích ứng với nhiều kích thước màn hình. Trong hệ thống này, frontend sử dụng các layout và class responsive để hỗ trợ thao tác trên desktop, tablet và mobile. Tuy nhiên, theo kết quả kiểm thử, chưa có artifact kiểm thử responsive toàn diện.
+## 2.6. Node.js
 
-## 2.12 Công nghệ kiểm thử thực tế được sử dụng
+Node.js là môi trường chạy JavaScript/TypeScript phía server. Node.js phù hợp với các ứng dụng web cần xử lý nhiều yêu cầu mạng, API và giao tiếp thời gian thực.
+
+Trong hệ thống, Node.js là nền tảng runtime cho backend. Backend tiếp nhận yêu cầu HTTP, xử lý xác thực, phân quyền, nghiệp vụ lịch hẹn, tư vấn, thông báo, kiểm duyệt và báo cáo. Node.js cũng phù hợp với việc sử dụng Socket.IO cho giao tiếp thời gian thực trong phiên tư vấn.
+
+Node.js phù hợp với đề tài vì hệ thống cần phục vụ ứng dụng web, xử lý nhiều luồng yêu cầu ngắn, giao tiếp qua API và hỗ trợ realtime chat. Việc sử dụng cùng hệ sinh thái TypeScript cho cả frontend và backend cũng giúp quá trình phát triển nhất quán hơn.
+
+## 2.7. NestJS
+
+NestJS là framework backend cho Node.js, hỗ trợ xây dựng ứng dụng server theo cấu trúc rõ ràng, có cơ chế tổ chức chức năng, dependency injection, validation, guard và tích hợp WebSocket. NestJS giúp tổ chức mã nguồn backend theo hướng có kỷ luật hơn so với việc chỉ dùng các thư viện HTTP ở mức thấp.
+
+Trong hệ thống này, NestJS được dùng để xây dựng backend cung cấp REST API, xác thực, phân quyền, xử lý nghiệp vụ, kết nối cơ sở dữ liệu, tài liệu API và realtime gateway. Các nhóm chức năng chính của hệ thống được tổ chức thành các phần nghiệp vụ riêng, phù hợp với cách NestJS khuyến khích chia tách trách nhiệm.
+
+NestJS phù hợp với hệ thống vì đề tài có nhiều phân hệ và nhiều yêu cầu bảo mật, phân quyền, kiểm thử. Framework này giúp backend có cấu trúc ổn định, dễ mở rộng theo từng nhóm chức năng và phù hợp với việc xây dựng một ứng dụng web có nghiệp vụ tương đối đầy đủ.
+
+## 2.8. PostgreSQL
+
+PostgreSQL là hệ quản trị cơ sở dữ liệu quan hệ, hỗ trợ lưu trữ dữ liệu có cấu trúc, ràng buộc quan hệ, chỉ mục, giao dịch và tính nhất quán dữ liệu. Đây là lựa chọn phù hợp cho các hệ thống cần quản lý dữ liệu nghiệp vụ chặt chẽ.
+
+Trong hệ thống, PostgreSQL lưu trữ dữ liệu người dùng, phiên đăng nhập, hồ sơ bệnh nhân, hồ sơ bác sĩ, chuyên khoa, câu hỏi, câu trả lời, lịch hẹn, phiên tư vấn, tin nhắn, đơn thuốc, đánh giá, thông báo, sự kiện outbox và nhật ký kiểm toán.
+
+PostgreSQL phù hợp với hệ thống vì các dữ liệu trong bài toán có quan hệ rõ ràng: bệnh nhân đặt lịch với bác sĩ, bác sĩ thuộc chuyên khoa, lịch hẹn liên kết với phiên tư vấn, phiên tư vấn liên kết với tóm tắt và đơn thuốc. Cơ sở dữ liệu quan hệ giúp mô hình hóa các quan hệ này một cách nhất quán và hỗ trợ truy vấn phục vụ quản lý, báo cáo.
+
+## 2.9. Prisma ORM
+
+Prisma ORM là công cụ ánh xạ giữa mã nguồn ứng dụng và cơ sở dữ liệu. Prisma cho phép định nghĩa schema dữ liệu, sinh client truy vấn có kiểu dữ liệu và quản lý migration cơ sở dữ liệu.
+
+Trong hệ thống, Prisma được dùng làm lớp truy cập dữ liệu giữa backend và PostgreSQL. Các bảng dữ liệu chính, enum nghiệp vụ và quan hệ giữa các thực thể được định nghĩa trong Prisma schema. Backend dùng Prisma để đọc, tạo, cập nhật và truy vấn dữ liệu phục vụ các chức năng như đặt lịch, tư vấn, hỏi đáp, thông báo và báo cáo.
+
+Prisma phù hợp với hệ thống vì ứng dụng sử dụng TypeScript và có nhiều mô hình dữ liệu quan hệ. Prisma giúp truy vấn dữ liệu an toàn hơn về kiểu, giảm lỗi khi thao tác với cơ sở dữ liệu và hỗ trợ quy trình migration rõ ràng trong quá trình phát triển.
+
+## 2.10. JWT Authentication
+
+JWT authentication là cơ chế xác thực trong đó server cấp cho người dùng một token sau khi đăng nhập thành công. Token này được gửi kèm trong các yêu cầu tiếp theo để backend xác định danh tính người dùng.
+
+Trong hệ thống, JWT được sử dụng cho xác thực các tài khoản bệnh nhân, bác sĩ và quản trị viên. Sau khi đăng nhập, người dùng nhận access token để gọi các API cần xác thực. Hệ thống cũng sử dụng refresh token được bảo vệ bằng cookie HTTP-only để hỗ trợ duy trì phiên đăng nhập một cách an toàn hơn.
+
+JWT phù hợp với hệ thống vì các chức năng như đặt lịch, xem hồ sơ, tham gia tư vấn, quản lý nội dung và xem báo cáo đều cần xác định người dùng đang thao tác. Cơ chế token giúp backend kiểm tra danh tính ở mỗi yêu cầu, hỗ trợ ứng dụng web tách biệt frontend và backend.
+
+## 2.11. RBAC
+
+RBAC là mô hình phân quyền dựa trên vai trò. Thay vì cấp quyền riêng lẻ cho từng người dùng, hệ thống xác định các vai trò và giới hạn chức năng theo từng vai trò.
+
+Trong hệ thống, RBAC được áp dụng cho các nhóm Guest User, Patient, Doctor và Administrator. Khách truy cập chỉ xem được nội dung công khai. Bệnh nhân được sử dụng các chức năng liên quan đến hồ sơ, câu hỏi, lịch hẹn và tư vấn của mình. Bác sĩ được xử lý hồ sơ chuyên môn, lịch làm việc, câu hỏi và lịch hẹn được phân quyền. Quản trị viên được quản lý dữ liệu vận hành, kiểm duyệt nội dung và xem thống kê hệ thống.
+
+RBAC phù hợp với hệ thống vì dữ liệu sức khỏe và dữ liệu tư vấn cần được giới hạn theo trách nhiệm của từng nhóm người dùng. Mô hình này giúp giảm rủi ro truy cập sai quyền, đồng thời làm rõ ranh giới chức năng giữa bệnh nhân, bác sĩ và quản trị viên.
+
+## 2.12. WebSocket và Socket.IO
+
+WebSocket là cơ chế giao tiếp hai chiều liên tục giữa client và server, phù hợp với các chức năng cần cập nhật theo thời gian thực. Socket.IO là thư viện xây dựng trên ý tưởng giao tiếp realtime, cung cấp thêm các tiện ích như quản lý kết nối, sự kiện, phòng và khả năng tương thích tốt hơn trong ứng dụng web.
+
+Trong hệ thống, Socket.IO được sử dụng cho chức năng chat trong phiên tư vấn trực tuyến. Khi bệnh nhân và bác sĩ tham gia cùng một phiên tư vấn, tin nhắn có thể được gửi và nhận gần như tức thời, thay vì phải liên tục tải lại trang hoặc gọi API lặp lại.
+
+Socket.IO phù hợp với hệ thống vì tư vấn trực tuyến cần tương tác hai chiều giữa bệnh nhân và bác sĩ. REST API phù hợp với thao tác quản lý dữ liệu, nhưng chat tư vấn cần trải nghiệm realtime hơn. Việc kết hợp REST API và Socket.IO giúp hệ thống vừa xử lý tốt nghiệp vụ thông thường, vừa hỗ trợ giao tiếp trực tiếp trong phiên tư vấn.
+
+## 2.13. bcrypt và bảo mật mật khẩu
+
+bcrypt là thuật toán băm mật khẩu có cơ chế thêm salt và chi phí tính toán, giúp giảm rủi ro khi dữ liệu mật khẩu bị lộ. Thay vì lưu mật khẩu gốc, hệ thống chỉ lưu giá trị băm của mật khẩu.
+
+Trong hệ thống, bcrypt được sử dụng để xử lý mật khẩu người dùng. Khi người dùng đăng ký hoặc đặt lại mật khẩu, mật khẩu được băm trước khi lưu. Khi đăng nhập, mật khẩu nhập vào được so sánh với giá trị băm đã lưu để xác thực.
+
+bcrypt phù hợp với hệ thống vì tài khoản người dùng gắn với thông tin cá nhân, hồ sơ sức khỏe và lịch sử tư vấn. Việc không lưu mật khẩu dạng rõ là yêu cầu bảo mật cơ bản, giúp giảm thiểu rủi ro nếu dữ liệu xác thực bị truy cập trái phép.
+
+## 2.14. Transaction và tính nhất quán dữ liệu
+
+Transaction là cơ chế đảm bảo một nhóm thao tác dữ liệu được thực hiện như một đơn vị thống nhất. Nếu một thao tác trong nhóm thất bại, các thay đổi liên quan có thể được hủy để tránh dữ liệu ở trạng thái không nhất quán.
+
+Trong hệ thống, transaction đặc biệt quan trọng với các nghiệp vụ như đặt lịch và đổi lịch. Khi bệnh nhân đặt lịch, hệ thống cần kiểm tra bác sĩ, bệnh nhân, thời gian, trạng thái lịch hẹn và xung đột lịch. Các thao tác này phải đảm bảo rằng không tạo ra hai lịch hẹn trùng nhau hoặc dữ liệu lịch hẹn thiếu thông tin liên quan.
+
+Transaction phù hợp với hệ thống vì lịch hẹn là dữ liệu nghiệp vụ trung tâm, có ảnh hưởng trực tiếp đến bệnh nhân và bác sĩ. Tính nhất quán dữ liệu giúp tránh các lỗi như đặt trùng lịch, cập nhật trạng thái không đồng bộ hoặc tạo sự kiện thông báo không khớp với lịch hẹn thực tế.
+
+## 2.15. Outbox Pattern
+
+Outbox Pattern là mẫu thiết kế dùng để lưu sự kiện cần xử lý sau vào cơ sở dữ liệu trong cùng giao dịch với thao tác nghiệp vụ chính. Sau đó, một tiến trình xử lý riêng đọc các sự kiện này và thực hiện các tác vụ phụ như gửi thông báo.
+
+Trong hệ thống, Outbox Pattern được dùng cho các sự kiện liên quan đến lịch hẹn và câu hỏi sức khỏe, ví dụ khi lịch hẹn được tạo, lịch hẹn được xác nhận hoặc câu hỏi được bác sĩ trả lời. Thay vì buộc thao tác nghiệp vụ phải phụ thuộc trực tiếp vào việc gửi thông báo ngay lập tức, hệ thống ghi nhận sự kiện để xử lý sau.
+
+Outbox Pattern phù hợp với hệ thống vì thông báo là chức năng hỗ trợ, trong khi dữ liệu nghiệp vụ chính như lịch hẹn và câu trả lời cần được ghi nhận ổn định. Mẫu này giúp tách xử lý nghiệp vụ khỏi xử lý thông báo, giảm rủi ro việc gửi thông báo thất bại làm ảnh hưởng đến thao tác chính của người dùng.
+
+## 2.16. Responsive Web Design
+
+Responsive Web Design là phương pháp thiết kế giao diện có khả năng thích ứng với nhiều kích thước màn hình khác nhau, như desktop, tablet và mobile. Giao diện responsive giúp người dùng sử dụng hệ thống thuận tiện hơn trên các thiết bị phổ biến.
+
+Trong hệ thống, giao diện web phục vụ nhiều nhóm người dùng và nhiều loại thao tác như xem bác sĩ, điền biểu mẫu, đặt lịch, chat tư vấn, xem lịch sử và quản trị dữ liệu. Frontend sử dụng các kỹ thuật và thư viện giao diện hỗ trợ bố cục linh hoạt, trong đó Tailwind CSS được dùng để xây dựng giao diện có khả năng thích ứng.
+
+Responsive Web Design phù hợp với hệ thống vì bệnh nhân và bác sĩ có thể cần truy cập từ nhiều thiết bị khác nhau. Một giao diện thích ứng tốt giúp các thao tác quan trọng như đăng nhập, tìm bác sĩ, đặt lịch, xem lịch hẹn và tham gia tư vấn dễ sử dụng hơn.
+
+## 2.17. Các công nghệ kiểm thử thực tế được sử dụng
+
+Kiểm thử là hoạt động xác minh hệ thống có đáp ứng các yêu cầu chức năng và hành vi mong đợi hay không. Với hệ thống này, kiểm thử được thực hiện ở cả backend và frontend.
+
+Phía backend sử dụng Jest để kiểm thử các phần xử lý nghiệp vụ và các cơ chế quan trọng như xác thực, cấu hình, xử lý lỗi, lịch hẹn, thông báo, kiểm duyệt, báo cáo và hồ sơ bác sĩ. Jest phù hợp vì backend được viết bằng TypeScript trên Node.js, cần kiểm tra các quy tắc nghiệp vụ và phản hồi của hệ thống ở mức xử lý phía server.
+
+Phía frontend sử dụng Playwright để kiểm thử end-to-end các luồng người dùng trên trình duyệt. Các kịch bản kiểm thử thực tế bao gồm truy cập công khai, đăng nhập theo vai trò, đặt lịch, gửi câu hỏi, luồng làm việc của bác sĩ, quản trị hệ thống và kiểm tra client Socket.IO. Playwright phù hợp vì hệ thống là ứng dụng web có nhiều tương tác UI, nhiều vai trò và nhiều luồng cần xác minh từ góc nhìn người dùng.
+
+Ngoài ra, quá trình kiểm thử sử dụng cơ sở dữ liệu PostgreSQL với dữ liệu seed phục vụ E2E. Cách tiếp cận này giúp các kịch bản kiểm thử phản ánh gần hơn các luồng nghiệp vụ thực tế như bệnh nhân đặt lịch với bác sĩ, bác sĩ xử lý tư vấn và quản trị viên quản lý dữ liệu hệ thống.
+
+Kết quả kiểm thử chi tiết được trình bày ở Chương 6. Trong chương này, các công nghệ kiểm thử chỉ được giới thiệu ở mức cơ sở công nghệ để làm rõ vì sao chúng phù hợp với hệ thống.
 
 Bảng 2.1. Công nghệ chính sử dụng trong hệ thống
 
@@ -186,314 +322,884 @@ Bảng 2.1. Công nghệ chính sử dụng trong hệ thống
 
 # CHƯƠNG 3. PHÂN TÍCH YÊU CẦU HỆ THỐNG
 
-## 3.1 Mô tả bài toán
+Chương này trình bày các yêu cầu của hệ thống theo tài liệu đặc tả yêu cầu phần mềm cuối cùng. Nội dung tập trung vào việc hệ thống cần làm gì, các nhóm người dùng nào tham gia, các chức năng nào thuộc phạm vi, các quy tắc nghiệp vụ chính và các giới hạn yêu cầu. Những chi tiết về thiết kế kỹ thuật và cách hiện thực mã nguồn được trình bày ở các chương sau.
 
-Hệ thống cần hỗ trợ quy trình tư vấn sức khỏe trực tuyến từ giai đoạn khám phá thông tin, xác thực người dùng, đặt lịch, tư vấn, ghi nhận kết quả đến đánh giá và quản trị. Chương này mô tả **hệ thống được yêu cầu làm gì** theo SRS; các chi tiết code và thiết kế triển khai được trình bày ở Chương 4 và Chương 5.
+## 3.1. Mô tả bài toán
 
-## 3.2 Đối tượng sử dụng
+Hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến được xây dựng nhằm hỗ trợ quy trình kết nối giữa người có nhu cầu tư vấn sức khỏe và bác sĩ trên nền tảng web. Bài toán chính của hệ thống là giúp người dùng tra cứu thông tin bác sĩ, tìm kiếm theo chuyên khoa, đặt lịch tư vấn, gửi câu hỏi sức khỏe, tham gia phiên tư vấn trực tuyến và theo dõi kết quả tư vấn trong một môi trường có kiểm soát truy cập.
+
+Trong bối cảnh sử dụng thực tế, bệnh nhân cần một nơi tập trung để tìm bác sĩ phù hợp, quản lý hồ sơ sức khỏe, theo dõi lịch hẹn và xem lại lịch sử tư vấn. Bác sĩ cần công cụ để quản lý hồ sơ chuyên môn, lịch làm việc, câu hỏi của bệnh nhân, lịch hẹn và kết quả tư vấn. Quản trị viên cần giám sát dữ liệu vận hành, quản lý người dùng, chuyên khoa, lịch hẹn, nội dung tư vấn và thống kê hoạt động hệ thống.
+
+Hệ thống không được định nghĩa như một công cụ chẩn đoán y khoa tự động và không thay thế cho cấp cứu hoặc khám trực tiếp khi cần thiết. Vai trò của hệ thống là hỗ trợ tư vấn sức khỏe trực tuyến, quản lý lịch hẹn, ghi nhận thông tin tư vấn và giúp quá trình trao đổi giữa bệnh nhân, bác sĩ, quản trị viên được tổ chức rõ ràng hơn.
+
+## 3.2. Đối tượng sử dụng
+
+Hệ thống có bốn nhóm người dùng chính:
 
 Bảng 3.1. Tác nhân và vai trò trong hệ thống
 
-| Tác nhân | Vai trò yêu cầu |
-|---|---|
-| Guest | Truy cập nội dung công khai và được chuyển đến đăng nhập/đăng ký khi muốn dùng chức năng bảo vệ. |
-| Patient | Quản lý hồ sơ, hỏi đáp, đặt lịch, tham gia tư vấn, xem kết quả và đánh giá. |
-| Doctor | Quản lý hồ sơ chuyên môn, lịch làm việc, câu hỏi, lịch hẹn và kết quả tư vấn. |
-| Administrator | Quản lý người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt và báo cáo. |
+| Đối tượng | Mô tả vai trò | Nhóm ca sử dụng liên quan |
+|---|---|---|
+| Guest User | Người dùng chưa đăng nhập. Có thể truy cập khu vực công khai, xem trang chủ, xem chuyên khoa, tìm kiếm bác sĩ và xem hồ sơ công khai của bác sĩ. Khi muốn đặt lịch hoặc gửi câu hỏi, người dùng được chuyển sang đăng nhập hoặc đăng ký. | UC-G-01 đến UC-G-06 |
+| Patient | Bệnh nhân sử dụng hệ thống để đăng ký, đăng nhập, quản lý hồ sơ sức khỏe, gửi câu hỏi, đặt lịch tư vấn, tham gia phiên tư vấn, xem kết quả, xem đơn thuốc và đánh giá chất lượng tư vấn. | UC-P-01 đến UC-P-15 |
+| Doctor | Bác sĩ sử dụng hệ thống để quản lý hồ sơ chuyên môn, lịch làm việc, xem và trả lời câu hỏi, quản lý lịch hẹn, thực hiện tư vấn trực tuyến, ghi nhận kết quả tư vấn và cấp đơn thuốc điện tử cơ bản. | UC-D-01 đến UC-D-11 |
+| Administrator | Quản trị viên vận hành hệ thống, quản lý tài khoản, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt nội dung và theo dõi thống kê hoạt động. | UC-A-01 đến UC-A-08 |
 
-## 3.3 Yêu cầu chức năng
+Ngoài các đối tượng sử dụng chính, SRS còn xác định một số hệ thống bên ngoài như Notification Service, Video Communication Service và File Storage Service. Các hệ thống này được xem là ranh giới tích hợp hoặc khả năng hỗ trợ theo phạm vi yêu cầu, không làm thay đổi bốn vai trò người dùng chính của hệ thống.
+
+## 3.3. Yêu cầu chức năng
+
+Các yêu cầu chức năng được tóm tắt theo nhóm tác nhân và miền nghiệp vụ. Mục tiêu của phần này là giữ lại các use case ID chính thức trong SRS, đồng thời trình bày ở mức phù hợp với báo cáo tốt nghiệp, không sao chép toàn bộ nội dung SRS.
 
 Bảng 3.2. Tóm tắt yêu cầu chức năng theo nhóm
 
-| Nhóm | Yêu cầu SRS tiêu biểu |
+### 3.3.1. Nhóm yêu cầu dành cho Guest User
+
+| Mã ca sử dụng | Yêu cầu tóm tắt |
 |---|---|
-| Public access | UC-G-01 đến UC-G-06: xem trang chủ, chuyên khoa, bác sĩ, chi tiết bác sĩ và chuyển đến đăng nhập khi cần. |
-| Authentication | UC-P-01, UC-P-02, UC-P-03, UC-D-01, UC-A-01: đăng ký, đăng nhập, đăng xuất, khôi phục mật khẩu và phân quyền. |
-| Profile | UC-P-04, UC-D-02: quản lý hồ sơ bệnh nhân và hồ sơ chuyên môn của bác sĩ. |
-| Doctor discovery | UC-P-05, UC-P-06, UC-G-03, UC-G-04: tìm kiếm/lọc bác sĩ và xem hồ sơ công khai. |
-| Health questions | UC-P-07, UC-P-11, UC-D-03, UC-D-04, UC-A-06: gửi câu hỏi, trả lời và kiểm duyệt. |
-| Appointment | UC-P-08, UC-P-09, UC-P-12, UC-D-05, UC-D-06, UC-A-05: đặt lịch, xem lịch, hủy/xác nhận/hoàn tất/đổi lịch. |
-| Consultation | UC-P-10, UC-D-07, UC-D-08: tham gia phiên tư vấn và trao đổi qua chat hoặc cơ chế video mở rộng. |
-| Result, prescription, rating | UC-P-13, UC-P-14, UC-D-09, UC-D-10: kết quả tư vấn, đơn thuốc cơ bản và đánh giá. |
-| Notification/reporting/admin | UC-P-15, UC-A-02 đến UC-A-08, UC-E-01: thông báo, quản trị, kiểm duyệt và báo cáo. |
+| UC-G-01 | Guest User có thể xem trang chủ và các thông tin công khai của hệ thống. |
+| UC-G-02 | Guest User có thể xem danh sách chuyên khoa. |
+| UC-G-03 | Guest User có thể tìm kiếm bác sĩ theo chuyên khoa hoặc từ khóa. |
+| UC-G-04 | Guest User có thể xem chi tiết hồ sơ công khai của bác sĩ. |
+| UC-G-05 | Guest User có thể xem danh sách bác sĩ nổi bật hoặc bác sĩ đang hoạt động theo phạm vi hiển thị công khai. |
+| UC-G-06 | Guest User được chuyển đến trang đăng nhập hoặc đăng ký khi muốn thực hiện hành động yêu cầu xác thực như đặt lịch hoặc gửi câu hỏi. |
 
-## 3.4 Yêu cầu phi chức năng
+Nhóm yêu cầu này bảo đảm người dùng chưa đăng nhập vẫn có thể tìm hiểu thông tin nền tảng, chuyên khoa và bác sĩ trước khi quyết định đăng ký hoặc đăng nhập.
 
-SRS yêu cầu hệ thống có xác thực và phân quyền, lưu mật khẩu an toàn, kiểm tra hợp lệ dữ liệu, kiểm soát truy cập dữ liệu sức khỏe, audit log cho hành động quan trọng, giao diện dễ sử dụng, kiến trúc có khả năng bảo trì và có định hướng mở rộng. Một số yêu cầu như HTTPS trong môi trường vận hành thực tế, hiệu năng dưới tải, tính sẵn sàng cao, tương thích trình duyệt và audit giao diện responsive cần bằng chứng triển khai/kiểm thử ở môi trường phù hợp hoặc kiểm thử chuyên sâu; các nội dung này được đánh giá ở Chương 6 và Chương 7.
+### 3.3.2. Nhóm yêu cầu xác thực và hồ sơ người dùng
 
-## 3.5 Các quy tắc nghiệp vụ chính
+| Mã ca sử dụng | Yêu cầu tóm tắt |
+|---|---|
+| UC-P-01 | Bệnh nhân có thể đăng ký tài khoản. |
+| UC-P-02, UC-D-01, UC-A-01 | Người dùng thuộc các vai trò Patient, Doctor và Administrator có thể đăng nhập. |
+| UC-P-03 | Người dùng đã xác thực có thể đăng xuất. |
+| UC-P-04 | Bệnh nhân có thể quản lý hồ sơ sức khỏe cá nhân. |
+| UC-D-02 | Bác sĩ có thể quản lý hồ sơ chuyên môn. |
+| UC-A-02, UC-A-03 | Quản trị viên có thể quản lý tài khoản bác sĩ và bệnh nhân. |
 
-Các quy tắc nghiệp vụ quan trọng theo SRS gồm:
+Hệ thống phải áp dụng phân quyền theo vai trò Guest User, Patient, Doctor và Administrator. Người dùng chỉ được truy cập các chức năng và dữ liệu phù hợp với vai trò được gán. SRS cũng yêu cầu hỗ trợ khôi phục mật khẩu bằng email hoặc cơ chế bảo mật tương đương.
 
-- Người dùng chỉ được truy cập chức năng phù hợp với vai trò.
-- Bệnh nhân và bác sĩ chỉ được xem dữ liệu thuộc phạm vi được phép.
-- Bác sĩ chỉ được hiển thị công khai khi đang hoạt động và đã được phê duyệt.
-- Lịch hẹn phải nằm trong tương lai, nằm trong lịch làm việc của bác sĩ và không trùng với lịch đang hoạt động của bác sĩ hoặc bệnh nhân.
-- Phiên tư vấn gắn với lịch hẹn hợp lệ và chỉ cho phép bệnh nhân/bác sĩ liên quan tham gia.
-- Đánh giá chỉ được gửi sau khi lịch tư vấn hoàn thành.
-- Thông báo và nhắc lịch được xử lý như chức năng hỗ trợ, trong đó provider vận hành thực tế phụ thuộc cấu hình triển khai.
+### 3.3.3. Nhóm yêu cầu chuyên khoa và khám phá bác sĩ
 
-## 3.6 Biểu đồ Use Case
+| Mã ca sử dụng | Yêu cầu tóm tắt |
+|---|---|
+| UC-G-02 | Guest User có thể xem danh sách chuyên khoa công khai. |
+| UC-G-03, UC-P-05 | Guest User và Patient có thể tìm kiếm bác sĩ theo chuyên khoa hoặc từ khóa. |
+| UC-G-04, UC-P-06 | Guest User và Patient có thể xem chi tiết bác sĩ. |
+| UC-A-04 | Quản trị viên có thể quản lý chuyên khoa. |
 
-### 3.6.1 Biểu đồ Use Case của khách truy cập
+Yêu cầu trong SRS nhấn mạnh rằng bác sĩ hiển thị cho người dùng công khai và bệnh nhân phải là bác sĩ đang hoạt động và đã được duyệt. Hồ sơ bác sĩ cần thể hiện các thông tin cần thiết như chuyên khoa, kinh nghiệm, mô tả tư vấn và lịch khả dụng khi phù hợp.
+
+### 3.3.4. Nhóm yêu cầu hỏi đáp sức khỏe
+
+| Mã ca sử dụng | Yêu cầu tóm tắt |
+|---|---|
+| UC-P-07 | Bệnh nhân có thể gửi câu hỏi sức khỏe. |
+| UC-D-03 | Bác sĩ có thể xem các câu hỏi được phân công hoặc có thể xử lý. |
+| UC-D-04 | Bác sĩ có thể phản hồi câu hỏi của bệnh nhân. |
+| UC-P-11, UC-P-12 | Bệnh nhân có thể xem phản hồi và lịch sử câu hỏi/tư vấn. |
+| UC-A-06 | Quản trị viên có thể kiểm duyệt nội dung tư vấn và phản hồi. |
+
+Câu hỏi sức khỏe cần được lưu với trạng thái phù hợp, chẳng hạn `PENDING`, `ANSWERED` hoặc `CLOSED`. Khi bác sĩ phản hồi, hệ thống phải ghi nhận thời điểm phản hồi và bác sĩ phản hồi. Nội dung câu hỏi và phản hồi có thể được quản trị viên xem xét, kiểm duyệt khi cần.
+
+### 3.3.5. Nhóm yêu cầu đặt lịch và quản lý lịch hẹn
+
+| Mã ca sử dụng | Yêu cầu tóm tắt |
+|---|---|
+| UC-P-08 | Bệnh nhân có thể đặt lịch hẹn tư vấn với bác sĩ. |
+| UC-P-09 | Bệnh nhân có thể xem danh sách lịch hẹn sắp tới. |
+| UC-P-12 | Bệnh nhân có thể xem lịch sử tư vấn/lịch hẹn. |
+| UC-D-05 | Bác sĩ có thể quản lý lịch tư vấn. |
+| UC-D-06 | Bác sĩ có thể xem các lịch hẹn đã được đặt. |
+| UC-A-05 | Quản trị viên có thể quản lý lịch hẹn. |
+
+Theo SRS, bệnh nhân chỉ được đặt lịch vào khung giờ còn khả dụng; hệ thống phải ngăn đặt trùng lịch cho cùng bác sĩ và cùng thời gian. Lịch hẹn cần lưu các thông tin như bệnh nhân, bác sĩ, ngày giờ, mục đích, trạng thái và thời điểm tạo. Các trạng thái tối thiểu gồm `PENDING_CONFIRMATION`, `CONFIRMED`, `COMPLETED` và `CANCELLED`.
+
+### 3.3.6. Nhóm yêu cầu phiên tư vấn, kết quả và đơn thuốc
+
+| Mã ca sử dụng | Yêu cầu tóm tắt |
+|---|---|
+| UC-P-10 | Bệnh nhân có thể tham gia phiên tư vấn. |
+| UC-D-07 | Bác sĩ có thể bắt đầu phiên tư vấn. |
+| UC-D-08 | Bác sĩ thực hiện tư vấn qua chat hoặc video theo phạm vi hỗ trợ. |
+| UC-D-09 | Bác sĩ ghi nhận kết quả tư vấn. |
+| UC-D-10 | Bác sĩ cấp đơn thuốc điện tử cơ bản. |
+| UC-P-13 | Bệnh nhân xem đơn thuốc và tóm tắt tư vấn. |
+| UC-D-11 | Bác sĩ xem lịch sử tư vấn của bệnh nhân khi phù hợp với nghiệp vụ. |
+
+Hệ thống phải hỗ trợ khởi tạo phiên tư vấn cho lịch hẹn hợp lệ và giới hạn quyền truy cập phiên tư vấn cho các bên có thẩm quyền. Chat thời gian thực là yêu cầu bắt buộc trong phạm vi tư vấn trực tuyến. Video được SRS xác định ở mức mô phỏng, tích hợp cơ bản hoặc mở rộng tùy điều kiện. Hệ thống cũng phải lưu tóm tắt tư vấn và hỗ trợ đơn thuốc điện tử cơ bản sau buổi tư vấn đã hoàn tất.
+
+### 3.3.7. Nhóm yêu cầu đánh giá, thông báo và báo cáo
+
+| Mã ca sử dụng | Yêu cầu tóm tắt |
+|---|---|
+| UC-P-14 | Bệnh nhân có thể đánh giá chất lượng tư vấn sau khi buổi tư vấn hoàn tất. |
+| UC-P-15 | Bệnh nhân nhận nhắc lịch và thông báo. |
+| UC-E-01 | Hệ thống gửi email nhắc lịch hoặc thông báo theo phạm vi yêu cầu. |
+| UC-E-02 | Hệ thống có thể hỗ trợ SMS nhắc lịch khi có dịch vụ phù hợp. |
+| UC-A-07 | Quản trị viên xem dashboard thống kê hệ thống. |
+| UC-A-08 | Quản trị viên theo dõi người dùng hoạt động và số lượng phiên tư vấn. |
+
+Bệnh nhân chỉ được đánh giá sau khi buổi tư vấn đã hoàn tất và có thể gửi nhận xét kèm đánh giá. Hệ thống cần gửi thông báo cho các sự kiện như tạo/xác nhận lịch hẹn, nhắc lịch và bác sĩ phản hồi câu hỏi. Quản trị viên cần có khả năng theo dõi thống kê hoạt động tư vấn, người dùng và xu hướng theo thời gian.
+
+## 3.4. Yêu cầu phi chức năng
+
+Các yêu cầu phi chức năng dưới đây được tổng hợp từ SRS cuối cùng. Phần này chỉ nêu yêu cầu, không đánh giá mức độ hiện thực; việc đánh giá được trình bày ở Chương 6.
+
+### 3.4.1. Bảo mật
+
+Hệ thống phải bảo vệ giao tiếp client-server bằng HTTPS trên môi trường triển khai, lưu mật khẩu bằng thuật toán băm một chiều an toàn như bcrypt hoặc Argon2, thực thi xác thực với tài nguyên được bảo vệ và kiểm tra phân quyền với các chức năng giới hạn theo vai trò. Dữ liệu đầu vào cần được kiểm tra hợp lệ ở phía client khi phù hợp và bắt buộc ở phía server. Hệ thống phải hạn chế các rủi ro phổ biến như SQL Injection, Cross-Site Scripting và broken access control.
+
+Đối với dữ liệu sức khỏe, hệ thống phải bảo đảm chỉ người dùng có thẩm quyền mới được truy cập. Hồ sơ tư vấn của bệnh nhân phải được giới hạn cho bệnh nhân đó, bác sĩ phụ trách và quản trị viên được ủy quyền theo chính sách. Các hành động quan trọng như đăng nhập, cập nhật lịch hẹn, phản hồi của bác sĩ và thay đổi quản trị cần được ghi audit log.
+
+### 3.4.2. Quyền riêng tư và bảo mật thông tin
+
+Hệ thống phải xử lý dữ liệu cá nhân và dữ liệu sức khỏe theo các nguyên tắc quyền riêng tư phù hợp với hệ thống định hướng y tế. Việc hiển thị thông tin sức khỏe cá nhân trên giao diện và trong log cần được giảm thiểu khi không cần thiết. Nội dung tư vấn và đơn thuốc phải được bảo mật, đồng thời hệ thống cần định nghĩa cách lưu giữ dữ liệu tư vấn và audit data theo chính sách của dự án.
+
+### 3.4.3. Hiệu năng
+
+Hệ thống nên trả về phản hồi API trong thời gian chấp nhận được dưới tải thông thường. Với các thao tác thông thường, không bao gồm upload file và media thời gian thực, mục tiêu thời gian phản hồi là dưới 3 giây cho 95% request trong môi trường triển khai mục tiêu. Dashboard thống kê cũng cần tải trong thời gian phù hợp với khối lượng dữ liệu dự kiến.
+
+### 3.4.4. Khả năng mở rộng
+
+SRS yêu cầu hệ thống được thiết kế theo hướng tách biệt mối quan tâm giữa các nhóm chức năng như quản lý người dùng, quản lý tư vấn, thông báo và báo cáo. Hệ thống nên hỗ trợ khả năng mở rộng theo hướng stateless cho application service và cho phép thay thế hoặc nâng cấp các dịch vụ bên ngoài như notification provider hoặc video provider với tác động tối thiểu đến nghiệp vụ lõi.
+
+### 3.4.5. Tính sẵn sàng và độ tin cậy
+
+Hệ thống nên duy trì khả năng phục vụ trong khoảng thời gian vận hành được xác định, với downtime ngoài kế hoạch ở mức tối thiểu. Hệ thống phải xử lý lỗi an toàn, trả về thông báo lỗi nhất quán, tránh gây mất nhất quán dữ liệu trong thao tác đặt lịch/cập nhật lịch hẹn và có cơ chế fallback khi dịch vụ video gặp lỗi nhưng chat vẫn khả dụng.
+
+### 3.4.6. Tính khả dụng
+
+Giao diện người dùng phải responsive và sử dụng được trên desktop, tablet và mobile browser. Các tác vụ cốt lõi như đăng ký, gửi câu hỏi và đặt lịch cần đơn giản, rõ ràng, theo trình tự logic. Hệ thống phải cung cấp phản hồi rõ cho trạng thái thành công, thất bại, lỗi kiểm tra dữ liệu và loading; biểu mẫu phải có nhãn và thông báo validation dễ hiểu; điều hướng và bố cục phải nhất quán giữa các khu vực chính.
+
+### 3.4.7. Khả năng bảo trì và tương thích
+
+Codebase phải được tổ chức theo hướng module hóa, business rules cần được tách khỏi presentation logic khi khả thi, API phải được tài liệu hóa nhất quán, cấu hình môi trường cần dễ bảo trì và logging/monitoring hooks nên hỗ trợ debug/vận hành. Ứng dụng web phải hỗ trợ các trình duyệt hiện đại phổ biến; giao diện responsive phải thích ứng với các kích thước màn hình thông dụng; khi chức năng đa ngôn ngữ được áp dụng, hệ thống nên hỗ trợ tài nguyên văn bản bên ngoài để localization.
+
+## 3.5. Các quy tắc nghiệp vụ chính
+
+Phần này tóm tắt các quy tắc nghiệp vụ quan trọng được nêu trong SRS.
+
+### 3.5.1. Quy tắc truy cập và vai trò
+
+Hệ thống vận hành với bốn vai trò chính: Guest User, Patient, Doctor và Administrator. Guest User chỉ được truy cập khu vực công khai. Patient, Doctor và Administrator phải đăng nhập để sử dụng các chức năng tương ứng. Mỗi người dùng chỉ được truy cập chức năng và dữ liệu phù hợp với vai trò của mình.
+
+Dữ liệu sức khỏe, hồ sơ tư vấn và đơn thuốc phải được giới hạn cho các bên có thẩm quyền. Đây là quy tắc nền tảng để bảo vệ dữ liệu cá nhân và dữ liệu sức khỏe trong hệ thống.
+
+### 3.5.2. Quy tắc hiển thị và lựa chọn bác sĩ
+
+Bác sĩ được hiển thị trong khu vực công khai hoặc trong quá trình bệnh nhân tìm kiếm phải đáp ứng trạng thái active và approved theo SRS. Bác sĩ có thể được gắn với một hoặc nhiều chuyên khoa. Người dùng có thể tìm kiếm hoặc lọc bác sĩ theo chuyên khoa, từ khóa và thông tin công khai phù hợp.
+
+### 3.5.3. Quy tắc đặt lịch hẹn
+
+Bệnh nhân chỉ được đặt lịch với bác sĩ trong các khung giờ còn khả dụng. Hệ thống phải ngăn đặt trùng lịch cho cùng bác sĩ và cùng khung giờ. Lịch hẹn phải có thông tin bệnh nhân, bác sĩ, thời gian, mục đích, trạng thái và thời điểm tạo. Các trạng thái tối thiểu gồm `PENDING_CONFIRMATION`, `CONFIRMED`, `COMPLETED` và `CANCELLED`.
+
+Lịch hẹn có thể được hủy theo quy tắc nghiệp vụ đã định nghĩa. Bác sĩ có thể xem lịch hẹn sắp tới và lịch hẹn trong quá khứ của mình; bệnh nhân cũng có thể xem lịch hẹn của chính mình. Quản trị viên có thể xem và quản lý tất cả lịch hẹn.
+
+### 3.5.4. Quy tắc phiên tư vấn
+
+Phiên tư vấn chỉ được khởi tạo cho lịch hẹn hợp lệ. Quyền truy cập phiên tư vấn phải giới hạn cho bệnh nhân tham gia, bác sĩ phụ trách và quản trị viên được ủy quyền nếu có. Hệ thống phải hỗ trợ chat thời gian thực cho phiên tư vấn. Video là khả năng được SRS cho phép ở mức mô phỏng, tích hợp cơ bản hoặc mở rộng tùy điều kiện.
+
+Sau khi phiên tư vấn kết thúc, hệ thống phải lưu tóm tắt tư vấn. Bác sĩ có thể ghi nhận kết quả tư vấn và tạo đơn thuốc điện tử cơ bản cho buổi tư vấn đã hoàn tất. Bệnh nhân chỉ được xem kết quả tư vấn và đơn thuốc gắn với buổi tư vấn của chính mình.
+
+### 3.5.5. Quy tắc đánh giá và thông báo
+
+Bệnh nhân chỉ được đánh giá sau khi buổi tư vấn đã hoàn tất. Hệ thống phải ngăn việc gửi đánh giá cho lịch hẹn chưa hoàn tất. Đánh giá có thể đi kèm nhận xét bằng văn bản và có thể được quản trị viên kiểm duyệt khi cần.
+
+Hệ thống phải gửi thông báo cho các sự kiện quan trọng như lịch hẹn được tạo hoặc xác nhận, nhắc lịch trước thời gian hẹn và câu hỏi đã được bác sĩ phản hồi. Email là kênh thông báo bắt buộc trong phạm vi SRS; SMS được xác định là tùy chọn/mở rộng khi có dịch vụ gửi tin nhắn phù hợp. Lịch sử thông báo và trạng thái gửi từ nhà cung cấp, nếu có, cần được ghi nhận.
+
+## 3.6. Biểu đồ Use Case
+
+Theo tài liệu lựa chọn biểu đồ, báo cáo chỉ sử dụng bốn biểu đồ Use Case theo từng tác nhân chính. Biểu đồ Use Case tổng thể không được đưa trực tiếp vào báo cáo vì quá dày và trùng lặp với các biểu đồ theo vai trò.
+
+### 3.6.1. Biểu đồ Use Case của khách truy cập
 
 [INSERT FIGURE: use-case-guest.png]
 
-Hình 3.1. Biểu đồ Use Case của khách truy cập
+**Hình 3.1. Biểu đồ Use Case của khách truy cập**
 
-Hình 3.1 thể hiện các use case công khai UC-G-01 đến UC-G-06, gồm xem trang chủ, xem chuyên khoa, tìm kiếm bác sĩ, xem hồ sơ công khai và chuyển đến đăng nhập/đăng ký khi thực hiện hành động bảo vệ.
+Biểu đồ này thể hiện các chức năng công khai của Guest User, bao gồm xem trang chủ, xem danh sách chuyên khoa, tìm kiếm bác sĩ, xem hồ sơ bác sĩ và chuyển sang đăng nhập hoặc đăng ký khi muốn thực hiện hành động cần xác thực. Các ca sử dụng liên quan gồm UC-G-01, UC-G-02, UC-G-03, UC-G-04, UC-G-05 và UC-G-06.
 
-### 3.6.2 Biểu đồ Use Case của bệnh nhân
+### 3.6.2. Biểu đồ Use Case của bệnh nhân
 
 [INSERT FIGURE: use-case-patient.png]
 
-Hình 3.2. Biểu đồ Use Case của bệnh nhân
+**Hình 3.2. Biểu đồ Use Case của bệnh nhân**
 
-Hình 3.2 thể hiện các use case UC-P-01 đến UC-P-15, bao gồm quản lý hồ sơ, hỏi đáp, đặt lịch, tham gia tư vấn, xem kết quả, đơn thuốc, đánh giá và nhận thông báo. SMS trong hình được hiểu là hướng mở rộng phụ thuộc provider, không phải bằng chứng đã tích hợp SMS trong môi trường vận hành thực tế.
+Biểu đồ này mô tả hành trình chính của Patient trong hệ thống: đăng ký, đăng nhập, quản lý hồ sơ sức khỏe, tìm kiếm bác sĩ, gửi câu hỏi, đặt lịch, tham gia tư vấn, xem phản hồi, xem lịch sử, xem tóm tắt/đơn thuốc, đánh giá và nhận thông báo. Các ca sử dụng liên quan gồm UC-P-01 đến UC-P-15. Biểu đồ cũng thể hiện quan hệ với Notification Service qua UC-E-01 và UC-E-02; trong đó SMS là khả năng mở rộng phụ thuộc dịch vụ phù hợp.
 
-### 3.6.3 Biểu đồ Use Case của bác sĩ
+### 3.6.3. Biểu đồ Use Case của bác sĩ
 
 [INSERT FIGURE: use-case-doctor.png]
 
-Hình 3.3. Biểu đồ Use Case của bác sĩ
+**Hình 3.3. Biểu đồ Use Case của bác sĩ**
 
-Hình 3.3 thể hiện các use case UC-D-01 đến UC-D-11. Video consultation là use case mở rộng; hệ thống hiện tại hỗ trợ chat realtime và fallback/mock, chưa tích hợp provider video trong môi trường vận hành thực tế.
+Biểu đồ này thể hiện các chức năng chuyên môn của Doctor, bao gồm đăng nhập, quản lý hồ sơ bác sĩ, xem và phản hồi câu hỏi, quản lý lịch tư vấn, xem lịch hẹn, bắt đầu và thực hiện tư vấn, ghi nhận kết quả, cấp đơn thuốc cơ bản và xem lịch sử tư vấn của bệnh nhân. Các ca sử dụng liên quan gồm UC-D-01 đến UC-D-11. Biểu đồ cũng thể hiện UC-E-03 về thiết lập phiên tư vấn video như một khả năng hỗ trợ theo phạm vi SRS.
 
-### 3.6.4 Biểu đồ Use Case của quản trị viên
+### 3.6.4. Biểu đồ Use Case của quản trị viên
 
 [INSERT FIGURE: use-case-admin.png]
 
-Hình 3.4. Biểu đồ Use Case của quản trị viên
+**Hình 3.4. Biểu đồ Use Case của quản trị viên**
 
-Hình 3.4 thể hiện các use case UC-A-01 đến UC-A-08 cho quản trị tài khoản, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt và báo cáo.
+Biểu đồ này mô tả phạm vi vận hành của Administrator, bao gồm đăng nhập, quản lý tài khoản bác sĩ, quản lý tài khoản bệnh nhân, quản lý chuyên khoa, quản lý lịch hẹn, kiểm duyệt nội dung tư vấn và phản hồi, xem dashboard thống kê và theo dõi hoạt động hệ thống. Các ca sử dụng liên quan gồm UC-A-01 đến UC-A-08.
 
-## 3.7 Luồng hoạt động tổng quát của hệ thống
+## 3.7. Luồng hoạt động tổng quát của hệ thống
 
 [INSERT FIGURE: system-flow.png]
 
-Hình 3.5. Luồng hoạt động tổng quát của hệ thống
+**Hình 3.5. Luồng hoạt động tổng quát của hệ thống**
 
-Luồng tổng quát bắt đầu từ khám phá công khai, sau đó người dùng đăng nhập hoặc đăng ký để đặt lịch, tham gia tư vấn, nhận kết quả/đơn thuốc và đánh giá. Bác sĩ tham gia bằng cách quản lý lịch, xác nhận lịch, trả lời câu hỏi và thực hiện tư vấn. Quản trị viên hỗ trợ vận hành qua quản lý dữ liệu, kiểm duyệt và báo cáo. Thông báo là vai trò hỗ trợ cho đặt lịch, nhắc lịch và phản hồi câu hỏi.
+Luồng hoạt động tổng quát bắt đầu từ khu vực công khai. Guest User có thể xem trang chủ, xem chuyên khoa và tìm kiếm bác sĩ đã được duyệt. Khi muốn đặt lịch hoặc gửi câu hỏi, người dùng chuyển sang đăng ký hoặc đăng nhập để sử dụng hệ thống với vai trò Patient.
 
-## 3.8 Phạm vi và giới hạn yêu cầu
+Sau khi xác thực, Patient có thể cập nhật hồ sơ sức khỏe, tìm kiếm và chọn bác sĩ, kiểm tra lịch khả dụng và đặt lịch hẹn tư vấn. Lịch hẹn ban đầu có thể ở trạng thái chờ xác nhận, sau đó được bác sĩ xem xét và xác nhận theo quy trình nghiệp vụ. Bác sĩ cũng quản lý hồ sơ chuyên môn, lịch làm việc và các lịch hẹn liên quan.
 
-Trong phạm vi hiện tại, hệ thống tập trung vào các luồng tư vấn và quản lý lịch hẹn cốt lõi. Các nội dung ngoài phạm vi hoặc chưa triển khai đầy đủ gồm chẩn đoán tự động, cấp cứu y tế, tích hợp EMR/EHR, thanh toán bảo hiểm, IoT y tế, tải tệp trong môi trường vận hành thực tế, SMS trong môi trường vận hành thực tế và video trong môi trường vận hành thực tế. Những điểm này không được xem là chức năng hiện có.
+Khi đến thời gian tư vấn, Patient và Doctor tham gia phiên tư vấn. Luồng chính của hệ thống là tư vấn qua chat thời gian thực; video được xem là khả năng hỗ trợ trong phạm vi mô phỏng hoặc tích hợp cơ bản theo SRS. Sau phiên tư vấn, bác sĩ ghi nhận tóm tắt tư vấn và có thể tạo đơn thuốc điện tử cơ bản. Patient xem lại kết quả, đơn thuốc và có thể gửi đánh giá chất lượng tư vấn sau khi buổi tư vấn hoàn tất.
+
+Bên cạnh luồng đặt lịch và tư vấn, hệ thống còn có luồng hỗ trợ hỏi đáp sức khỏe. Patient gửi câu hỏi, Doctor trả lời, Patient xem phản hồi, và Administrator có thể kiểm duyệt nội dung khi cần. Notification Service hỗ trợ gửi thông báo hoặc nhắc lịch cho các sự kiện quan trọng như tạo lịch hẹn, xác nhận lịch hẹn hoặc câu hỏi đã được trả lời. Administrator quản lý người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt nội dung và theo dõi dashboard/thống kê.
+
+## 3.8. Phạm vi và giới hạn yêu cầu
+
+### 3.8.1. Phạm vi trong đề tài
+
+Theo SRS cuối cùng, phạm vi bắt buộc của hệ thống bao gồm:
+
+- Truy cập nội dung công khai, xem chuyên khoa và tìm kiếm bác sĩ.
+- Đăng ký, đăng nhập, đăng xuất và phân quyền theo vai trò.
+- Quản lý hồ sơ sức khỏe bệnh nhân và hồ sơ chuyên môn bác sĩ.
+- Quản lý chuyên khoa.
+- Gửi câu hỏi sức khỏe và bác sĩ phản hồi câu hỏi.
+- Đặt lịch tư vấn, quản lý lịch hẹn và ngăn trùng lịch.
+- Tham gia phiên tư vấn trực tuyến qua chat.
+- Hỗ trợ tư vấn video ở mức mô phỏng hoặc tích hợp cơ bản theo phạm vi hệ thống.
+- Ghi nhận tóm tắt tư vấn và đơn thuốc điện tử cơ bản.
+- Bệnh nhân xem lịch sử tư vấn, phản hồi, đơn thuốc và đánh giá chất lượng tư vấn.
+- Quản trị viên quản lý bác sĩ, bệnh nhân, lịch hẹn, chuyên khoa, kiểm duyệt nội dung và xem thống kê.
+- Gửi email hoặc thông báo nhắc lịch hẹn.
+- Giao diện responsive cho desktop, tablet và mobile.
+
+### 3.8.2. Chức năng tùy chọn hoặc mở rộng
+
+Các chức năng sau được SRS xác định là tùy chọn hoặc mở rộng, không phải yêu cầu bắt buộc của phạm vi cốt lõi:
+
+- Phiên tư vấn video nâng cao hoặc tích hợp dịch vụ video bên ngoài.
+- Nhắc lịch bằng SMS khi có dịch vụ gửi tin nhắn phù hợp.
+- Chatbot mô phỏng tư vấn sức khỏe cơ bản.
+- Giao diện đa ngôn ngữ.
+- Dark Mode.
+- Biểu đồ và bộ lọc phân tích nâng cao.
+
+Khi trình bày các chức năng này trong báo cáo, cần phân biệt rõ giữa yêu cầu mở rộng và chức năng cốt lõi. Đặc biệt, SMS và video nâng cao phụ thuộc vào điều kiện dịch vụ bên ngoài; chatbot không được xem là năng lực chẩn đoán y khoa.
+
+### 3.8.3. Ngoài phạm vi hệ thống
+
+SRS xác định các nội dung sau nằm ngoài phạm vi của hệ thống hiện tại:
+
+- Chẩn đoán y khoa bằng AI ở mức production.
+- Tích hợp với bệnh viện, phòng khám hoặc hệ thống EHR bên ngoài.
+- Kết nối thiết bị IoT hoặc thiết bị đeo.
+- Thanh toán bảo hiểm y tế.
+- Quản lý giao thuốc hoặc tích hợp nhà thuốc.
+- Cuộc gọi video chất lượng cao có ghi hình, lưu trữ và phát lại.
+- Ứng dụng di động native.
+- Quy trình telemedicine nâng cao như e-consent, referral management và triage engine.
+
+Những giới hạn này giúp bảo đảm phạm vi đề tài tập trung vào mục tiêu chính: hỗ trợ tư vấn sức khỏe trực tuyến, quản lý lịch hẹn, trao đổi giữa bệnh nhân và bác sĩ, ghi nhận kết quả tư vấn và hỗ trợ quản trị hệ thống.
 
 # CHƯƠNG 4. THIẾT KẾ HỆ THỐNG
 
-## 4.1 Tổng quan kiến trúc hệ thống
+Chương này trình bày thiết kế của hệ thống đã được xây dựng cuối cùng. Nội dung tập trung vào kiến trúc tổng thể, các lớp chức năng chính, tổ chức dữ liệu, cơ chế xác thực - phân quyền và các luồng thiết kế đại diện. Những nội dung mang tính liệt kê chi tiết mã nguồn, trường dữ liệu hoặc từng API cụ thể không được trình bày trong chương này để tránh trùng lặp với phần xây dựng hệ thống.
 
-Hệ thống được thiết kế gồm Web Client, Application Layer và Data Layer. Web Client là React SPA. Application Layer là backend NestJS theo kiến trúc Modular Monolith, cung cấp REST API và Socket.IO gateway. Data Layer sử dụng PostgreSQL thông qua Prisma ORM.
+## 4.1. Tổng quan kiến trúc hệ thống
+
+Hệ thống được thiết kế dưới dạng ứng dụng web gồm ba lớp chính: Web Client, Application Layer và Data Layer. Người dùng truy cập hệ thống qua trình duyệt. Giao diện phía client là React SPA, chịu trách nhiệm hiển thị giao diện, điều hướng theo vai trò, gửi yêu cầu REST và kết nối realtime trong phiên tư vấn. Phía server là một ứng dụng NestJS theo kiến trúc Modular Monolith, cung cấp REST API, Socket.IO realtime entry, xử lý nghiệp vụ và giao tiếp với cơ sở dữ liệu PostgreSQL thông qua Prisma ORM.
 
 [INSERT FIGURE: architecture-overview.png]
 
-Hình 4.1. Kiến trúc tổng thể của hệ thống
+**Hình 4.1. Kiến trúc tổng thể của hệ thống**
 
-Hình 4.1 thể hiện ranh giới giữa frontend, backend và database. Các dịch vụ email, SMS, video hoặc lưu trữ tệp được xem là ranh giới tích hợp bên ngoài, không được trình bày như năng lực vận hành thực tế đã hoàn thiện.
+Về giao tiếp, phần lớn chức năng nghiệp vụ như đăng nhập, quản lý hồ sơ, tìm bác sĩ, đặt lịch, hỏi đáp, quản trị và báo cáo sử dụng REST API. Riêng phiên tư vấn trực tuyến cần trao đổi hai chiều giữa bệnh nhân và bác sĩ nên sử dụng Socket.IO. Thiết kế này giúp hệ thống vừa giữ được luồng request-response rõ ràng cho dữ liệu nghiệp vụ, vừa hỗ trợ realtime chat cho phiên tư vấn.
 
-## 4.2 Lựa chọn kiến trúc Modular Monolith
+Về triển khai, frontend có thể được đóng gói và triển khai như static React SPA; backend được triển khai như một ứng dụng NestJS duy nhất; cơ sở dữ liệu PostgreSQL là nơi lưu trữ dữ liệu nghiệp vụ. Các dịch vụ như email, SMS hoặc video được xem là ranh giới tích hợp bên ngoài. Trong hệ thống hiện tại, các phần này được thiết kế như provider boundary hoặc khả năng mở rộng, không phải các dịch vụ vendor production bắt buộc.
 
-Backend dùng Modular Monolith vì các phân hệ có quan hệ nghiệp vụ chặt chẽ và cần chia sẻ dữ liệu nhất quán. Kiến trúc này đơn giản hóa triển khai trong phạm vi đồ án, đồng thời vẫn giữ ranh giới module rõ ràng.
+## 4.2. Lựa chọn kiến trúc Modular Monolith
+
+Backend được thiết kế theo hướng Modular Monolith: toàn bộ nghiệp vụ chạy trong một ứng dụng NestJS duy nhất, nhưng được chia thành các module theo miền chức năng. Các module runtime chính gồm `IdentityModule`, `DiscoveryModule`, `PatientModule`, `DoctorModule`, `SpecialtyModule`, `AppointmentModule`, `QuestionModule`, `ConsultationModule`, `NotificationModule`, `ModerationModule`, `ReportingModule`, `OperationsModule` và `PrismaModule`.
+
+Cách thiết kế này phù hợp với đề tài vì các phân hệ có quan hệ chặt chẽ với nhau. Ví dụ, lịch hẹn liên quan đến bệnh nhân, bác sĩ, phiên tư vấn và thông báo; phiên tư vấn liên quan đến kết quả, đơn thuốc và đánh giá; quản trị liên quan đến người dùng, bác sĩ, chuyên khoa và nội dung cần kiểm duyệt. Việc giữ các phân hệ trong cùng một ứng dụng giúp đơn giản hóa triển khai, kiểm thử và giao dịch dữ liệu, đồng thời vẫn giữ được ranh giới chức năng rõ ràng.
+
+Ranh giới module được xác định theo trách nhiệm nghiệp vụ:
 
 Bảng 4.1. Vai trò thiết kế của các module backend
 
-| Module | Vai trò |
+| Module | Vai trò thiết kế |
 |---|---|
-| Identity | Xác thực, phiên đăng nhập, khôi phục mật khẩu và người dùng. |
-| Discovery | Dữ liệu công khai về chuyên khoa và bác sĩ. |
-| Patient | Hồ sơ sức khỏe bệnh nhân. |
-| Doctor | Hồ sơ bác sĩ, lịch làm việc và chuyên khoa. |
-| Appointment | Khả dụng, đặt lịch, xác nhận, hủy, hoàn tất, đổi lịch. |
-| Question | Câu hỏi sức khỏe và phản hồi của bác sĩ. |
-| Consultation | Phiên tư vấn, chat realtime, kết quả, đơn thuốc và đánh giá. |
-| Notification | Outbox, notification log, reminder và provider boundary. |
-| Moderation | Kiểm duyệt câu hỏi, câu trả lời và đánh giá. |
-| Reporting | Dashboard và thống kê hoạt động. |
-| Prisma | Truy cập dữ liệu dùng chung. |
+| Identity | Xác thực, phiên đăng nhập, khôi phục mật khẩu và quản lý người dùng. |
+| Discovery | Cung cấp dữ liệu công khai như trang chủ, chuyên khoa và bác sĩ đã được duyệt. |
+| Patient | Quản lý hồ sơ sức khỏe của bệnh nhân. |
+| Doctor | Quản lý hồ sơ bác sĩ, lịch làm việc, chuyên khoa và thông tin chuyên môn. |
+| Specialty | Quản lý chuyên khoa. |
+| Appointment | Quản lý lịch khả dụng, đặt lịch, xác nhận, hủy, hoàn tất và đổi lịch hẹn. |
+| Question | Quản lý câu hỏi sức khỏe và phản hồi của bác sĩ. |
+| Consultation | Quản lý phiên tư vấn, chat realtime, tóm tắt, đơn thuốc và đánh giá. |
+| Notification | Quản lý thông báo, outbox, lịch sử gửi và nhắc lịch. |
+| Moderation | Kiểm duyệt câu hỏi, phản hồi và nội dung liên quan. |
+| Reporting | Thống kê hoạt động và dashboard quản trị. |
+| Operations | Health check và thông tin vận hành cơ bản. |
+| Prisma | Cung cấp lớp truy cập dữ liệu dùng chung. |
 
-Trade-off chính là khi số lượng người dùng và phiên realtime tăng, hệ thống có thể cần mở rộng riêng cho realtime, scheduler hoặc reporting. Đây là hướng phát triển, không phải yêu cầu hiện tại.
+Ưu điểm của lựa chọn này là cấu trúc rõ ràng, dễ phát triển trong phạm vi đồ án, thuận lợi khi cần dùng transaction chung trên cùng cơ sở dữ liệu và không phát sinh chi phí vận hành nhiều dịch vụ độc lập. Trade-off là khi hệ thống tăng quy mô lớn, một số phần như realtime, outbox processing hoặc reporting có thể cần chiến lược tách tải hoặc mở rộng riêng. Tuy nhiên, với phạm vi hiện tại, Modular Monolith đáp ứng tốt yêu cầu về tính hoàn chỉnh, dễ bảo trì và kiểm soát nghiệp vụ.
 
-## 4.3 Thiết kế Web Client
+## 4.3. Thiết kế Web Client
 
-Web Client được tổ chức theo feature: `auth`, `public`, `patient`, `doctor`, `admin`, `reports` và `consultation/realtime`. Routing phân tách vùng công khai và vùng bảo vệ theo vai trò. Redux Toolkit và Redux Saga xử lý trạng thái và luồng bất đồng bộ. REST API được dùng cho dữ liệu nghiệp vụ, còn Socket.IO được dùng cho chat trong phiên tư vấn.
+Web Client được thiết kế là React Single Page Application. Ứng dụng chạy trên trình duyệt, sử dụng client-side routing để chuyển đổi giữa các vùng công khai, vùng bệnh nhân, vùng bác sĩ và vùng quản trị. Cấu trúc frontend được tổ chức theo feature để mỗi nhóm chức năng có màn hình, API client, state và kiểu dữ liệu riêng.
 
-## 4.4 Thiết kế Application Layer
+Các nhóm feature chính của Web Client gồm:
 
-Application Layer có hai loại entry point: REST controllers và `ConsultationGateway`. Controllers nhận request HTTP và gọi service nghiệp vụ. Gateway xử lý kết nối Socket.IO, xác thực token và chuyển nghiệp vụ chat cho `ConsultationService`. Các service dùng `PrismaService` để truy cập PostgreSQL. `NotificationScheduler` xử lý outbox và reminder nền thông qua `NotificationService`.
+- `auth`: đăng nhập, đăng ký, quên mật khẩu, đặt lại mật khẩu và khởi tạo phiên người dùng.
+- `public`: trang chủ, danh sách chuyên khoa, danh sách bác sĩ và chi tiết bác sĩ.
+- `patient`: hồ sơ bệnh nhân, gửi câu hỏi, đặt lịch, lịch sử tư vấn, phiên tư vấn và đánh giá.
+- `doctor`: hồ sơ bác sĩ, lịch làm việc, câu hỏi, lịch hẹn, bệnh nhân, đánh giá và phiên tư vấn.
+- `admin`: quản lý người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn và kiểm duyệt.
+- `reports`: dashboard và thống kê hoạt động.
+- `consultation/realtime`: client dùng chung cho kết nối Socket.IO.
 
-## 4.5 Thiết kế dữ liệu
+Về điều hướng, các route công khai cho phép người dùng chưa đăng nhập xem thông tin nền tảng, chuyên khoa và bác sĩ. Các route dành cho Patient, Doctor và Administrator được bảo vệ bằng cơ chế guard phía frontend để cải thiện trải nghiệm người dùng. Tuy nhiên, kiểm soát quyền truy cập ở backend vẫn là lớp bảo vệ chính.
 
-Dữ liệu được lưu trong PostgreSQL. Prisma schema là nguồn chính của cấu trúc dữ liệu. ERD được xuất từ cơ sở dữ liệu/schema cuối cùng.
+Về quản lý trạng thái, Web Client sử dụng Redux Toolkit và Redux Saga. Redux lưu trạng thái xác thực, dữ liệu nghiệp vụ và trạng thái tải/lỗi của các màn hình. Redux Saga xử lý các luồng bất đồng bộ như gọi API đăng nhập, đặt lịch, gửi câu hỏi, lấy dữ liệu bác sĩ, quản trị và báo cáo. Cách tổ chức này giúp giao diện phản hồi tốt trước các thao tác nhiều bước và tránh để logic bất đồng bộ nằm rải rác trong từng màn hình.
+
+Về giao tiếp, Web Client sử dụng REST API cho hầu hết các chức năng dữ liệu và Socket.IO cho chat trong phiên tư vấn. API client dùng access token để gọi các tài nguyên được bảo vệ và hỗ trợ luồng refresh token khi phiên cần được làm mới. Với realtime, client kết nối tới namespace tư vấn, gửi token khi bắt tay kết nối, tham gia phòng theo lịch hẹn và nhận/gửi tin nhắn trong phiên tư vấn.
+
+## 4.4. Thiết kế Application Layer
+
+Application Layer là ứng dụng NestJS duy nhất, đóng vai trò xử lý nghiệp vụ trung tâm của hệ thống. Lớp này cung cấp hai loại entry point:
+
+- REST controllers: tiếp nhận các yêu cầu HTTP cho các chức năng xác thực, public discovery, hồ sơ, lịch hẹn, câu hỏi, tư vấn, thông báo, báo cáo và quản trị.
+- `ConsultationGateway`: tiếp nhận kết nối Socket.IO cho phiên tư vấn realtime.
+
+Thiết kế xử lý REST theo luồng tổng quát:
+
+```text
+HTTP request
+→ Controller
+→ Guard/role/ownership check nếu cần
+→ Service nghiệp vụ
+→ PrismaService
+→ PostgreSQL
+```
+
+Trong thiết kế này, controller là điểm vào cho request và chỉ nên điều phối dữ liệu đầu vào/đầu ra. Service chứa logic nghiệp vụ như kiểm tra lịch khả dụng, xác nhận quyền truy cập, khởi tạo phiên tư vấn, tạo đơn thuốc, tạo thông báo hoặc tính toán số liệu báo cáo. `PrismaService` là lớp truy cập dữ liệu dùng chung, giúp các module thao tác với PostgreSQL thông qua Prisma ORM.
+
+Với realtime, `ConsultationGateway` là entry point riêng cho Socket.IO. Gateway xác thực kết nối bằng token, nhận sự kiện tham gia phiên tư vấn và gửi tin nhắn, sau đó chuyển xử lý nghiệp vụ cho `ConsultationService`. Thiết kế này giúp tách trách nhiệm giao tiếp realtime khỏi logic kiểm tra quyền truy cập, trạng thái phiên và lưu tin nhắn.
+
+Background processing được đặt trong cùng runtime NestJS thông qua `NotificationScheduler`. Scheduler xử lý hai nhóm tác vụ: xử lý outbox notification theo chu kỳ và gửi nhắc lịch cho các lịch hẹn sắp tới. Scheduler không tự xử lý nghiệp vụ gửi thông báo mà gọi `NotificationService`, nhờ đó logic notification vẫn tập trung trong một service nghiệp vụ.
+
+## 4.5. Thiết kế dữ liệu
+
+Dữ liệu của hệ thống được lưu trong PostgreSQL và truy cập thông qua Prisma ORM. Prisma schema là mô tả chính thức của cấu trúc dữ liệu ứng dụng. Các bảng sử dụng quan hệ rõ ràng giữa người dùng, hồ sơ, lịch hẹn, phiên tư vấn, câu hỏi, đơn thuốc, đánh giá, thông báo và audit log.
 
 [INSERT FIGURE: database-erd.png]
 
-Hình 4.2. Sơ đồ quan hệ thực thể của hệ thống
+**Hình 4.2. Sơ đồ quan hệ thực thể của hệ thống**
+
+Các nhóm dữ liệu chính gồm:
 
 Bảng 4.2. Nhóm dữ liệu chính của hệ thống
 
-| Nhóm dữ liệu | Thực thể tiêu biểu |
-|---|---|
-| Định danh và audit | `User`, `UserSession`, `PasswordResetToken`, `AuditLog` |
-| Hồ sơ và chuyên khoa | `PatientProfile`, `DoctorProfile`, `Specialty`, `DoctorSpecialty` |
-| Hỏi đáp và kiểm duyệt | `Question`, `Answer`, `QuestionModeration` |
-| Lịch hẹn và tư vấn | `Appointment`, `ConsultationSession`, `ConsultationMessage` |
-| Kết quả và đánh giá | `Prescription`, `PrescriptionItem`, `Rating` |
-| Thông báo | `OutboxEvent`, `NotificationLog` |
+| Nhóm dữ liệu | Thực thể tiêu biểu | Vai trò thiết kế |
+|---|---|---|
+| Định danh, phiên và audit | `User`, `UserSession`, `PasswordResetToken`, `AuditLog` | Lưu người dùng, phiên refresh token, token đặt lại mật khẩu và nhật ký hành động quan trọng. |
+| Hồ sơ và khám phá bác sĩ | `PatientProfile`, `DoctorProfile`, `Specialty`, `DoctorSpecialty` | Quản lý hồ sơ bệnh nhân, hồ sơ bác sĩ, chuyên khoa và quan hệ nhiều-nhiều giữa bác sĩ và chuyên khoa. |
+| Hỏi đáp và kiểm duyệt | `Question`, `Answer`, `QuestionModeration` | Lưu câu hỏi sức khỏe, phản hồi của bác sĩ và thông tin kiểm duyệt. |
+| Lịch hẹn và phiên tư vấn | `Appointment`, `ConsultationSession`, `ConsultationMessage` | Quản lý lịch hẹn, phiên tư vấn và tin nhắn chat được lưu lại. |
+| Kết quả, đơn thuốc và đánh giá | `Prescription`, `PrescriptionItem`, `Rating` | Lưu đơn thuốc điện tử cơ bản, chi tiết thuốc và đánh giá sau tư vấn. |
+| Thông báo và xử lý bất đồng bộ | `NotificationLog`, `OutboxEvent` | Lưu lịch sử thông báo và sự kiện cần xử lý sau. |
+| Tệp đính kèm | `FileAttachment` | Có trong mô hình dữ liệu như khả năng mở rộng, nhưng không phải trọng tâm của luồng triển khai hiện tại. |
 
-## 4.6 Thiết kế lớp backend
+Các quan hệ quan trọng trong thiết kế dữ liệu gồm:
 
-Theo quyết định diagram selection, sơ đồ lớp backend được giữ ở dạng rút gọn để minh họa quan hệ đại diện như Controller -> Service, Gateway -> Service, Scheduler -> Service, Service -> PrismaService và NotificationService -> NotificationProvider.
+- Một `User` có thể gắn với một hồ sơ bệnh nhân hoặc một hồ sơ bác sĩ tùy vai trò.
+- Một `DoctorProfile` có thể liên kết với nhiều `Specialty` thông qua `DoctorSpecialty`.
+- Một `PatientProfile` và một `DoctorProfile` cùng tham gia vào nhiều `Appointment`.
+- Một `Appointment` có tối đa một `ConsultationSession`; phiên tư vấn có thể có nhiều `ConsultationMessage`.
+- Một `ConsultationSession` có thể có một `Prescription`, và một đơn thuốc có nhiều `PrescriptionItem`.
+- Một `Appointment` có thể có một `Rating` sau khi hoàn tất.
+- `OutboxEvent` lưu các sự kiện nghiệp vụ cần xử lý bất đồng bộ; `NotificationLog` lưu kết quả thông báo gửi tới người dùng.
+
+Thiết kế dữ liệu ưu tiên tính nhất quán của nghiệp vụ đặt lịch và tư vấn. Các enum như `Role`, `AppointmentStatus`, `ConsultationStatus`, `QuestionStatus`, `NotificationStatus`, `RatingStatus`, `ApprovalStatus` và `OutboxStatus` giúp chuẩn hóa trạng thái trong toàn hệ thống.
+
+## 4.6. Thiết kế lớp backend
+
+Theo quyết định lựa chọn biểu đồ lớp, báo cáo sử dụng sơ đồ lớp backend ở dạng rút gọn. Mục tiêu của sơ đồ không phải mô tả toàn bộ mã nguồn hoặc toàn bộ mô hình dữ liệu, mà minh họa các quan hệ cộng tác đại diện trong backend NestJS.
 
 [INSERT FIGURE: backend-class-diagram.png]
 
-Hình 4.3. Sơ đồ lớp các thành phần backend chính
+**Hình 4.3. Sơ đồ lớp các thành phần backend chính**
 
-Sơ đồ này không thay thế ERD và không liệt kê toàn bộ DTO, model hoặc controller CRUD đơn giản.
+Sơ đồ lớp rút gọn nên tập trung vào các nhóm quan hệ sau:
 
-## 4.7 Thiết kế xác thực và phân quyền
+- **Controller → Service:** Các controller như `AuthController`, `AppointmentController`, `QuestionController`, `ConsultationController`, `ModerationController` và `ReportingController` nhận request và chuyển xử lý nghiệp vụ cho service tương ứng.
+- **Gateway → Service:** `ConsultationGateway` nhận sự kiện Socket.IO và gọi `ConsultationService` để kiểm tra quyền truy cập, trạng thái phiên và lưu tin nhắn.
+- **Scheduler → Service:** `NotificationScheduler` gọi `NotificationService` để xử lý outbox và nhắc lịch.
+- **Service → PrismaService:** Các service nghiệp vụ sử dụng `PrismaService` để truy xuất và cập nhật dữ liệu trong PostgreSQL.
+- **NotificationService → NotificationProvider:** `NotificationService` phụ thuộc vào abstraction provider để tách logic thông báo khỏi chi tiết kênh gửi.
 
-Hệ thống dùng JWT access token, refresh token qua HttpOnly cookie, `JwtAuthGuard`, `RolesGuard` và ownership checks. Backend là lớp bảo vệ quyết định; frontend guard chỉ hỗ trợ điều hướng và trải nghiệm người dùng.
+Sơ đồ này không lặp lại ERD. Các model dữ liệu như `User`, `Appointment`, `ConsultationSession`, `Prescription` hoặc `Rating` được trình bày bằng ERD ở mục 4.5. Trong sơ đồ lớp backend, chỉ nên dùng các tham chiếu nhẹ như `OutboxEvent` hoặc `NotificationLog` nếu cần làm rõ luồng thông báo.
+
+## 4.7. Thiết kế xác thực và phân quyền
+
+Hệ thống sử dụng JWT access token kết hợp refresh token trong cookie HTTP-only. Khi người dùng đăng nhập thành công, backend cấp access token để gọi API được bảo vệ và refresh token để duy trì phiên đăng nhập. Refresh token được quản lý như phiên đăng nhập phía server, có thể được xoay vòng hoặc thu hồi khi người dùng đăng xuất.
+
+Thiết kế phân quyền gồm ba lớp chính:
+
+- `JwtAuthGuard`: xác thực access token và gắn thông tin người dùng vào request.
+- `RolesGuard`: kiểm tra người dùng có vai trò phù hợp với chức năng đang truy cập hay không.
+- `OwnershipGuard`: kiểm tra quyền sở hữu dữ liệu ở những tình huống cần bảo vệ tài nguyên theo người dùng cụ thể.
+
+Mô hình RBAC của hệ thống dựa trên các vai trò `PATIENT`, `DOCTOR` và `ADMIN` ở backend. Guest User chỉ truy cập vùng công khai và không có vai trò đăng nhập trong backend. Thiết kế này đáp ứng yêu cầu tách biệt quyền giữa bệnh nhân, bác sĩ và quản trị viên, đặc biệt với dữ liệu nhạy cảm như hồ sơ sức khỏe, lịch hẹn, kết quả tư vấn và đơn thuốc.
 
 [INSERT FIGURE: sequence-login.png]
 
-Hình 4.4. Biểu đồ tuần tự đăng nhập người dùng
+**Hình 4.4. Biểu đồ tuần tự đăng nhập người dùng**
 
-## 4.8 Thiết kế phân hệ đặt lịch
+Biểu đồ đăng nhập được chọn vì đại diện cho cơ chế xác thực chung của Patient, Doctor và Administrator. Luồng này thể hiện việc người dùng gửi thông tin đăng nhập, backend kiểm tra thông tin xác thực, tạo phiên đăng nhập, ghi nhận thông tin cần thiết và trả token cho client.
 
-Phân hệ đặt lịch kiểm tra bác sĩ hợp lệ, lịch làm việc, thời điểm trong tương lai và overlap của bác sĩ/bệnh nhân. Các thao tác tạo hoặc đổi lịch dùng transaction để giảm rủi ro dữ liệu không nhất quán.
+## 4.8. Thiết kế phân hệ đặt lịch
+
+Phân hệ đặt lịch là một trong các phân hệ trung tâm của hệ thống. Thiết kế đặt lịch gồm ba bước chính: xác định lịch khả dụng của bác sĩ, tạo lịch hẹn và quản lý vòng đời lịch hẹn.
+
+Lịch khả dụng được xác định dựa trên lịch làm việc của bác sĩ, ngày cần tư vấn, thời lượng lịch hẹn và các lịch hẹn hiện có. Hệ thống chỉ cho phép đặt lịch với bác sĩ đang hoạt động, đã được duyệt và có tài khoản hợp lệ. Khi bệnh nhân chọn một khung giờ, backend kiểm tra lại thời gian đó có nằm trong lịch làm việc của bác sĩ hay không và có bị xung đột với lịch hẹn khác của bác sĩ hoặc bệnh nhân hay không.
+
+Vòng đời lịch hẹn sử dụng các trạng thái như `PENDING_CONFIRMATION`, `CONFIRMED`, `COMPLETED`, `CANCELLED` và `NO_SHOW`. Trong luồng chính, bệnh nhân tạo lịch hẹn ở trạng thái chờ xác nhận, bác sĩ xác nhận lịch, hai bên tham gia tư vấn và lịch được hoàn tất sau khi phiên tư vấn kết thúc.
+
+Các thao tác quan trọng như tạo lịch hẹn và đổi lịch sử dụng transaction để đảm bảo dữ liệu nhất quán. Trong cùng transaction, hệ thống vừa tạo/cập nhật lịch hẹn, vừa ghi audit log và tạo `OutboxEvent` cho thông báo liên quan. Việc dùng transaction giúp giảm rủi ro đặt trùng lịch hoặc tạo thông báo không khớp với trạng thái lịch hẹn.
 
 [INSERT FIGURE: sequence-book-appointment.png]
 
-Hình 4.5. Biểu đồ tuần tự đặt lịch tư vấn
+**Hình 4.5. Biểu đồ tuần tự đặt lịch tư vấn**
 
-## 4.9 Thiết kế tư vấn trực tuyến, kết quả và đơn thuốc
+Biểu đồ này được chọn vì đại diện cho luồng nghiệp vụ lõi của hệ thống. Nó thể hiện các bước kiểm tra bệnh nhân, bác sĩ, khung giờ, xung đột lịch, transaction tạo lịch hẹn và phát sinh sự kiện thông báo sau khi đặt lịch.
 
-Phiên tư vấn gắn với lịch hẹn hợp lệ. Bác sĩ bắt đầu/kết thúc phiên, bệnh nhân và bác sĩ liên quan tham gia trong khung thời gian cho phép. Chat realtime sử dụng Socket.IO và tin nhắn được lưu bền vững. Sau tư vấn, bác sĩ có thể ghi tóm tắt và tạo đơn thuốc cơ bản khi lịch hẹn đã hoàn thành.
+## 4.9. Thiết kế tư vấn trực tuyến
+
+Phân hệ tư vấn trực tuyến quản lý vòng đời từ lúc bác sĩ bắt đầu phiên tư vấn đến khi bệnh nhân xem lại kết quả. Phiên tư vấn chỉ được khởi tạo cho lịch hẹn hợp lệ và trong khoảng thời gian cho phép. Khi phiên bắt đầu, hệ thống tạo hoặc cập nhật `ConsultationSession` ở trạng thái `ONGOING`.
+
+Giao tiếp realtime được thiết kế bằng Socket.IO. Client của bệnh nhân và bác sĩ kết nối vào namespace tư vấn, gửi token để xác thực, tham gia phòng tương ứng với lịch hẹn và gửi tin nhắn qua sự kiện realtime. `ConsultationGateway` là điểm vào realtime, còn `ConsultationService` chịu trách nhiệm kiểm tra quyền truy cập, kiểm tra trạng thái phiên, lưu tin nhắn và trả dữ liệu cần thiết cho gateway phát lại tới phòng tư vấn.
 
 [INSERT FIGURE: sequence-consultation-chat.png]
 
-Hình 4.6. Biểu đồ tuần tự chat realtime trong phiên tư vấn
+**Hình 4.6. Biểu đồ tuần tự chat realtime trong phiên tư vấn**
+
+Biểu đồ này thể hiện sự khác biệt giữa luồng realtime và REST thông thường: client kết nối Socket.IO, tham gia phòng tư vấn, gửi tin nhắn, backend lưu tin nhắn và broadcast cho các bên trong cùng phiên.
+
+Sau khi phiên tư vấn kết thúc, bác sĩ có thể lưu tóm tắt tư vấn. Nếu lịch hẹn đã hoàn tất, bác sĩ có thể tạo đơn thuốc điện tử cơ bản gồm các thuốc và hướng dẫn sử dụng. Bệnh nhân có quyền xem kết quả và đơn thuốc của phiên tư vấn của chính mình. Hệ thống cũng hỗ trợ đánh giá sau khi buổi tư vấn đã hoàn tất; đánh giá có thể được quản trị viên kiểm duyệt khi cần.
 
 [INSERT FIGURE: sequence-create-prescription.png]
 
-Hình 4.7. Biểu đồ tuần tự tạo đơn thuốc sau tư vấn
+**Hình 4.7. Biểu đồ tuần tự tạo đơn thuốc sau tư vấn**
 
-## 4.10 Thiết kế notification và background processing
+Biểu đồ này được chọn vì đại diện cho phần kết quả sau tư vấn. Nó thể hiện điều kiện nghiệp vụ là đơn thuốc chỉ được tạo sau khi buổi tư vấn/lịch hẹn đã hoàn tất, đồng thời lưu đơn thuốc và các mục thuốc như một phần của dữ liệu kết quả tư vấn.
 
-Thông báo được thiết kế bằng Outbox Pattern. Nghiệp vụ chính ghi `OutboxEvent`; scheduler xử lý batch, gọi `NotificationService`, tạo `NotificationLog` và chuyển đến provider boundary.
+Video consultation trong hệ thống hiện tại được thiết kế như một channel/boundary tùy chọn. Khi chưa có provider video production, hệ thống ưu tiên luồng chat realtime và có cơ chế fallback phù hợp với phạm vi SRS.
+
+## 4.10. Thiết kế notification và background processing
+
+Thông báo được thiết kế theo hướng bất đồng bộ bằng Outbox Pattern. Khi một nghiệp vụ chính xảy ra, chẳng hạn tạo lịch hẹn, xác nhận lịch hẹn hoặc bác sĩ trả lời câu hỏi, hệ thống tạo `OutboxEvent` trong cùng transaction với thao tác nghiệp vụ. Sau đó, background scheduler đọc các sự kiện này và chuyển cho `NotificationService` xử lý.
+
+Thiết kế notification gồm các thành phần chính:
+
+- `OutboxEvent`: lưu sự kiện nghiệp vụ cần xử lý sau.
+- `NotificationScheduler`: chạy định kỳ để xử lý outbox và gửi nhắc lịch.
+- `NotificationService`: điều phối việc xử lý sự kiện, tạo notification log và gọi provider phù hợp.
+- `NotificationLog`: lưu lịch sử thông báo, trạng thái gửi, provider và lỗi nếu có.
+- Provider boundary: tách hệ thống lõi khỏi chi tiết kênh gửi email/SMS/development.
+
+Thiết kế này giúp thao tác nghiệp vụ chính không phụ thuộc trực tiếp vào việc gửi thông báo thành công ngay lập tức. Nếu thông báo gặp lỗi, dữ liệu lịch hẹn hoặc câu hỏi vẫn được ghi nhận ổn định và sự kiện có thể được xử lý lại theo trạng thái outbox.
 
 [INSERT FIGURE: sequence-notification-outbox.png]
 
-Hình 4.8. Biểu đồ tuần tự xử lý thông báo bất đồng bộ qua outbox
+**Hình 4.8. Biểu đồ tuần tự xử lý thông báo bất đồng bộ qua outbox**
 
-## 4.11 Thiết kế quản trị và kiểm duyệt
+Biểu đồ này thể hiện cách transaction nghiệp vụ tạo `OutboxEvent`, scheduler xử lý batch, `NotificationService` tạo `NotificationLog` và gọi provider boundary để gửi thông báo. Đây là luồng đại diện cho thiết kế notification của hệ thống.
 
-Quản trị viên có quyền quản lý tài khoản, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, nội dung kiểm duyệt và báo cáo. Kiểm duyệt được bảo vệ bởi vai trò Administrator và ghi audit log.
+## 4.11. Các Sequence Diagram tiêu biểu khác
+
+Các sequence diagram đã được đặt trực tiếp tại các mục thiết kế tương ứng gồm đăng nhập, đặt lịch, chat realtime, tạo đơn thuốc và xử lý notification. Ngoài các luồng trên, báo cáo còn sử dụng một sequence diagram đại diện cho thiết kế quản trị và kiểm duyệt.
 
 [INSERT FIGURE: sequence-admin-moderation.png]
 
-Hình 4.9. Biểu đồ tuần tự kiểm duyệt câu hỏi và phản hồi
+**Hình 4.9. Biểu đồ tuần tự kiểm duyệt câu hỏi và phản hồi**
+
+Biểu đồ kiểm duyệt được chọn vì thể hiện rõ vai trò của Administrator trong quản trị nội dung. Luồng này đại diện cho việc quản trị viên xem hàng đợi nội dung cần xử lý, thực hiện hành động kiểm duyệt và hệ thống cập nhật trạng thái nội dung, đồng thời ghi nhận thông tin phục vụ audit. Thiết kế kiểm duyệt giúp hệ thống kiểm soát chất lượng nội dung tư vấn và phản hồi trong phạm vi chức năng quản trị.
 
 # CHƯƠNG 5. XÂY DỰNG VÀ TRIỂN KHAI HỆ THỐNG
 
-Chương này mô tả cách hệ thống đã được triển khai theo các phân hệ chức năng. Các quyết định kiến trúc chi tiết đã trình bày ở Chương 4 nên không lặp lại tại đây.
+Chương này trình bày cách hệ thống đã được xây dựng dựa trên thiết kế ở Chương 4. Nội dung tập trung vào các phân hệ chức năng trong phiên bản cài đặt cuối cùng, bao gồm trách nhiệm của giao diện người dùng, API backend, tương tác dữ liệu, quy tắc nghiệp vụ và các cơ chế kỹ thuật nổi bật.
 
-## 5.1 Xác thực và RBAC
+Các sơ đồ kiến trúc tổng thể, ERD, sơ đồ lớp và các Sequence Diagram đã được trình bày ở Chương 4, vì vậy chương này không lặp lại các sơ đồ đó. Khi cần minh họa, chương này ưu tiên ảnh chụp giao diện hoặc đoạn mã đại diện.
 
-Frontend cung cấp trang đăng ký, đăng nhập, quên mật khẩu, đặt lại mật khẩu và route guard theo vai trò. Backend triển khai `AuthController`, `AuthService`, `UsersService`, `JwtAuthGuard`, `RolesGuard` và `OwnershipGuard`. Dữ liệu liên quan gồm `User`, `UserSession`, `PasswordResetToken` và `AuditLog`.
+## 5.1 Authentication and RBAC
 
-## 5.2 Khám phá bác sĩ và chuyên khoa công khai
+**Mục đích:** Phân hệ xác thực và phân quyền bảo đảm chỉ người dùng hợp lệ được truy cập hệ thống và mỗi vai trò chỉ được sử dụng các chức năng phù hợp. Hệ thống hỗ trợ ba vai trò chính: bệnh nhân, bác sĩ và quản trị viên.
 
-Frontend có trang danh sách chuyên khoa, danh sách bác sĩ và chi tiết bác sĩ. Backend dùng `DiscoveryService` để trả danh sách bác sĩ đang hoạt động, đã được phê duyệt và tài khoản chưa bị vô hiệu hóa.
+**Trách nhiệm frontend:** Ứng dụng React cung cấp các màn hình đăng ký, đăng nhập, quên mật khẩu và đặt lại mật khẩu. Sau khi đăng nhập, frontend lưu access token trong trạng thái ứng dụng, tự gắn token vào các yêu cầu API và điều hướng người dùng đến dashboard tương ứng với vai trò. Các route được bảo vệ bằng `AuthGuard` và `RoleGuard`, nhờ đó bệnh nhân, bác sĩ và quản trị viên chỉ nhìn thấy các trang phù hợp.
+
+**Trách nhiệm backend:** Backend triển khai `AuthController`, `AuthService`, `UsersService`, `JwtAuthGuard`, `RolesGuard` và `OwnershipGuard`. `AuthService` kiểm tra email, mật khẩu đã băm bằng bcrypt, trạng thái tài khoản và phát hành access token/refresh token. `AuthController` đặt refresh token trong cookie HttpOnly, cung cấp API đăng nhập, làm mới token, đăng xuất, lấy thông tin tài khoản hiện tại và đặt lại mật khẩu.
+
+**Tương tác dữ liệu:** Dữ liệu chính gồm `User`, `UserSession`, `PasswordResetToken` và `AuditLog`. Refresh token không được lưu trực tiếp mà được băm rồi lưu trong `UserSession`; khi làm mới token, phiên cũ được thu hồi và một phiên mới được tạo.
+
+**Logic nghiệp vụ quan trọng:** Tài khoản bị vô hiệu hóa hoặc đã bị xóa mềm không được đăng nhập. Refresh token phải đúng phiên, chưa bị thu hồi và chưa hết hạn. Một số API dùng kiểm tra quyền sở hữu để ngăn người dùng truy cập tài nguyên của người khác, đồng thời cho phép quản trị viên truy cập khi chính sách cho phép.
+
+**Cơ chế kỹ thuật đáng chú ý:** Hệ thống dùng JWT cho access token, cookie HttpOnly cho refresh token, bcrypt cho mật khẩu và audit log cho các hành động nhạy cảm như đăng nhập, làm mới token, đăng xuất và đặt lại mật khẩu.
+
+Đoạn mã sau minh họa cơ chế phát hành token và lưu phiên refresh:
+
+```ts
+const accessToken = await this.jwtService.signAsync(accessPayload);
+const refreshToken = await this.jwtService.signAsync(refreshPayload, {
+  secret: this.refreshSecret,
+  expiresIn: this.refreshExpire as any,
+});
+
+await this.prisma.userSession.create({
+  data: {
+    id: sessionId,
+    userId: user.id,
+    refreshTokenHash: this.hashToken(refreshToken),
+    expiresAt,
+    userAgent,
+    ipAddress,
+  },
+});
+```
+
+## 5.2 Public Doctor/Specialty Discovery
+
+**Mục đích:** Phân hệ khám phá công khai cho phép khách và người dùng đã đăng nhập xem danh sách chuyên khoa, tìm kiếm bác sĩ và xem thông tin bác sĩ trước khi đặt lịch.
+
+**Trách nhiệm frontend:** Frontend có các trang danh sách chuyên khoa, danh sách bác sĩ và chi tiết bác sĩ. Module `public.api.ts` gọi các API công khai, chuẩn hóa dữ liệu bác sĩ, chuyên khoa, đánh giá trung bình và số lượt đánh giá để hiển thị nhất quán trên giao diện.
 
 [INSERT FIGURE: ui-public-doctor-discovery.png]
 
 Hình 5.1. Giao diện tra cứu chuyên khoa và bác sĩ
 
-## 5.3 Hồ sơ bệnh nhân
+**Trách nhiệm backend:** Backend triển khai `DiscoveryController` và `DiscoveryService`. Phân hệ này trả về thông tin trang chủ API, danh sách chuyên khoa đang hoạt động, danh sách bác sĩ công khai có phân trang, lọc theo chuyên khoa và tìm kiếm theo từ khóa.
 
-Bệnh nhân có thể xem và cập nhật hồ sơ gồm ngày sinh, giới tính, số điện thoại, địa chỉ và tiền sử sức khỏe. Backend lưu dữ liệu này trong `PatientProfile` và liên kết với `User`.
+**Tương tác dữ liệu:** Dữ liệu được đọc từ `Specialty`, `DoctorProfile`, `DoctorSpecialty`, `User` và `Rating`. Khi lấy danh sách bác sĩ, hệ thống chỉ lấy bác sĩ đang hoạt động, đã được duyệt và tài khoản người dùng tương ứng chưa bị vô hiệu hóa.
 
-## 5.4 Hồ sơ bác sĩ và lịch làm việc
+**Logic nghiệp vụ quan trọng:** Chỉ bác sĩ có `approvalStatus = APPROVED`, `isActive = true` và tài khoản còn hoạt động mới được hiển thị công khai. Điểm đánh giá công khai chỉ tính các đánh giá có trạng thái hiển thị.
 
-Bác sĩ quản lý hồ sơ chuyên môn, mô tả tư vấn, kinh nghiệm, chuyên khoa và lịch làm việc. Lịch làm việc được dùng khi tính slot khả dụng cho đặt lịch.
+**Cơ chế kỹ thuật đáng chú ý:** Backend sử dụng Prisma để kết hợp điều kiện lọc, phân trang và truy vấn quan hệ. Kết quả được bổ sung thống kê đánh giá bằng truy vấn aggregate theo từng bác sĩ.
 
-## 5.5 Hỏi đáp sức khỏe
+## 5.3 Patient Profile
 
-Bệnh nhân gửi câu hỏi, bác sĩ xem câu hỏi được giao hoặc câu hỏi mở và trả lời. Khi bác sĩ trả lời, hệ thống cập nhật trạng thái câu hỏi, tạo câu trả lời, ghi audit log và tạo outbox event để thông báo.
+**Mục đích:** Phân hệ hồ sơ bệnh nhân cho phép bệnh nhân lưu trữ và cập nhật thông tin cá nhân cần thiết cho quá trình tư vấn, gồm ngày sinh, giới tính, số điện thoại, địa chỉ và tiền sử sức khỏe.
 
-## 5.6 Lịch hẹn và khả dụng
+**Trách nhiệm frontend:** Trang hồ sơ bệnh nhân hiển thị thông tin tài khoản kết hợp với hồ sơ bệnh nhân. Người dùng có thể cập nhật thông tin bổ sung; dữ liệu nhập được chuẩn hóa trước khi gửi lên API, ví dụ giới tính được chuyển về dạng enum backend sử dụng.
 
-Bệnh nhân đặt lịch dựa trên slot khả dụng. Backend luôn kiểm tra lại điều kiện đặt lịch để tránh phụ thuộc vào kiểm tra phía giao diện.
+**Trách nhiệm backend:** `PatientController` và `PatientService` cung cấp API lấy và cập nhật hồ sơ cá nhân. Khi cập nhật, backend kiểm tra hồ sơ theo `userId`; nếu chưa có hồ sơ thì tạo bản ghi hồ sơ rỗng trước khi cập nhật dữ liệu.
+
+**Tương tác dữ liệu:** Phân hệ sử dụng `PatientProfile` liên kết một-một với `User`. Các thông tin định danh như email, họ tên và vai trò được đọc từ `User`, còn thông tin y tế cơ bản được lưu trong `PatientProfile`.
+
+**Logic nghiệp vụ quan trọng:** Bệnh nhân chỉ được truy cập hồ sơ của chính mình thông qua access token. Dữ liệu hồ sơ không được dùng để đưa ra chẩn đoán tự động; hệ thống chỉ hỗ trợ lưu trữ thông tin tham khảo cho hoạt động tư vấn.
+
+**Cơ chế kỹ thuật đáng chú ý:** API cập nhật dùng phương thức PATCH để chỉ ghi các trường được gửi lên, tránh ghi đè không cần thiết những trường người dùng không thay đổi.
+
+## 5.4 Doctor Profile and Schedule
+
+**Mục đích:** Phân hệ hồ sơ bác sĩ và lịch làm việc cho phép bác sĩ quản lý thông tin nghề nghiệp, chuyên khoa, mô tả tư vấn và khung giờ có thể nhận lịch hẹn.
+
+**Trách nhiệm frontend:** Các trang hồ sơ bác sĩ, lịch làm việc, danh sách lịch hẹn, danh sách bệnh nhân và đánh giá bác sĩ được tổ chức trong khu vực dành cho vai trò `DOCTOR`. Module `doctor.api.ts` gọi API hồ sơ, lịch, lịch hẹn, câu hỏi, bệnh nhân, đánh giá và tư vấn.
+
+**Trách nhiệm backend:** `DoctorController` và `DoctorService` xử lý lấy/cập nhật hồ sơ bác sĩ, cập nhật lịch làm việc, cập nhật chuyên khoa và thống kê cơ bản của bác sĩ. Quản trị viên có các API riêng để duyệt, cập nhật hồ sơ và chuyên khoa của bác sĩ.
+
+**Tương tác dữ liệu:** Dữ liệu chính gồm `DoctorProfile`, `DoctorSpecialty`, `Specialty`, `User`, `Appointment`, `Question` và `Rating`. Lịch làm việc được lưu trong trường `schedule` của hồ sơ bác sĩ dưới dạng cấu trúc JSON.
+
+**Logic nghiệp vụ quan trọng:** Chuyên khoa được gán cho bác sĩ phải tồn tại và đang hoạt động. Khi thay đổi chuyên khoa, hệ thống xóa các liên kết cũ và tạo lại các liên kết mới trong một transaction. Bác sĩ chưa được duyệt không được xuất hiện trong danh sách công khai và không được đặt lịch.
+
+**Cơ chế kỹ thuật đáng chú ý:** Backend sử dụng transaction để thay thế danh sách chuyên khoa của bác sĩ, đồng thời ghi audit log khi quản trị viên thay đổi trạng thái duyệt hoặc cập nhật thông tin bác sĩ.
+
+## 5.5 Health Questions
+
+**Mục đích:** Phân hệ câu hỏi sức khỏe cho phép bệnh nhân gửi câu hỏi, tùy chọn gán cho bác sĩ cụ thể, và cho phép bác sĩ trả lời trong phạm vi chức năng tư vấn sức khỏe trực tuyến.
+
+**Trách nhiệm frontend:** Bệnh nhân có trang đặt câu hỏi và xem lịch sử câu hỏi. Bác sĩ có hộp thư câu hỏi được giao hoặc câu hỏi chưa gán. Frontend chuẩn hóa trạng thái câu hỏi để hiển thị đơn giản như đang chờ, đã trả lời hoặc đã kiểm duyệt.
+
+**Trách nhiệm backend:** `QuestionController` và `QuestionService` cung cấp API tạo câu hỏi, lấy câu hỏi của bệnh nhân, lấy câu hỏi của bác sĩ, trả lời câu hỏi và kiểm duyệt câu hỏi. Khi bác sĩ trả lời, hệ thống cập nhật trạng thái câu hỏi, tạo câu trả lời, ghi audit log và phát sinh outbox event.
+
+**Tương tác dữ liệu:** Dữ liệu gồm `Question`, `Answer`, `QuestionModeration`, `PatientProfile`, `DoctorProfile`, `AuditLog` và `OutboxEvent`.
+
+**Logic nghiệp vụ quan trọng:** Nếu bệnh nhân chọn bác sĩ, bác sĩ đó phải đang hoạt động và đã được duyệt. Bác sĩ không được trả lời câu hỏi đã được gán cho bác sĩ khác. Câu hỏi chỉ được trả lời khi đang ở trạng thái chờ xử lý.
+
+**Cơ chế kỹ thuật đáng chú ý:** Việc trả lời câu hỏi được thực hiện trong transaction để bảo đảm câu hỏi, câu trả lời, audit log và sự kiện thông báo được ghi nhất quán.
+
+## 5.6 Appointment and Availability
+
+**Mục đích:** Phân hệ lịch hẹn cho phép bệnh nhân xem khung giờ khả dụng của bác sĩ, đặt lịch tư vấn, hủy lịch; bác sĩ xác nhận, hoàn thành hoặc đổi lịch hẹn; quản trị viên theo dõi và cập nhật trạng thái khi cần.
+
+**Trách nhiệm frontend:** Bệnh nhân sử dụng trang đặt lịch để chọn bác sĩ, ngày, khung giờ và lý do tư vấn. Bác sĩ quản lý danh sách lịch hẹn tại khu vực bác sĩ. Quản trị viên có màn hình quản lý lịch hẹn để lọc, xem và cập nhật trạng thái.
 
 [INSERT FIGURE: ui-book-appointment.png]
 
 Hình 5.2. Giao diện đặt lịch hẹn trực tuyến
 
-## 5.7 Tư vấn trực tuyến và chat realtime
+**Trách nhiệm backend:** `AppointmentController` và `AppointmentService` xử lý API xem khả dụng công khai, tạo lịch hẹn, danh sách lịch hẹn của bệnh nhân, danh sách lịch hẹn của bác sĩ, xác nhận, hủy, hoàn thành, đổi lịch và quản trị lịch hẹn.
 
-Frontend bệnh nhân và bác sĩ dùng trang phiên tư vấn để tham gia chat. Backend dùng `ConsultationGateway` để xác thực socket, join room theo appointment và phát tin nhắn trong phòng.
+**Tương tác dữ liệu:** Phân hệ sử dụng `Appointment`, `PatientProfile`, `DoctorProfile`, `DoctorSpecialty`, `ConsultationSession`, `Rating`, `AuditLog`, `OutboxEvent` và một số `NotificationLog` trong các thao tác trạng thái.
+
+**Logic nghiệp vụ quan trọng:** Lịch hẹn phải nằm trong tương lai, nằm trong lịch làm việc của bác sĩ, không trùng với lịch hẹn đang chờ xác nhận hoặc đã xác nhận của bác sĩ và bệnh nhân. Bác sĩ phải đang hoạt động, được duyệt và tài khoản chưa bị vô hiệu hóa.
+
+**Cơ chế kỹ thuật đáng chú ý:** Tạo lịch hẹn sử dụng transaction với isolation level `Serializable` để giảm rủi ro đặt trùng khi nhiều yêu cầu xảy ra gần nhau. Trong cùng transaction, hệ thống tạo lịch hẹn, ghi audit log và tạo outbox event để xử lý thông báo.
+
+Đoạn mã sau minh họa phần transaction khi đặt lịch:
+
+```ts
+return this.prisma.$transaction(async (tx) => {
+  this.assertInsideWorkingSchedule(latestDoctor.schedule, start, duration);
+  await this.assertNoAppointmentOverlap(tx, {
+    doctorId: doctor.id,
+    patientId: patient.id,
+    start,
+    durationMinutes: duration,
+  });
+
+  const appointment = await tx.appointment.create({
+    data: {
+      id: uuidv7(),
+      patientId: patient.id,
+      doctorId: doctor.id,
+      scheduledAt: start,
+      durationMinutes: duration,
+      status: AppointmentStatus.PENDING_CONFIRMATION,
+    },
+  });
+
+  await tx.outboxEvent.create({
+    data: {
+      id: uuidv7(),
+      aggregateType: 'APPOINTMENT',
+      aggregateId: appointment.id,
+      eventType: 'APPOINTMENT_CREATED',
+      payload: { appointmentId: appointment.id, patientId: patient.id, doctorId: doctor.id },
+    },
+  });
+
+  return appointment;
+}, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+```
+
+## 5.7 Consultation and Realtime Chat
+
+**Mục đích:** Phân hệ tư vấn trực tuyến hỗ trợ bệnh nhân và bác sĩ trao đổi trong phiên tư vấn gắn với lịch hẹn. Hệ thống hỗ trợ kênh chat thời gian thực và có ranh giới để tích hợp video khi nhà cung cấp bên ngoài được bật.
+
+**Trách nhiệm frontend:** Bệnh nhân và bác sĩ có các trang phiên tư vấn riêng. Frontend tải thông tin lịch hẹn, tham gia phiên tư vấn, lấy lịch sử tin nhắn, gửi tin nhắn và kết nối Socket.IO thông qua `ConsultationSocketClient`. Client tự xử lý trạng thái kết nối, tham gia phòng theo `appointmentId` và tránh hiển thị trùng tin nhắn đã nhận.
 
 [INSERT FIGURE: ui-consultation-chat.png]
 
 Hình 5.3. Giao diện tư vấn trực tuyến và trao đổi tin nhắn
 
-## 5.8 Kết quả tư vấn và đơn thuốc
+**Trách nhiệm backend:** `ConsultationController`, `ConsultationService` và `ConsultationGateway` triển khai API bắt đầu phiên, tham gia phiên, lấy/gửi tin nhắn, kết thúc phiên và lấy kết quả tư vấn. `ConsultationGateway` là điểm vào realtime của Socket.IO tại namespace `/consultations`.
 
-Bác sĩ lưu tóm tắt tư vấn và tạo đơn thuốc cơ bản sau khi lịch hẹn hoàn thành. Bệnh nhân xem lại kết quả và đơn thuốc trong lịch sử tư vấn.
+**Tương tác dữ liệu:** Dữ liệu gồm `Appointment`, `ConsultationSession`, `ConsultationMessage`, `PatientProfile`, `DoctorProfile` và `User`. Tin nhắn được lưu vào cơ sở dữ liệu để có thể tải lại lịch sử trao đổi.
 
-## 5.9 Đánh giá
+**Logic nghiệp vụ quan trọng:** Chỉ bác sĩ sở hữu lịch hẹn mới được bắt đầu và kết thúc phiên. Bệnh nhân hoặc bác sĩ chỉ được tham gia phiên của chính mình. Việc tham gia phiên bị giới hạn bởi khung thời gian cho phép quanh thời điểm lịch hẹn. Phiên tư vấn chỉ nhận tin nhắn khi đang ở trạng thái `ONGOING`.
 
-Bệnh nhân đánh giá sau khi lịch tư vấn hoàn thành. Backend kiểm tra quyền sở hữu lịch hẹn, trạng thái hoàn thành và không cho tạo đánh giá trùng cho cùng lịch hẹn.
+**Cơ chế kỹ thuật đáng chú ý:** Socket.IO sử dụng token JWT trong handshake để xác thực kết nối. Mỗi lịch hẹn có một room riêng theo mẫu `consultation:<appointmentId>`. Khi một người gửi tin nhắn, gateway gọi service để kiểm tra quyền, lưu tin nhắn, rồi phát tin nhắn tới toàn bộ room.
 
-## 5.10 Thông báo
+Đoạn mã sau minh họa handler gửi tin nhắn realtime:
 
-Backend xử lý thông báo qua `OutboxEvent`, `NotificationScheduler`, `NotificationService` và `NotificationLog`. Hệ thống hiện có ranh giới provider và các lớp development/email/SMS provider, nhưng chưa có bằng chứng gửi email/SMS thật trong môi trường vận hành thực tế.
+```ts
+@SubscribeMessage('consultation:message')
+async sendMessage(
+  @ConnectedSocket() client: Socket,
+  @MessageBody() body: { appointmentId?: string; content?: string },
+) {
+  const user = this.getClientUser(client);
+  const message = await this.consultationService.sendSessionMessage(
+    user.sub,
+    user.role,
+    body.appointmentId!,
+    { content: body.content!.trim() },
+  );
 
-## 5.11 Quản trị và kiểm duyệt
+  this.server.to(`consultation:${body.appointmentId}`).emit('consultation:message', message);
+  return message;
+}
+```
 
-Quản trị viên quản lý người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, nội dung kiểm duyệt và thông tin vận hành. Các thao tác quản trị được bảo vệ bằng JWT và RBAC.
+## 5.8 Consultation Result and Prescription
+
+**Mục đích:** Sau phiên tư vấn, bác sĩ có thể ghi tóm tắt nội dung tư vấn và tạo đơn thuốc. Bệnh nhân có thể xem lại kết quả tư vấn, tóm tắt và đơn thuốc liên quan đến lịch hẹn của mình.
+
+**Trách nhiệm frontend:** Bác sĩ sử dụng trang phiên tư vấn để lưu tóm tắt, kết thúc phiên và tạo đơn thuốc gồm nhiều mục thuốc. Bệnh nhân xem kết quả qua lịch sử tư vấn/lịch hẹn. Các API liên quan được gọi qua `doctor.api.ts` và `patient.api.ts`.
+
+**Trách nhiệm backend:** `ConsultationService` xử lý cập nhật tóm tắt phiên, kết thúc phiên, tạo đơn thuốc và lấy kết quả tư vấn. Khi kết thúc phiên, backend cập nhật cả `ConsultationSession` và `Appointment` trong cùng transaction.
+
+**Tương tác dữ liệu:** Dữ liệu chính gồm `ConsultationSession`, `Appointment`, `Prescription` và `PrescriptionItem`. Kết quả tư vấn trả về thông tin lịch hẹn, phiên tư vấn và đơn thuốc nếu đã có.
+
+**Logic nghiệp vụ quan trọng:** Chỉ bác sĩ sở hữu phiên tư vấn mới được cập nhật tóm tắt và tạo đơn thuốc. Đơn thuốc chỉ được tạo sau khi lịch hẹn đã hoàn thành. Khi tạo lại đơn thuốc, hệ thống cập nhật bản ghi đơn thuốc và thay thế danh sách thuốc để dữ liệu không bị lặp.
+
+**Cơ chế kỹ thuật đáng chú ý:** Tạo đơn thuốc dùng transaction với `upsert` cho `Prescription`, sau đó xóa và tạo lại `PrescriptionItem`. Cách này giúp mỗi phiên tư vấn chỉ có một đơn thuốc hiện hành.
+
+## 5.9 Rating
+
+**Mục đích:** Phân hệ đánh giá cho phép bệnh nhân phản hồi sau khi hoàn tất lịch tư vấn, đồng thời giúp bác sĩ và người dùng công khai xem chất lượng dịch vụ thông qua điểm đánh giá được hiển thị.
+
+**Trách nhiệm frontend:** Bệnh nhân đánh giá từ lịch sử tư vấn sau khi lịch hẹn hoàn thành. Bác sĩ có trang xem các đánh giá hiển thị của mình. Trang khám phá bác sĩ công khai sử dụng điểm trung bình và số lượng đánh giá để hỗ trợ người dùng lựa chọn.
+
+**Trách nhiệm backend:** `ConsultationService` xử lý tạo đánh giá, lấy đánh giá của bệnh nhân, lấy đánh giá của bác sĩ và kiểm duyệt đánh giá. API đánh giá được bảo vệ theo vai trò bệnh nhân, bác sĩ hoặc quản trị viên tùy chức năng.
+
+**Tương tác dữ liệu:** Dữ liệu chính là `Rating`, liên kết với `PatientProfile`, `DoctorProfile` và `Appointment`. Thống kê công khai được lấy bằng aggregate trên các đánh giá có trạng thái hiển thị.
+
+**Logic nghiệp vụ quan trọng:** Chỉ bệnh nhân sở hữu lịch hẹn mới được đánh giá. Lịch hẹn phải ở trạng thái hoàn thành. Mỗi lịch hẹn chỉ có một đánh giá. Đánh giá có thể được quản trị viên ẩn hoặc khôi phục thông qua phân hệ kiểm duyệt.
+
+**Cơ chế kỹ thuật đáng chú ý:** Ràng buộc nghiệp vụ được kiểm tra trước khi tạo bản ghi `Rating`; backend cũng kiểm tra đánh giá trùng thông qua quan hệ duy nhất theo `appointmentId`.
+
+## 5.10 Notification
+
+**Mục đích:** Phân hệ thông báo ghi nhận và gửi các thông báo quan trọng như đặt lịch, xác nhận lịch, nhắc lịch, câu hỏi đã được trả lời và đặt lại mật khẩu.
+
+**Trách nhiệm frontend:** Trong phiên bản hiện tại, frontend không có một phân hệ giao diện thông báo riêng biệt. Người dùng nhận phản hồi trực tiếp trong luồng thao tác, còn backend cung cấp API `/notifications` để người dùng lấy nhật ký thông báo của mình và API quản trị để xem nhật ký thông báo khi cần vận hành.
+
+**Trách nhiệm backend:** `NotificationController`, `AdminNotificationController`, `NotificationService` và `NotificationScheduler` triển khai xử lý thông báo. Service đọc sự kiện từ `OutboxEvent`, tạo `NotificationLog`, chọn provider phù hợp và cập nhật trạng thái gửi. Scheduler chạy nền để xử lý outbox và gửi nhắc lịch.
+
+**Tương tác dữ liệu:** Dữ liệu gồm `OutboxEvent`, `NotificationLog`, `Appointment`, `Question`, `PatientProfile`, `DoctorProfile` và `User`. Các sự kiện nghiệp vụ được ghi vào outbox trong transaction của nghiệp vụ chính, sau đó được xử lý bất đồng bộ.
+
+**Logic nghiệp vụ quan trọng:** Một sự kiện chỉ nên tạo một thông báo cho cùng một người nhận và mục đích. Nhắc lịch được tạo cho cả bệnh nhân và bác sĩ đối với các lịch đã xác nhận trong khoảng thời gian cấu hình. Thông báo thất bại được đánh dấu `FAILED`, tăng số lần thử và có thời điểm thử lại.
+
+**Cơ chế kỹ thuật đáng chú ý:** Hệ thống dùng Outbox Pattern để tách nghiệp vụ chính khỏi thao tác gửi thông báo. `NotificationLog` có `externalRef` để hỗ trợ tính idempotent; nếu thông báo đã gửi, service không gửi lại.
+
+Đoạn mã sau minh họa xử lý idempotent của thông báo:
+
+```ts
+const log = await this.prisma.notificationLog.upsert({
+  where: { externalRef: input.externalRef },
+  create: {
+    id: uuidv7(),
+    userId: input.userId,
+    type,
+    content: input.content,
+    externalRef: input.externalRef,
+    status: NotificationStatus.PENDING,
+    provider: provider.name,
+  },
+  update: {},
+});
+
+if (log.status === NotificationStatus.SENT) {
+  return log;
+}
+```
+
+## 5.11 Administration and Moderation
+
+**Mục đích:** Phân hệ quản trị hỗ trợ quản lý người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, nội dung cần kiểm duyệt và trạng thái vận hành hệ thống.
+
+**Trách nhiệm frontend:** Khu vực quản trị có dashboard, quản lý người dùng, bệnh nhân, bác sĩ, chuyên khoa, lịch hẹn, kiểm duyệt và báo cáo. `admin.api.ts` chuẩn hóa dữ liệu từ nhiều API backend để hiển thị dưới dạng bảng, bộ lọc và thao tác quản trị.
 
 [INSERT FIGURE: ui-admin-dashboard.png]
 
 Hình 5.4. Giao diện quản trị hệ thống
 
-## 5.12 Báo cáo
+**Trách nhiệm backend:** Backend cung cấp các controller quản trị như `AdminUserController`, các API admin trong phân hệ bác sĩ, chuyên khoa, lịch hẹn, thông báo và `ModerationController`. Tất cả API quản trị được bảo vệ bằng `JwtAuthGuard`, `RolesGuard` và vai trò `ADMIN`.
 
-Phân hệ báo cáo cung cấp số liệu tổng quan về người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, câu hỏi, đánh giá và xu hướng tư vấn. Backend sử dụng các truy vấn `count`, `groupBy` và xử lý bucket thời gian.
+**Tương tác dữ liệu:** Dữ liệu quản trị trải rộng trên `User`, `PatientProfile`, `DoctorProfile`, `Specialty`, `Appointment`, `Question`, `Answer`, `Rating`, `QuestionModeration`, `NotificationLog` và `AuditLog`.
+
+**Logic nghiệp vụ quan trọng:** Quản trị viên có thể tạo/cập nhật/vô hiệu hóa tài khoản, duyệt bác sĩ, quản lý chuyên khoa, cập nhật trạng thái lịch hẹn và kiểm duyệt câu hỏi, câu trả lời, đánh giá. Các thay đổi quan trọng được ghi audit log để phục vụ truy vết.
+
+**Cơ chế kỹ thuật đáng chú ý:** Phân hệ kiểm duyệt gom nhiều loại nội dung về một danh sách thống nhất gồm câu hỏi, câu trả lời và đánh giá. Khi quản trị viên thao tác, service cập nhật đúng bảng dữ liệu tương ứng và ghi nhận lịch sử kiểm duyệt hoặc audit log.
+
+## 5.12 Reporting
+
+**Mục đích:** Phân hệ báo cáo cung cấp số liệu tổng quan cho quản trị viên về người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, câu hỏi, đánh giá và xu hướng tư vấn.
+
+**Trách nhiệm frontend:** Trang báo cáo gọi `reports.api.ts` để lấy thống kê dashboard và dữ liệu xu hướng tư vấn. Dữ liệu được chuẩn hóa thành các chỉ số tổng hợp và điểm dữ liệu theo thời gian để hiển thị trên giao diện báo cáo.
+
+**Trách nhiệm backend:** `ReportingController` và `ReportingService` cung cấp API `/reports/dashboard` và `/reports/consultations/trend`. Các API này chỉ dành cho quản trị viên.
+
+**Tương tác dữ liệu:** Service tổng hợp dữ liệu từ `ConsultationSession`, `Appointment`, `User`, `DoctorProfile`, `Specialty`, `Question` và `Rating`. Bộ lọc thời gian được áp dụng cho lịch hẹn và phiên tư vấn.
+
+**Logic nghiệp vụ quan trọng:** Tham số thời gian phải hợp lệ và mốc bắt đầu không được lớn hơn mốc kết thúc. Xu hướng tư vấn có thể được nhóm theo ngày, tháng hoặc tuần tùy tham số frontend gửi lên.
+
+**Cơ chế kỹ thuật đáng chú ý:** Backend dùng các truy vấn `count`, `groupBy` và đọc danh sách phiên tư vấn để tạo bucket thời gian. Cách triển khai này phù hợp với phạm vi hiện tại vì dữ liệu báo cáo được tổng hợp trực tiếp từ cơ sở dữ liệu nghiệp vụ, không cần kho dữ liệu riêng.
+
+**Tổng kết triển khai:** Phiên bản cài đặt cuối cùng triển khai đầy đủ các phân hệ chính của hệ thống tư vấn sức khỏe và quản lý lịch hẹn trực tuyến. Frontend được tổ chức theo nhóm chức năng và vai trò người dùng; backend được chia thành các module NestJS rõ ràng; dữ liệu được quản lý bằng PostgreSQL thông qua Prisma. Các cơ chế quan trọng như JWT, RBAC, transaction đặt lịch, realtime chat, outbox notification và audit log được sử dụng để đáp ứng yêu cầu nghiệp vụ, bảo mật và khả năng vận hành của hệ thống.
 
 ## 5.13 Tóm tắt phân hệ triển khai
 
 Bảng 5.1. Tóm tắt phân hệ triển khai
 
-| Phân hệ | Frontend | Backend | Dữ liệu chính |
+| Phân hệ | Thành phần frontend chính | Thành phần backend chính | Dữ liệu chính |
 |---|---|---|---|
-| Auth/RBAC | Auth pages, route guards | Identity module, guards | `User`, `UserSession` |
-| Discovery | Public pages | Discovery module | `DoctorProfile`, `Specialty`, `Rating` |
-| Appointment | Booking/history pages | Appointment module | `Appointment`, `OutboxEvent` |
-| Consultation | Session pages, socket client | Consultation module/gateway | `ConsultationSession`, `ConsultationMessage` |
-| Notification | API support/admin logs | Notification scheduler/service | `OutboxEvent`, `NotificationLog` |
-| Admin/Reporting | Admin pages, report pages | Moderation/Reporting modules | Nhiều nhóm dữ liệu nghiệp vụ |
+| Xác thực và phân quyền | `src/features/auth/*` | `AuthController`, `AuthService`, guards | `User`, `UserSession`, `PasswordResetToken` |
+| Khám phá công khai | `src/features/public/*` | `DiscoveryController`, `DiscoveryService` | `Specialty`, `DoctorProfile`, `Rating` |
+| Hồ sơ người dùng | `src/features/patient/*`, `src/features/doctor/*` | `PatientService`, `DoctorService` | `PatientProfile`, `DoctorProfile` |
+| Lịch hẹn | `src/features/patient/BookAppointmentPage.tsx` | `AppointmentController`, `AppointmentService` | `Appointment`, `DoctorSchedule` |
+| Tư vấn và chat | `src/features/consultation/*` | `ConsultationGateway`, `ConsultationService` | `ConsultationSession`, `ConsultationMessage` |
+| Đơn thuốc và kết quả | `src/features/consultation/ConsultationRoom.tsx` | `ConsultationService` | `Prescription`, `PrescriptionItem` |
+| Quản trị và kiểm duyệt | `src/features/admin/*` | `AdminUserController`, `ModerationController` | `QuestionModeration`, `AuditLog` |
+| Báo cáo | `src/features/reports/*` | `ReportingController`, `ReportingService` | `Appointment`, `ConsultationSession`, aggregate data |
 
 # CHƯƠNG 6. KIỂM THỬ VÀ ĐÁNH GIÁ
 
+Chương này trình bày hoạt động kiểm thử và đánh giá hệ thống dựa trên bằng chứng thực tế của dự án: mã nguồn test, kết quả chạy test tự động, kết quả build/type-check, ma trận E2E, audit truy vết SRS và các workflow CI có trong repository. Các kết quả chỉ được ghi nhận là đạt khi có bằng chứng cụ thể; các nội dung chưa có kiểm thử tự động hoặc chưa có kết quả chạy được nêu rõ là chưa xác minh đầy đủ.
+
 ## 6.1 Mục tiêu kiểm thử
 
-Kiểm thử nhằm xác minh các luồng nghiệp vụ chính, bảo mật truy cập, quy tắc đặt lịch, realtime chat, thông báo nền, build/type-check và mức độ đáp ứng SRS. Chương này chỉ sử dụng bằng chứng thực tế từ mã nguồn test, kết quả test, tài liệu kiểm thử, traceability và audit.
+Mục tiêu kiểm thử của hệ thống gồm:
+
+- Xác minh các luồng nghiệp vụ chính: khám phá bác sĩ, xác thực, đặt lịch, hỏi đáp sức khỏe, tư vấn trực tuyến, kết quả tư vấn, đơn thuốc, đánh giá, quản trị và báo cáo.
+- Kiểm tra các quy tắc bảo mật quan trọng: xác thực JWT, refresh token, phân quyền theo vai trò, kiểm tra quyền sở hữu dữ liệu và che giấu thông tin nhạy cảm.
+- Kiểm tra tính đúng đắn của các quy tắc đặt lịch: lịch làm việc của bác sĩ, khung giờ khả dụng, chống trùng lịch của bác sĩ và bệnh nhân.
+- Kiểm tra các thành phần nền như thông báo, outbox, nhắc lịch và xử lý lỗi provider.
+- Đối chiếu mức độ đáp ứng yêu cầu SRS bằng ma trận truy vết và ma trận E2E.
 
 ## 6.2 Môi trường kiểm thử
 
-Theo `docs/testing/final-e2e-results.md`, môi trường E2E dùng backend `OnlineHealthConsultation-Service`, frontend `OnlineHealthConsultation-Web`, PostgreSQL Docker container `health_consultation_db`, backend URL `http://localhost:4000/api`, frontend URL `http://localhost:5173`, Playwright Chromium và seed mode `E2E_RUN_SEEDED=true`.
+Theo tài liệu `docs/testing/final-e2e-results.md`, môi trường E2E cuối cùng được ghi nhận ngày 2026-08-20 gồm:
+
+- Backend: `OnlineHealthConsultation-Service`
+- Frontend: `OnlineHealthConsultation-Web`
+- Database: Docker PostgreSQL container `health_consultation_db`
+- Backend URL: `http://localhost:4000/api`
+- Frontend URL: `http://localhost:5173`
+- Browser runner: Playwright Chromium
+- Seed mode: `E2E_RUN_SEEDED=true`
+
+Trong lần kiểm tra bổ sung ngày 2026-08-22, các lệnh kiểm thử và build được chạy trong môi trường local sau khi nạp Node qua `nvm`. Lệnh `npm` không có sẵn trực tiếp trong shell ban đầu, nhưng chạy được sau khi thực hiện `source ~/.nvm/nvm.sh`.
 
 ## 6.3 Phương pháp kiểm thử
 
-Hệ thống dùng Jest cho backend unit/service tests, Playwright cho E2E tests, TypeScript compiler cho type-check, Nest build và Vite build cho kiểm tra biên dịch. CI workflow tồn tại trong repository nhưng không có artifact kết quả chạy CI, nên không khẳng định CI đã pass.
+Hệ thống sử dụng kết hợp các phương pháp sau:
 
-## 6.4 Cách tiếp cận Unit/Integration/E2E đã sử dụng
+- **Unit test và service-level test:** kiểm tra logic trong các service/controller backend bằng Jest, chủ yếu với mock Prisma hoặc mock dependency.
+- **Integration-oriented test ở tầng service:** kiểm tra luồng nhiều thao tác liên quan trong một service, ví dụ transaction đặt lịch, refresh session rotation, notification outbox và moderation audit.
+- **End-to-End test:** sử dụng Playwright để kiểm tra các luồng người dùng chính trên giao diện web và API backend đang chạy thật trong môi trường local có seed data.
+- **Build và type-check:** sử dụng TypeScript compiler, Nest build và Vite build để xác minh mã nguồn có thể biên dịch.
+- **Traceability audit:** đối chiếu yêu cầu SRS với hiện trạng implementation và automation trong `docs/audit/final-srs-traceability.md` và `docs/testing/e2e-test-matrix.md`.
 
-Backend có test trong các file như `appointment.service.spec.ts`, `auth.service.spec.ts`, `auth.controller.spec.ts`, `notification.service.spec.ts`, `moderation.service.spec.ts`, `reporting.service.spec.ts`, `doctor.service.spec.ts`, `validate-env.spec.ts` và `http-exception.filter.spec.ts`.
+## 6.4 Unit/Integration/E2E approach actually used
 
-Frontend có Playwright specs cho public discovery, authentication, patient appointment, patient question, doctor workflow, admin và socket client. Graduation suite có tồn tại nhưng chưa được xem là đạt đầy đủ.
+Backend có các test Jest trong các file:
+
+- `src/modules/appointment/appointment.service.spec.ts`
+- `src/modules/identity/auth.service.spec.ts`
+- `src/modules/identity/auth.controller.spec.ts`
+- `src/modules/notification/notification.service.spec.ts`
+- `src/modules/moderation/moderation.service.spec.ts`
+- `src/modules/reporting/reporting.service.spec.ts`
+- `src/modules/doctor/doctor.service.spec.ts`
+- `src/common/config/validate-env.spec.ts`
+- `src/common/filters/http-exception.filter.spec.ts`
+
+Frontend có các Playwright specs trong `OnlineHealthConsultation-Web/e2e/specs`, gồm public discovery, auth, patient appointment, patient question, doctor workflow, admin, consultation socket client và graduation flows.
+
+CI workflow có trong repository:
+
+- Backend CI: `.github/workflows/be-ci.yml`, chạy `npm ci`, `npm run prisma:generate`, `npm run test`, `npm run build`.
+- Frontend CI: `.github/workflows/fe-ci.yml`, chạy format check, lint, type-check và build.
+
+Không tìm thấy artifact kết quả chạy CI trong repository, vì vậy chương này chỉ ghi nhận sự tồn tại của cấu hình CI, không khẳng định CI đã pass.
 
 ## 6.5 Bộ test case tiêu biểu
 
@@ -501,132 +1207,343 @@ Bảng 6.1. Bộ test case tiêu biểu
 
 | ID | Scenario | Expected | Actual | Result |
 | -- | -------- | -------- | ------ | ------ |
-| TC-AUTH-01 | Refresh token hợp lệ | Tạo access token mới, rotate session | Backend Jest pass ngày 2026-08-22 | PASS |
-| TC-APPT-01 | Slot khả dụng từ lịch bác sĩ | Trả slot hợp lệ, loại slot overlap | Backend Jest pass ngày 2026-08-22 | PASS |
-| TC-APPT-02 | Đặt lịch trùng bác sĩ/bệnh nhân | Backend reject overlap | Backend Jest pass ngày 2026-08-22 | PASS |
-| TC-CONSULT-01 | Socket client join/send/reconnect | Join đúng room, gửi tin nhắn, reconnect an toàn | Core E2E ghi nhận pass | PASS |
-| TC-NOTI-01 | Outbox appointment-created | Tạo notification cho patient/doctor | Backend Jest pass ngày 2026-08-22 | PASS |
-| TC-E2E-CORE | Core E2E suites | Không có test failed trong core suites | 42/43 passed, 0 failed, 1 skipped | PARTIAL |
-| TC-GRAD | Graduation suite | Toàn bộ graduation flows pass | GRAD-A/B/C chưa đạt; GRAD-D đạt khi chạy riêng | NOT PASS |
+| TC-AUTH-01 | Đăng nhập và lưu refresh token bằng HttpOnly cookie | Response không trả refresh token trong body; cookie refresh được set | `auth.controller.spec.ts` pass trong bộ Jest ngày 2026-08-22 | PASS |
+| TC-AUTH-02 | Refresh token hợp lệ | Tạo access token mới, rotate refresh session | `auth.service.spec.ts` pass trong bộ Jest ngày 2026-08-22 | PASS |
+| TC-APPT-01 | Lấy slot khả dụng từ lịch làm việc bác sĩ | Chỉ trả slot hợp lệ, trong tương lai | `appointment.service.spec.ts` pass trong bộ Jest ngày 2026-08-22 | PASS |
+| TC-APPT-02 | Đặt lịch trùng bác sĩ hoặc bệnh nhân | Backend từ chối lịch bị overlap | `appointment.service.spec.ts` pass trong bộ Jest ngày 2026-08-22 | PASS |
+| TC-NOTI-01 | Xử lý outbox appointment-created | Tạo notification cho bệnh nhân và bác sĩ | `notification.service.spec.ts` pass trong bộ Jest ngày 2026-08-22 | PASS |
+| TC-NOTI-02 | Provider gửi thông báo thất bại | Outbox được đánh dấu failed và retryable | `notification.service.spec.ts` pass; log lỗi `Email failed` xuất hiện trong test failure-path | PASS |
+| TC-MOD-01 | Admin ẩn câu hỏi và ghi audit | Trạng thái nội dung đổi và audit log được tạo | `moderation.service.spec.ts` pass trong bộ Jest ngày 2026-08-22 | PASS |
+| TC-REPORT-01 | Dashboard metrics theo date range | Trả số liệu tổng hợp hợp lệ | `reporting.service.spec.ts` pass trong bộ Jest ngày 2026-08-22 | PASS |
+| TC-E2E-CORE | Core smoke/auth/appointment/question/doctor/admin/socket suites | Các luồng core chạy trên browser seeded env | 42/43 passed, 0 failed, 1 skipped theo `final-e2e-results.md` | PARTIAL |
+| TC-GRAD | Graduation flows | Toàn bộ luồng graduation pass | `GRAD-D` pass isolation; `GRAD-A/B/C` có lỗi test-data/test-interaction/assertion | NOT PASS |
 
 ## 6.6 Kiểm thử các user flow chính
 
-Core E2E đã ghi nhận các luồng public discovery, auth theo vai trò, patient appointment, patient question, doctor consultation/prescription workflow, admin dashboard/doctor/specialty/access guard và socket client behavior. Kết quả core E2E là 42/43 passed, 0 failed, 1 skipped.
+Kết quả E2E lõi trong `docs/testing/final-e2e-results.md` ghi nhận lệnh Playwright chạy các suite:
+
+- `public.spec.ts`
+- `auth.spec.ts`
+- `patient-appointments.spec.ts`
+- `patient-questions.spec.ts`
+- `doctor-workflow.spec.ts`
+- `admin.spec.ts`
+- `consultation-socket-client.spec.ts`
+
+Kết quả ghi nhận:
+
+| Nhóm flow | Bằng chứng | Kết quả |
+| -- | -- | -- |
+| Public discovery | `public.spec.ts`, E2E-001 đến E2E-005 | Nằm trong 42 test core đã pass |
+| Auth theo vai trò | `auth.spec.ts`, E2E-006 đến E2E-012 và các test page auth | Nằm trong 42 test core đã pass |
+| Patient appointment | `patient-appointments.spec.ts`, E2E-013 đến E2E-017 | Nằm trong 42 test core đã pass |
+| Patient question và doctor answer | `patient-questions.spec.ts`, E2E-018 đến E2E-023 | Nằm trong 42 test core đã pass |
+| Doctor consultation/prescription workflow | `doctor-workflow.spec.ts`, E2E-024 đến E2E-029 | Nằm trong 42 test core đã pass |
+| Admin dashboard/doctor/specialty/access guard | `admin.spec.ts`, E2E-030 đến E2E-035 | Nằm trong 42 test core đã pass |
+| Socket client behavior | `consultation-socket-client.spec.ts` | Nằm trong 42 test core đã pass |
+
+Graduation suite trong `graduation-flows.spec.ts` chưa được tính là pass. Theo `final-e2e-results.md`, các lỗi được phân loại là lỗi test-data, test interaction hoặc mismatch assertion, không phải bằng chứng lỗi nghiệp vụ backend. Vì vậy chương này không dùng graduation suite để khẳng định hệ thống đã pass toàn bộ luồng graduation.
 
 ## 6.7 Kiểm thử authentication/RBAC
 
-Backend kiểm thử refresh session rotation, token không hợp lệ, session bị thu hồi/hết hạn, logout revoke session, forgot/reset password và cookie contract. Frontend E2E kiểm thử đăng nhập theo vai trò, guest redirect, role guard và logout.
+Authentication và RBAC được kiểm thử ở cả backend và frontend:
+
+- `auth.service.spec.ts` kiểm tra refresh session rotation, reject token không hợp lệ, reject session đã thu hồi/hết hạn, logout revoke session, forgot password không leak trạng thái email, reset password tiêu thụ token và revoke session.
+- `auth.controller.spec.ts` kiểm tra hợp đồng cookie refresh: set cookie HttpOnly khi login, đọc cookie khi refresh, clear cookie khi logout và secure cookie trong production.
+- `auth.spec.ts` kiểm tra đăng nhập theo vai trò Patient/Doctor/Admin, guest bị chuyển về login khi mở route bảo vệ, patient/doctor không truy cập được route sai vai trò và logout.
+- `admin.spec.ts` có test non-admin không truy cập được admin dashboard.
+
+| ID | Scenario | Expected | Actual | Result |
+| -- | -------- | -------- | ------ | ------ |
+| AUTH-RBAC-01 | Patient login | Redirect về Patient dashboard | Core E2E ghi nhận pass trong `auth.spec.ts` | PASS |
+| AUTH-RBAC-02 | Doctor login | Redirect về Doctor dashboard | Core E2E ghi nhận pass trong `auth.spec.ts` | PASS |
+| AUTH-RBAC-03 | Admin login | Redirect về Admin dashboard | Core E2E ghi nhận pass trong `auth.spec.ts` | PASS |
+| AUTH-RBAC-04 | Guest mở route patient protected | Redirect về login | Core E2E ghi nhận pass trong `auth.spec.ts` | PASS |
+| AUTH-RBAC-05 | Patient/Doctor mở route sai vai trò | Bị chặn hoặc vào forbidden state | Core E2E ghi nhận pass trong `auth.spec.ts` | PASS |
+| AUTH-RBAC-06 | Refresh token rotation | Session cũ bị revoke, session mới được tạo | Backend Jest pass ngày 2026-08-22 | PASS |
+
+Các kiểm thử chưa đầy đủ: frontend chưa có bằng chứng E2E cho refresh-token retry/dedup khi nhiều request đồng thời nhận `401`; ma trận E2E đánh dấu nội dung này là `Missing`.
 
 ## 6.8 Kiểm thử appointment availability/conflict
 
-`appointment.service.spec.ts` kiểm thử slot hợp lệ, overlap của bác sĩ, overlap của bệnh nhân, lookup bác sĩ không public, tạo lịch ngoài giờ, bác sĩ inactive/unapproved và reschedule conflict. `patient-appointments.spec.ts` kiểm thử luồng đặt lịch và quản lý lịch ở UI.
+Kiểm thử đặt lịch tập trung vào `appointment.service.spec.ts` và `patient-appointments.spec.ts`.
+
+Các tình huống backend đã được Jest kiểm tra gồm:
+
+- Trả slot khả dụng từ lịch làm việc bác sĩ.
+- Loại bỏ slot overlap với lịch hẹn đang hoạt động của bác sĩ.
+- Từ chối lookup nếu bác sĩ không public.
+- Từ chối tạo lịch ngoài giờ làm việc.
+- Từ chối tạo lịch khi bác sĩ có lịch overlap.
+- Từ chối tạo lịch khi bệnh nhân có lịch overlap.
+- Cho phép lịch sát ranh giới khi lịch cũ kết thúc đúng lúc lịch mới bắt đầu.
+- Từ chối bác sĩ inactive hoặc chưa approved.
+- Áp dụng quy tắc conflict khi reschedule.
+
+| ID | Scenario | Expected | Actual | Result |
+| -- | -------- | -------- | ------ | ------ |
+| APPT-AV-01 | Doctor schedule có slot hợp lệ | API availability trả slot hợp lệ | Backend Jest pass ngày 2026-08-22 | PASS |
+| APPT-AV-02 | Slot overlap lịch bác sĩ | Slot bị loại khỏi availability | Backend Jest pass ngày 2026-08-22 | PASS |
+| APPT-AV-03 | Tạo lịch ngoài giờ làm việc | Backend reject | Backend Jest pass ngày 2026-08-22 | PASS |
+| APPT-AV-04 | Tạo lịch trùng bác sĩ | Backend reject | Backend Jest pass ngày 2026-08-22 | PASS |
+| APPT-AV-05 | Tạo lịch trùng bệnh nhân | Backend reject | Backend Jest pass ngày 2026-08-22 | PASS |
+| APPT-AV-06 | Patient đặt lịch hợp lệ qua UI | Lịch được tạo và hiển thị trong danh sách | Core E2E ghi nhận pass trong `patient-appointments.spec.ts` | PASS |
+
+Ma trận E2E vẫn đánh dấu UI negative case cho slot không khả dụng là `Partial`, vì phần backend đã được kiểm thử nhưng chưa có test giao diện đầy đủ cho thao tác chọn slot không hợp lệ.
 
 ## 6.9 Kiểm thử consultation realtime
 
-`doctor-workflow.spec.ts` kiểm thử route phiên tư vấn, summary, prescription và patient result. `consultation-socket-client.spec.ts` kiểm thử client Socket.IO. Chưa có E2E hai browser context đầy đủ cho bệnh nhân và bác sĩ trao đổi realtime trên hai giao diện thật.
+Tư vấn trực tuyến được kiểm thử qua hai nhóm bằng chứng:
+
+- `doctor-workflow.spec.ts` kiểm tra bác sĩ có thể mở route phiên tư vấn, lưu summary, tạo prescription và bệnh nhân xem kết quả/đơn thuốc khi có dữ liệu.
+- `consultation-socket-client.spec.ts` kiểm tra client Socket.IO xác thực bằng access token, join room theo appointment, gửi message, reconnect vào cùng room, cleanup listener và xử lý thiếu access token.
+
+| ID | Scenario | Expected | Actual | Result |
+| -- | -------- | -------- | ------ | ------ |
+| CONSULT-01 | Doctor mở phiên tư vấn từ appointment | Route/session được mở hợp lệ | Core E2E ghi nhận pass trong `doctor-workflow.spec.ts` | PASS |
+| CONSULT-02 | Doctor lưu consultation summary | Summary được lưu và có thể xem lại | Core E2E ghi nhận pass trong `doctor-workflow.spec.ts` | PASS |
+| CONSULT-03 | Doctor tạo prescription | Prescription được lưu | Core E2E ghi nhận pass trong `doctor-workflow.spec.ts` | PASS |
+| CONSULT-04 | Patient xem result/prescription | Kết quả và đơn thuốc hiển thị cho bệnh nhân | Core E2E ghi nhận pass trong `doctor-workflow.spec.ts` | PASS |
+| CONSULT-05 | Socket client join/send/reconnect | Client join đúng room, gửi message, reconnect không nhân listener | Core E2E ghi nhận pass trong `consultation-socket-client.spec.ts` | PASS |
+
+Giới hạn hiện tại: chưa có bằng chứng E2E hai browser context đầy đủ cho bệnh nhân và bác sĩ trao đổi realtime trực tiếp trên hai giao diện đang mở cùng lúc. Ma trận E2E đánh dấu luồng này là `Partial`.
 
 ## 6.10 Kiểm thử notification/background processing
 
-`notification.service.spec.ts` kiểm thử reset password notification, appointment-created outbox, provider failure retry, appointment reminders và question-answered notification. Chưa có bằng chứng gửi email/SMS thật trong môi trường vận hành thực tế.
+Notification được kiểm thử chủ yếu bằng backend Jest trong `notification.service.spec.ts`. Các tình huống đã có bằng chứng gồm:
+
+- Lưu thông báo reset password bằng development provider khi chưa cấu hình email thật.
+- Không lưu plain reset token trong production khi provider email không hoạt động.
+- Xử lý outbox `APPOINTMENT_CREATED` thành thông báo cho bệnh nhân và bác sĩ.
+- Đánh dấu outbox failed và retryable khi provider gửi thất bại.
+- Gửi appointment reminder qua provider và ghi trạng thái notification.
+- Xử lý outbox `QUESTION_ANSWERED` thành thông báo cho bệnh nhân.
+
+| ID | Scenario | Expected | Actual | Result |
+| -- | -------- | -------- | ------ | ------ |
+| NOTI-01 | Appointment created outbox | Tạo notification cho patient và doctor | Backend Jest pass ngày 2026-08-22 | PASS |
+| NOTI-02 | Provider delivery failure | Mark failed, tăng retry state | Backend Jest pass ngày 2026-08-22; log lỗi giả lập xuất hiện | PASS |
+| NOTI-03 | Appointment reminder | Gửi/log reminder cho appointment sắp tới | Backend Jest pass ngày 2026-08-22 | PASS |
+| NOTI-04 | Question answered outbox | Tạo notification cho patient | Backend Jest pass ngày 2026-08-22 | PASS |
+
+Giới hạn hiện tại: chưa có bằng chứng gửi email production thật; final traceability đánh dấu email notification là `PARTIAL` vì provider abstraction có tồn tại nhưng phụ thuộc cấu hình provider thực tế.
 
 ## 6.11 Kết quả kiểm thử
 
+Kết quả chạy bổ sung ngày 2026-08-22:
+
 Bảng 6.2. Kết quả kiểm thử tổng hợp
 
-| Nhóm kiểm tra | Actual | Result |
-|---|---|---|
-| Backend Jest | 9 test suites passed, 47 tests passed, 0 failed | PASS |
-| Backend type-check | `tsc --noEmit` hoàn tất, exit code 0 | PASS |
-| Backend build | `nest build` hoàn tất, exit code 0 | PASS |
-| Frontend type-check | `tsc --noEmit` hoàn tất, exit code 0 | PASS |
-| Frontend build | `tsc -b && vite build` hoàn tất, exit code 0 | PASS |
-| Core E2E | 42/43 passed, 0 failed, 1 skipped | PARTIAL |
-| Graduation E2E | 1 failed, 1 flaky, 2 did not run; GRAD-D pass isolation | NOT PASS |
+| Nhóm kiểm tra | Command | Actual | Result |
+| -- | -- | -- | -- |
+| Backend Jest | `source ~/.nvm/nvm.sh && npm test -- --runInBand` | 9 test suites passed, 47 tests passed, 0 failed | PASS |
+| Backend type-check | `source ~/.nvm/nvm.sh && npm run type-check` | `tsc --noEmit` hoàn tất, exit code 0 | PASS |
+| Backend build | `source ~/.nvm/nvm.sh && npm run build` | `nest build` hoàn tất, exit code 0 | PASS |
+| Frontend type-check | `source ~/.nvm/nvm.sh && npm run type-check` | `tsc --noEmit` hoàn tất, exit code 0 | PASS |
+| Frontend build | `source ~/.nvm/nvm.sh && npm run build` | `tsc -b && vite build` hoàn tất, exit code 0 | PASS |
 
-Các cảnh báo không làm fail build/test gồm cảnh báo `ts-jest`, log lỗi giả lập `Email failed` trong failure-path test, Browserslist data cũ và chunk-size warning của Vite.
+Ghi chú từ output:
+
+- Backend Jest có cảnh báo `ts-jest` về hybrid module kind và `isolatedModules`; cảnh báo này không làm test fail.
+- Trong `notification.service.spec.ts` có log lỗi `Email failed` từ tình huống test provider failure; đây là hành vi được kiểm thử, không phải lỗi ngoài ý muốn.
+- Frontend build có cảnh báo Browserslist data cũ và một số chunk lớn hơn 500 kB sau minification; build vẫn thành công.
+
+Kết quả E2E đã ghi nhận trong `docs/testing/final-e2e-results.md`:
+
+| Nhóm E2E | Actual | Result |
+| -- | -- | -- |
+| Core smoke/auth/appointment/question/doctor/admin/socket suites | Total 43, Passed 42, Failed 0, Skipped 1 | PARTIAL |
+| Graduation suite dry run không có seed env | Total 4, Skipped 4 | NOT VERIFIED |
+| Graduation suite với seed env | 1 failed, 1 flaky, 2 did not run; isolated `GRAD-D` passed | NOT PASS |
 
 ## 6.12 Độ bao phủ yêu cầu SRS
 
+Theo `docs/audit/final-srs-traceability.md`, phần lớn core flows bắt buộc đã có implementation end-to-end, gồm public doctor discovery, auth, patient profile, health questions, doctor schedule availability, appointment booking/conflict prevention, consultation session, realtime chat, result/prescription, rating, admin management, moderation, notification outbox và reporting.
+
+Tổng hợp theo nhóm:
+
 Bảng 6.3. Mức độ bao phủ yêu cầu SRS
 
-| Nhóm yêu cầu | Trạng thái theo ma trận truy vết/bằng chứng kiểm thử |
-|---|---|
-| Public access, auth, doctor discovery, health questions, appointment, admin/reporting | Chủ yếu đã triển khai và có bằng chứng kiểm thử lõi. |
-| Consultation realtime | Đã triển khai; socket client có test; E2E hai trình duyệt còn thiếu. |
-| Notification/reminder | Outbox/log/reminder lõi có kiểm thử; email/SMS trong môi trường vận hành thực tế còn ở mức một phần. |
-| Rating | Đã triển khai; automation positive/negative còn cần bổ sung. |
-| Hiệu năng, high availability, browser/mobile matrix | Chưa có benchmark hoặc artifact kiểm thử đầy đủ. |
-| Optional/out-of-scope | File upload, chatbot, advanced SMS/video không được xem là chức năng hiện có. |
+| Nhóm yêu cầu | Trạng thái theo traceability | Bằng chứng kiểm thử liên quan |
+| -- | -- | -- |
+| Public access và doctor discovery | Chủ yếu `COMPLETED` | `public.spec.ts`; discovery implementation audit |
+| Authentication/Authorization | `COMPLETED` | `auth.service.spec.ts`, `auth.controller.spec.ts`, `auth.spec.ts`, security audit |
+| Patient/Doctor profile | `COMPLETED` hoặc `IMPLEMENTED_DIFFERENTLY` với cách lưu full name | Backend doctor tests; patient profile implementation có trong audit nhưng patient profile E2E còn missing |
+| Health question | `COMPLETED` | `patient-questions.spec.ts`, notification/question audit |
+| Appointment management | `COMPLETED` | `appointment.service.spec.ts`, `patient-appointments.spec.ts`, doctor workflow specs |
+| Consultation realtime | `COMPLETED` về implementation; E2E automation `Partial` cho hai-browser realtime | `doctor-workflow.spec.ts`, `consultation-socket-client.spec.ts` |
+| Result/prescription | `COMPLETED` | `doctor-workflow.spec.ts` |
+| Rating | `COMPLETED` về implementation; rating positive/negative E2E còn missing trong matrix | Traceability, moderation tests |
+| Notification/reminder | Core outbox/log/reminder `COMPLETED`; email thật `PARTIAL` | `notification.service.spec.ts`; no production email evidence |
+| Admin/moderation/reporting | `COMPLETED` | `admin.spec.ts`, `moderation.service.spec.ts`, `reporting.service.spec.ts` |
+| Non-functional performance/availability/browser matrix | Nhiều mục `PARTIAL` | Chưa có load test, HA test hoặc cross-browser result artifact |
+| Optional/out-of-scope items | `NOT_APPLICABLE` hoặc `NOT_IMPLEMENTED` | File upload, chatbot, SMS/video advanced không thuộc scope bắt buộc hoặc chưa triển khai |
+
+Các yêu cầu đã triển khai nhưng chưa có automated test đầy đủ theo `e2e-test-matrix.md` gồm: patient profile update E2E, inactive/unapproved doctor negative discovery, live consultation hai browser context, rating positive/negative E2E, admin moderation UI đầy đủ, reports page date-range/chart E2E, refresh-token retry/dedup frontend integration, cross-user consultation result access denial, mobile responsive smoke test.
 
 ## 6.13 Đánh giá hệ thống
 
-Hệ thống đạt mức sẵn sàng tốt cho các luồng cốt lõi trong phạm vi đồ án. Các quy tắc rủi ro cao như refresh token, RBAC, conflict booking, outbox notification, moderation audit và report date validation đã có test. Tuy nhiên, một số yêu cầu phi chức năng và luồng E2E nâng cao vẫn chưa được kiểm chứng đầy đủ.
+Dựa trên các bằng chứng hiện có, hệ thống đạt mức sẵn sàng tốt cho các luồng nghiệp vụ cốt lõi:
+
+- Backend unit/service tests hiện pass toàn bộ: 9 suites, 47 tests.
+- Backend và frontend đều type-check/build thành công trong lần kiểm tra ngày 2026-08-22.
+- Core E2E đã ghi nhận 42/43 test pass, không có test failed trong bộ core.
+- Các quy tắc nghiệp vụ rủi ro cao như refresh-token rotation, cookie contract, appointment conflict, notification outbox retry, moderation audit và report date validation đã có test backend trực tiếp.
+- Audit bảo mật ghi nhận các cơ chế quan trọng đã có: global validation, exception filter, security headers cơ bản, CORS theo môi trường, JWT secret validation, refresh cookie rules, RBAC, ownership checks, sensitive logging sanitation và appointment transaction safety.
+
+Tuy nhiên, mức đánh giá này không đồng nghĩa với việc toàn bộ hệ thống đã được chứng minh bằng automation tuyệt đối. Một số yêu cầu đã có implementation nhưng test tự động còn một phần; một số yêu cầu phi chức năng chưa có artifact đo lường.
 
 ## 6.14 Hạn chế hiện tại
 
-Các hạn chế kiểm thử gồm graduation suite chưa đạt đầy đủ, 1 core E2E bị skipped, chưa có artifact về tỷ lệ bao phủ mã nguồn, chưa có benchmark tải/hiệu năng/đồng thời, chưa có bằng chứng cross-browser/mobile, chưa có E2E hai trình duyệt cho realtime chat và chưa có artifact kết quả chạy CI.
+Các hạn chế hiện tại được ghi nhận từ bằng chứng thực tế:
+
+- Graduation E2E suite chưa thể claim PASS. `GRAD-A`, `GRAD-B`, `GRAD-C` còn vấn đề test-data, test interaction hoặc assertion mismatch; chỉ `GRAD-D` pass khi chạy isolation.
+- Core E2E có 1 test skipped; test này chưa được xem là PASS.
+- Chưa có coverage percentage artifact, vì vậy báo cáo không công bố tỷ lệ coverage.
+- Chưa có benchmark performance, load test hoặc concurrency test; các yêu cầu thời gian phản hồi, concurrent usage và dashboard performance chỉ ở mức `PARTIAL`.
+- Chưa có bằng chứng kiểm thử cross-browser hoặc mobile responsive đầy đủ.
+- Chưa có E2E hai trình duyệt cho realtime chat bệnh nhân-bác sĩ trong cùng phiên live.
+- Chưa có bằng chứng gửi email production thật; notification provider thật phụ thuộc cấu hình triển khai.
+- Chưa có kết quả CI run trong repository; chỉ có workflow CI configuration.
+- File upload/storage, chatbot và advanced SMS/video không thuộc phạm vi bắt buộc hoặc chưa triển khai đầy đủ theo traceability.
 
 # CHƯƠNG 7. KẾT LUẬN VÀ HƯỚNG PHÁT TRIỂN
 
+Chương này tổng kết kết quả đạt được của đề tài **“Thiết kế và xây dựng hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến”**, đánh giá mức độ đáp ứng mục tiêu ban đầu, nêu các hạn chế còn tồn tại và đề xuất hướng phát triển phù hợp cho các giai đoạn tiếp theo. Nội dung được phân biệt rõ giữa hệ thống đã triển khai hiện tại và các khả năng phát triển trong tương lai.
+
 ## 7.1 Kết quả đạt được
 
-Đề tài đã xây dựng được hệ thống web hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến với các chức năng cốt lõi cho khách truy cập, bệnh nhân, bác sĩ và quản trị viên. Hệ thống có kiến trúc rõ ràng, mô hình dữ liệu quan hệ, xác thực/phân quyền, đặt lịch có kiểm soát xung đột, chat realtime, kết quả tư vấn, đơn thuốc cơ bản, đánh giá, thông báo, kiểm duyệt và báo cáo.
+Trong phạm vi đề tài, hệ thống đã được phân tích, thiết kế, xây dựng và kiểm thử theo hướng một ứng dụng web hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến. Hệ thống hiện tại đã triển khai các nhóm chức năng chính cho bốn nhóm người dùng: khách truy cập, bệnh nhân, bác sĩ và quản trị viên.
+
+Đối với khách truy cập, hệ thống hỗ trợ xem thông tin công khai, danh sách chuyên khoa, danh sách bác sĩ, tìm kiếm/lọc bác sĩ và xem hồ sơ công khai của bác sĩ. Các bác sĩ hiển thị công khai được giới hạn theo trạng thái hoạt động và trạng thái phê duyệt.
+
+Đối với bệnh nhân, hệ thống hỗ trợ đăng ký, đăng nhập, quản lý hồ sơ sức khỏe, gửi câu hỏi sức khỏe, đặt lịch tư vấn theo khung giờ khả dụng, xem lịch hẹn, tham gia tư vấn trực tuyến, xem kết quả tư vấn, xem đơn thuốc và đánh giá sau tư vấn.
+
+Đối với bác sĩ, hệ thống hỗ trợ quản lý hồ sơ chuyên môn, lịch làm việc, chuyên khoa, xem và trả lời câu hỏi, xác nhận/hoàn tất lịch hẹn, tham gia phiên tư vấn, ghi tóm tắt tư vấn và tạo đơn thuốc điện tử cơ bản.
+
+Đối với quản trị viên, hệ thống hỗ trợ quản lý người dùng, bác sĩ, bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt nội dung, theo dõi thông báo và xem báo cáo thống kê hoạt động.
+
+Ngoài các chức năng nghiệp vụ, hệ thống cũng đã có các cơ chế hỗ trợ quan trọng như xác thực JWT, refresh session, RBAC, kiểm tra quyền sở hữu dữ liệu, validation đầu vào, audit log, transaction trong nghiệp vụ đặt lịch, Socket.IO cho chat realtime và Outbox Pattern cho thông báo.
 
 ## 7.2 Mức độ đáp ứng mục tiêu đề tài
 
+So với mục tiêu đề tài đã nêu ở Chương 1, hệ thống hiện tại đáp ứng được phần lớn mục tiêu cốt lõi:
+
 Bảng 7.1. Mức độ đáp ứng mục tiêu đề tài
 
-| Mục tiêu | Mức độ đáp ứng |
+| Mục tiêu | Mức độ đáp ứng hiện tại |
 |---|---|
-| Ứng dụng web tư vấn sức khỏe và quản lý lịch hẹn | Đã triển khai với React, NestJS và PostgreSQL. |
-| Tìm kiếm chuyên khoa/bác sĩ | Đã triển khai và có bằng chứng E2E lõi. |
-| Xác thực và phân quyền | Đã triển khai, có bằng chứng backend và E2E. |
-| Luồng bệnh nhân | Đã triển khai; một số E2E chi tiết còn cần mở rộng. |
-| Luồng bác sĩ | Đã triển khai, có test cho các luồng chính. |
-| Chat realtime | Đã triển khai; socket client đã kiểm thử; E2E hai trình duyệt còn thiếu. |
-| Kết quả, đơn thuốc, đánh giá | Đã triển khai; rating cần bổ sung automation. |
-| Quản trị, kiểm duyệt, báo cáo | Đã triển khai, có bằng chứng backend và một phần E2E. |
+| Xây dựng ứng dụng web hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn | Đã triển khai với frontend React SPA, backend NestJS và PostgreSQL |
+| Hỗ trợ truy cập công khai, tìm kiếm chuyên khoa/bác sĩ | Đã triển khai và có E2E core evidence |
+| Hỗ trợ đăng ký, đăng nhập, đăng xuất, khôi phục mật khẩu và phân quyền | Đã triển khai, có backend Jest và Playwright evidence |
+| Hỗ trợ bệnh nhân quản lý hồ sơ, hỏi đáp, đặt lịch, theo dõi tư vấn | Đã triển khai; một số E2E chi tiết còn cần mở rộng |
+| Hỗ trợ bác sĩ quản lý hồ sơ, lịch làm việc, câu hỏi, lịch hẹn và tư vấn | Đã triển khai, có test cho các luồng chính |
+| Hỗ trợ chat trong phiên tư vấn và lưu lịch sử trao đổi | Đã triển khai; socket client đã được kiểm thử, E2E hai trình duyệt đầy đủ còn thiếu |
+| Hỗ trợ kết quả tư vấn, đơn thuốc cơ bản và đánh giá | Đã triển khai; prescription/result có E2E, rating cần bổ sung automation |
+| Hỗ trợ quản trị, kiểm duyệt và báo cáo | Đã triển khai, có backend và một phần E2E evidence |
+| Đảm bảo yêu cầu bảo mật và kiểm soát truy cập cơ bản | Đã triển khai các cơ chế chính; một số yêu cầu phi chức năng cần kiểm thử sâu hơn |
+
+Như vậy, đề tài đã hoàn thành mục tiêu chính là xây dựng một hệ thống web hỗ trợ quy trình tư vấn sức khỏe và quản lý lịch hẹn từ khâu tra cứu, đặt lịch, tư vấn, ghi nhận kết quả đến quản trị. Hệ thống không được thiết kế để thay thế chẩn đoán y khoa chuyên nghiệp, cấp cứu y tế hoặc quy trình khám trực tiếp khi cần thiết.
 
 ## 7.3 Kết quả kỹ thuật
 
-Hệ thống hiện tại sử dụng React SPA, NestJS Modular Monolith, PostgreSQL, Prisma ORM, JWT, RBAC, Socket.IO, transaction và Outbox Pattern. Kết quả kiểm thử ghi nhận backend Jest pass 9 suites/47 tests, backend và frontend type-check/build pass, core E2E 42/43 pass với 1 skipped.
+Hệ thống hiện tại được xây dựng theo mô hình Client–Server với frontend React SPA, backend NestJS Modular Monolith và cơ sở dữ liệu PostgreSQL thông qua Prisma ORM. Kiến trúc này phù hợp với phạm vi đồ án vì giúp tổ chức chức năng theo module rõ ràng, dễ kiểm thử và thuận lợi khi các nghiệp vụ có quan hệ chặt chẽ trên cùng cơ sở dữ liệu.
+
+Các kết quả kỹ thuật chính gồm:
+
+- Frontend được tổ chức theo nhóm chức năng như `auth`, `public`, `patient`, `doctor`, `admin`, `reports` và `consultation/realtime`.
+- Backend được tổ chức thành các module nghiệp vụ như Identity, Discovery, Patient, Doctor, Appointment, Question, Consultation, Notification, Moderation và Reporting.
+- Cơ sở dữ liệu có mô hình quan hệ cho người dùng, hồ sơ, chuyên khoa, lịch hẹn, phiên tư vấn, tin nhắn, đơn thuốc, đánh giá, thông báo và audit log.
+- Xác thực sử dụng JWT access token và refresh token lưu qua HttpOnly cookie.
+- Phân quyền được thực hiện bằng guard theo vai trò và kiểm tra quyền sở hữu ở tầng service.
+- Đặt lịch sử dụng kiểm tra lịch làm việc, kiểm tra overlap và transaction để bảo vệ tính nhất quán.
+- Tư vấn trực tuyến sử dụng Socket.IO namespace cho phiên chat realtime.
+- Thông báo sử dụng Outbox Pattern, `NotificationLog` và provider boundary để tách nghiệp vụ chính khỏi quá trình gửi thông báo.
+- Báo cáo quản trị sử dụng các truy vấn tổng hợp và xu hướng theo thời gian.
+
+Về kiểm thử, kết quả ghi nhận ở Chương 6 cho thấy backend Jest pass 9 test suites với 47 tests, backend type-check/build pass, frontend type-check/build pass. Core E2E đã ghi nhận 42/43 test pass, 0 failed và 1 skipped. Graduation E2E suite chưa được xem là pass đầy đủ do còn các vấn đề thuộc test-data, test-interaction hoặc assertion mismatch.
 
 ## 7.4 Hạn chế hiện tại
 
-**Current implemented system / Hệ thống đã triển khai hiện tại:** hệ thống chưa có provider email/SMS vận hành thực tế được xác minh, chưa có video vận hành thực tế, chưa có lưu trữ đối tượng cho tệp đính kèm, chưa có benchmark hiệu năng/tải đồng thời, chưa có cross-browser/mobile audit đầy đủ, chưa có E2E hai trình duyệt cho live chat, và graduation E2E suite còn cần chỉnh dữ liệu test/tương tác test.
+Các hạn chế dưới đây thuộc **hệ thống hiện tại** và chưa được xem là chức năng đã hoàn thiện production-grade:
+
+- Chưa có provider email production thật được xác minh. Hệ thống có provider boundary và development/email provider, nhưng việc gửi email thật phụ thuộc cấu hình triển khai.
+- SMS reminder chưa được triển khai như một năng lực production; SMS provider hiện là phần phụ thuộc cấu hình và không thuộc phạm vi bắt buộc đã xác minh.
+- Video consultation hiện ở mức fallback/mock hoặc ranh giới tích hợp, chưa phải tích hợp video production đầy đủ.
+- File attachment/object storage chưa được triển khai thành luồng API/UI hoàn chỉnh; chỉ có dấu vết mô hình dữ liệu mở rộng và quyết định scope.
+- Một số yêu cầu phi chức năng như hiệu năng, tải đồng thời, high availability, browser compatibility và responsive audit chưa có benchmark hoặc artifact kiểm thử đầy đủ.
+- Chưa có E2E hai trình duyệt đầy đủ cho luồng bệnh nhân và bác sĩ chat realtime trong cùng một phiên live.
+- Một số luồng đã có implementation nhưng automation còn thiếu hoặc chưa đầy đủ, như patient profile update E2E, rating positive/negative E2E, admin moderation UI đầy đủ, reports date-range/chart E2E và cross-user consultation result access denial.
+- Graduation E2E suite cần chỉnh lại dữ liệu test và tương tác test trước khi có thể dùng làm bằng chứng pass đầy đủ.
+- Chưa có artifact kết quả chạy CI trong repository; hiện chỉ có workflow configuration.
+
+Các hạn chế này không phủ nhận kết quả của các luồng cốt lõi đã triển khai, nhưng cần được ghi nhận để đánh giá đúng mức độ hoàn thiện và phạm vi kiểm chứng của hệ thống.
 
 ## 7.5 Bài học kinh nghiệm
 
-Các bài học chính gồm: cần xác định phạm vi rõ ràng, dùng SRS và traceability để kiểm soát yêu cầu, đặt logic nghiệp vụ quan trọng ở backend, kiểm thử các failure path, thiết kế dữ liệu nhất quán cho lịch hẹn/tư vấn, và chuẩn bị seed data phù hợp để E2E phản ánh đúng chất lượng implementation.
+Quá trình thực hiện đề tài đem lại một số bài học quan trọng:
+
+- Việc xác định rõ phạm vi ngay từ đầu giúp hệ thống tập trung vào các nghiệp vụ cốt lõi như tìm bác sĩ, đặt lịch, tư vấn, kết quả và quản trị, tránh mở rộng quá sớm sang các tích hợp phức tạp.
+- Tài liệu SRS và traceability matrix giúp kiểm soát sự nhất quán giữa yêu cầu, thiết kế, cài đặt và kiểm thử. Khi có khác biệt giữa yêu cầu và implementation, cần ghi nhận rõ thay vì điều chỉnh yêu cầu một cách ngầm định.
+- Modular Monolith là lựa chọn phù hợp cho hệ thống có nhiều phân hệ liên quan chặt chẽ, đặc biệt khi cần transaction chung và triển khai đơn giản trong phạm vi đồ án.
+- Các nghiệp vụ liên quan đến lịch hẹn cần được kiểm tra nghiêm ngặt ở backend, vì chỉ kiểm tra ở giao diện là không đủ để ngăn đặt trùng hoặc thao tác ngoài lịch làm việc.
+- Với các chức năng bảo mật, frontend guard chỉ cải thiện trải nghiệm người dùng; lớp bảo vệ quyết định vẫn phải nằm ở backend thông qua guard, role check và ownership check.
+- Các cơ chế bất đồng bộ như notification outbox giúp nghiệp vụ chính ổn định hơn, nhưng cũng làm tăng nhu cầu theo dõi trạng thái, retry và kiểm thử failure path.
+- Kiểm thử tự động cần được thiết kế cùng với dữ liệu seed phù hợp. Các lỗi trong graduation suite cho thấy test data và test interaction có thể làm kết quả kiểm thử không phản ánh đúng chất lượng implementation.
 
 ## 7.6 Hướng phát triển
 
-**Future development / Hướng phát triển tương lai:** các hướng sau là đề xuất phát triển, không phải chức năng đã hoàn thiện hiện tại:
+Các hướng phát triển dưới đây là **đề xuất cho tương lai**, không phải năng lực đã hoàn thiện trong hệ thống hiện tại.
 
-- Tích hợp provider Email/SMS vận hành thực tế cho thông báo, nhắc lịch và khôi phục mật khẩu.
-- Tích hợp video consultation provider hoặc hạ tầng WebRTC phù hợp.
-- Bổ sung lưu trữ đối tượng cho tệp đính kèm với kiểm soát quyền truy cập và an toàn tệp.
-- Mở rộng báo cáo, biểu đồ và phân tích theo chuyên khoa, bác sĩ, trạng thái lịch hẹn và xu hướng tư vấn.
-- Phát triển mobile client để hỗ trợ trải nghiệm đặt lịch, chat và nhận thông báo trên thiết bị di động.
-- Mở rộng realtime bằng adapter/hạ tầng phù hợp khi số lượng phiên đồng thời tăng.
-- Xem xét tích hợp với hệ thống y tế bên ngoài khi có yêu cầu thực tế và điều kiện pháp lý phù hợp.
-- Bổ sung năng lực AI hỗ trợ phân loại câu hỏi hoặc tổng hợp thông tin tham khảo với giới hạn an toàn rõ ràng, không thay thế chẩn đoán hoặc tư vấn chuyên môn của bác sĩ.
+### 7.6.1 Tích hợp Email/SMS provider production
+
+Hệ thống có thể được mở rộng bằng cách cấu hình hoặc tích hợp provider email/SMS thật để gửi thông báo đặt lịch, xác nhận lịch, nhắc lịch và khôi phục mật khẩu trong môi trường production. Khi triển khai, cần bổ sung kiểm thử delivery, retry, idempotency và cấu hình bảo mật cho provider.
+
+### 7.6.2 Tích hợp video consultation provider
+
+Phiên tư vấn hiện hỗ trợ chat realtime và có ranh giới fallback cho video. Trong tương lai, hệ thống có thể tích hợp provider video consultation production hoặc WebRTC infrastructure phù hợp. Việc này cần đi kèm kiểm soát quyền truy cập phiên, giới hạn thời gian tham gia, xử lý mất kết nối và bảo vệ dữ liệu trao đổi.
+
+### 7.6.3 Bổ sung object storage cho tệp đính kèm
+
+Hệ thống có thể bổ sung luồng tải lên và quản lý tệp đính kèm như ảnh xét nghiệm, tài liệu tham khảo hoặc tệp liên quan đến tư vấn. Hướng này cần object storage, kiểm soát loại tệp/kích thước, quét an toàn, phân quyền truy cập và chính sách lưu trữ dữ liệu sức khỏe.
+
+### 7.6.4 Mở rộng báo cáo và phân tích
+
+Phân hệ báo cáo có thể được phát triển thêm các bộ lọc và biểu đồ chi tiết hơn theo chuyên khoa, bác sĩ, trạng thái lịch hẹn, tỷ lệ hoàn tất tư vấn, phản hồi người dùng và xu hướng theo thời gian. Với dữ liệu lớn hơn, có thể cân nhắc cơ chế tổng hợp định kỳ hoặc kho dữ liệu báo cáo riêng.
+
+### 7.6.5 Phát triển mobile client
+
+Ngoài web responsive, hệ thống có thể phát triển ứng dụng mobile để cải thiện trải nghiệm đặt lịch, nhắc lịch, chat và nhận thông báo. Mobile client cần tái sử dụng API hiện có nhưng bổ sung kiểm thử đặc thù cho thiết bị di động, push notification và trạng thái offline/online.
+
+### 7.6.6 Mở rộng hạ tầng realtime
+
+Khi số lượng phiên tư vấn đồng thời tăng, phần realtime có thể cần adapter và hạ tầng phù hợp để scale nhiều backend instance, ví dụ cơ chế pub/sub cho Socket.IO, sticky session hoặc gateway chuyên biệt. Đây là hướng mở rộng vận hành, không phải yêu cầu bắt buộc trong phạm vi hiện tại.
+
+### 7.6.7 Tích hợp với hệ thống y tế bên ngoài
+
+Trong tương lai, hệ thống có thể xem xét tích hợp với hệ thống bệnh viện, hồ sơ sức khỏe điện tử hoặc các chuẩn trao đổi dữ liệu y tế nếu có yêu cầu thực tế. Hướng này cần đánh giá pháp lý, chuẩn dữ liệu, bảo mật, quyền riêng tư và quy trình đồng ý của người bệnh.
+
+### 7.6.8 Hỗ trợ AI có kiểm soát an toàn
+
+Một hướng mở rộng tùy chọn là bổ sung năng lực AI hỗ trợ phân loại câu hỏi, gợi ý thông tin tham khảo hoặc hỗ trợ bác sĩ trong việc tổng hợp nội dung tư vấn. Nếu triển khai, AI phải có giới hạn an toàn rõ ràng, không tự đưa ra chẩn đoán thay bác sĩ, không thay thế tư vấn chuyên môn và cần cơ chế kiểm duyệt, giải thích, ghi log cũng như bảo vệ dữ liệu sức khỏe.
 
 ## 7.7 Kết luận chung
 
-Hệ thống đã đáp ứng mục tiêu chính của đề tài trong phạm vi tư vấn và quản lý lịch hẹn cốt lõi. Các hạn chế hiện tại được ghi nhận rõ để tránh nhầm lẫn giữa năng lực đã triển khai và hướng phát triển. Nền tảng hiện có đủ cơ sở để tiếp tục mở rộng theo hướng provider vận hành thực tế, mobile, mở rộng realtime, phân tích dữ liệu và tích hợp y tế trong các giai đoạn sau.
+Đề tài đã xây dựng được một hệ thống web có khả năng hỗ trợ quy trình tư vấn sức khỏe và quản lý lịch hẹn trực tuyến với các chức năng cốt lõi cho khách truy cập, bệnh nhân, bác sĩ và quản trị viên. Hệ thống đã có kiến trúc rõ ràng, mô hình dữ liệu phù hợp, các cơ chế bảo mật cơ bản, luồng đặt lịch có kiểm soát xung đột, tư vấn realtime qua chat, kết quả tư vấn, đơn thuốc cơ bản, đánh giá, thông báo, kiểm duyệt và báo cáo.
 
-## Tài liệu tham khảo
+Kết quả kiểm thử cho thấy các thành phần quan trọng của hệ thống đã được xác minh ở nhiều mức độ khác nhau thông qua unit/service test, type-check, build và E2E core flows. Dù vẫn còn các hạn chế về kiểm thử nâng cao, provider production, video production, attachment storage, hiệu năng và khả năng mở rộng, hệ thống hiện tại đã đáp ứng mục tiêu chính của đề tài và tạo nền tảng phù hợp để tiếp tục phát triển trong các giai đoạn sau.
 
-Các tài liệu dưới đây là nguồn nội bộ thực tế của dự án, không thay thế cho danh mục tài liệu tham khảo học thuật nếu mẫu báo cáo của khoa yêu cầu bổ sung theo chuẩn riêng:
+# TÀI LIỆU THAM KHẢO
 
-- `docs/srs/OnlineHealthConsultationPlatform_SRS_v1.0.md`
-- `docs/audit/final-srs-traceability.md`
-- `docs/architecture/system-architecture.md`
-- `docs/architecture/system-flow-diagram.md`
-- `docs/report/diagram-selection/use-case-selection.md`
-- `docs/report/diagram-selection/sequence-selection.md`
-- `docs/report/diagram-selection/class-diagram-decision.md`
-- `docs/testing/e2e-test-matrix.md`
-- `docs/testing/final-e2e-results.md`
-- `docs/audit/security-hardening-report.md`
+1. **NestJS Documentation**: *A progressive Node.js framework for building efficient, reliable and scalable server-side applications*. URL: https://docs.nestjs.com/.
+2. **React Documentation**: *The library for web and native user interfaces*. URL: https://react.dev/.
+3. **Prisma ORM**: *Next-generation ORM for Node.js & TypeScript*. URL: https://www.prisma.io/docs/.
+4. **PostgreSQL Global Development Group**: *PostgreSQL 16 Documentation*. URL: https://www.postgresql.org/docs/.
+5. **Socket.IO**: *Bidirectional and low-latency communication for every platform*. URL: https://socket.io/docs/v4/.
+6. **RFC 7519**: Jones, M., Bradley, J., & Sakimura, N. (2015). *JSON Web Token (JWT)*. Internet Engineering Task Force (IETF).
+7. **RFC 7231**: Fielding, R., & Reschke, J. (2014). *Hypertext Transfer Protocol (HTTP/1.1): Semantics and Content*. IETF.
+8. **OWASP Foundation**: *OWASP Top Ten Web Application Security Risks*. URL: https://owasp.org/www-project-top-ten/.
+9. **Martin Fowler**: *Transactional Outbox Pattern*. URL: https://microservices.io/patterns/data/transactional-outbox.html.
+10. **Playwright Documentation**: *Fast and reliable end-to-end testing for modern web apps*. URL: https://playwright.dev/docs/intro.
+11. **Jest Documentation**: *Delightful JavaScript Testing*. URL: https://jestjs.io/docs/getting-started.
+12. **Redux Toolkit**: *The official, opinionated, batteries-included toolset for efficient Redux development*. URL: https://redux-toolkit.js.org/.

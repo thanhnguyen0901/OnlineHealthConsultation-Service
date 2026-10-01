@@ -2,6 +2,20 @@
 
 **Đề tài: Thiết kế và xây dựng hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến**
 
+## LỜI CẢM ƠN
+
+Em xin gửi lời cảm ơn chân thành đến nhà trường và khoa đã tạo điều kiện học tập, cung cấp kiến thức và môi trường thực hành trong suốt quá trình học tập và thực hiện đề tài tốt nghiệp.
+
+Em xin trân trọng cảm ơn giảng viên hướng dẫn đã định hướng nội dung, góp ý trong quá trình phân tích yêu cầu, thiết kế hệ thống, xây dựng chương trình và hoàn thiện báo cáo. Những nhận xét và hướng dẫn trong quá trình thực hiện đề tài đã giúp em hiểu rõ hơn cách vận dụng kiến thức đã học vào việc xây dựng một hệ thống phần mềm hoàn chỉnh.
+
+Trong quá trình thực hiện đề tài, em cũng có cơ hội củng cố thêm kiến thức về phát triển ứng dụng web, thiết kế hệ thống, cơ sở dữ liệu, bảo mật, kiểm thử và tổ chức mã nguồn. Đây là những kinh nghiệm thực tế có ý nghĩa đối với quá trình học tập và công việc sau này.
+
+Mặc dù đã cố gắng hoàn thiện đề tài và báo cáo trong phạm vi thời gian cho phép, nội dung vẫn có thể còn những thiếu sót. Em kính mong nhận được những nhận xét và góp ý từ giảng viên để có thể tiếp tục hoàn thiện kiến thức và rút kinh nghiệm cho các công việc sau này.
+
+Em xin trân trọng cảm ơn.
+
+Thành phố Hồ Chí Minh, năm 2026
+
 ## TÓM TẮT
 
 Đề tài **“Thiết kế và xây dựng hệ thống hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến”** được thực hiện nhằm xây dựng một nền tảng web hỗ trợ kết nối giữa bệnh nhân và bác sĩ. Hệ thống cho phép người dùng tra cứu chuyên khoa và bác sĩ, gửi câu hỏi sức khỏe, đặt lịch tư vấn, trao đổi trực tuyến, xem kết quả tư vấn và đơn thuốc. Bên cạnh đó, hệ thống cung cấp các chức năng quản lý dành cho bác sĩ và quản trị viên như quản lý lịch làm việc, lịch hẹn, nội dung tư vấn, người dùng và thống kê hoạt động.
@@ -10,6 +24,8 @@ Hệ thống được xây dựng với React và TypeScript ở phía frontend,
 
 ## MỤC LỤC
 
+- [LỜI CẢM ƠN](#lời-cảm-ơn)
+- [TÓM TẮT](#tóm-tắt)
 - [CHƯƠNG 1. TỔNG QUAN](#chương-1-tổng-quan)
   - [1.1 Giới thiệu](#11-giới-thiệu)
   - [1.2 Mục tiêu](#12-mục-tiêu)
@@ -161,7 +177,7 @@ Các mục tiêu cụ thể gồm:
 
 Phạm vi đề tài tập trung vào việc xây dựng một ứng dụng web phục vụ các nghiệp vụ tư vấn sức khỏe trực tuyến và quản lý lịch hẹn. Các chức năng bắt buộc trong phạm vi bao gồm truy cập nội dung công khai, quản lý tài khoản và phân quyền, quản lý hồ sơ bệnh nhân và bác sĩ, quản lý chuyên khoa, tìm kiếm bác sĩ, gửi câu hỏi sức khỏe, đặt lịch tư vấn, quản lý lịch hẹn, tư vấn trực tuyến qua chat, ghi nhận kết quả tư vấn, đơn thuốc điện tử cơ bản, đánh giá tư vấn, quản trị hệ thống, kiểm duyệt nội dung, thống kê hoạt động và thông báo nhắc lịch.
 
-Video ở mức mô phỏng hoặc tích hợp cơ bản được xem xét trong phạm vi tư vấn; video nâng cao chưa thuộc phạm vi cốt lõi. Một số chức năng được xác định là hướng mở rộng hoặc phụ thuộc điều kiện tích hợp hạ tầng, chẳng hạn như cuộc gọi tư vấn truyền hình (video), gửi thông báo nhắc lịch qua tin nhắn SMS, trợ lý tương tác tự động, hỗ trợ đa ngôn ngữ, chế độ giao diện tối (Dark Mode), cũng như các biểu đồ và bộ lọc phân tích nâng cao. Các chức năng này không làm thay đổi mục tiêu cốt lõi của hệ thống là hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến.
+Video ở mức mô phỏng hoặc tích hợp cơ bản được xem xét trong phạm vi tư vấn; video nâng cao chưa thuộc phạm vi cốt lõi. Một số chức năng được xác định là hướng mở rộng hoặc phụ thuộc điều kiện tích hợp hạ tầng, chẳng hạn như cuộc gọi tư vấn qua video, gửi thông báo nhắc lịch qua tin nhắn SMS, trợ lý tương tác tự động, hỗ trợ đa ngôn ngữ, chế độ giao diện tối (Dark Mode), cũng như các biểu đồ và bộ lọc phân tích nâng cao. Các chức năng này không làm thay đổi mục tiêu cốt lõi của hệ thống là hỗ trợ tư vấn sức khỏe và quản lý lịch hẹn trực tuyến.
 
 Đề tài không bao gồm việc chẩn đoán y khoa tự động bằng trí tuệ nhân tạo trong môi trường thực tế, không kết nối với hệ thống bệnh viện hoặc hồ sơ bệnh án điện tử bên ngoài, không tích hợp thiết bị IoT hay thiết bị đeo theo dõi sức khỏe, không xử lý thanh toán bảo hiểm y tế, quản lý giao nhận thuốc hoặc tích hợp nhà thuốc, không triển khai video chất lượng cao có ghi hình, lưu trữ và phát lại, không phát triển ứng dụng di động độc lập (native app), đồng thời không bao gồm các quy trình khám chữa bệnh từ xa nâng cao như xác nhận đồng ý điện tử (e-consent), chuyển tuyến chuyên khoa hay phân loại bệnh nhân tự động.
 
@@ -169,7 +185,7 @@ Video ở mức mô phỏng hoặc tích hợp cơ bản được xem xét trong
 
 Đề tài được thực hiện theo hướng phân tích yêu cầu, thiết kế hệ thống, xây dựng ứng dụng và kiểm thử đánh giá.
 
-Trước hết, đề tài xác định mục tiêu, phạm vi, tác nhân, ca sử dụng, luồng nghiệp vụ và các yêu cầu chức năng, phi chức năng. Trên cơ sở đó, hệ thống được thiết kế theo hướng ứng dụng web có phân quyền, có các nhóm chức năng cho bệnh nhân, bác sĩ và quản trị viên, đồng thời có cơ chế hỗ trợ tư vấn trực tuyến và quản lý lịch hẹn.
+Trước hết, đề tài xác định mục tiêu, phạm vi, tác nhân, Use Case, luồng nghiệp vụ và các yêu cầu chức năng, phi chức năng. Trên cơ sở đó, hệ thống được thiết kế theo hướng ứng dụng web có phân quyền, có các nhóm chức năng cho bệnh nhân, bác sĩ và quản trị viên, đồng thời có cơ chế hỗ trợ tư vấn trực tuyến và quản lý lịch hẹn.
 
 Sau giai đoạn phân tích và thiết kế, hệ thống được xây dựng thành ứng dụng web với giao diện người dùng, xử lý nghiệp vụ phía máy chủ, lưu trữ dữ liệu và các chức năng hỗ trợ như thông báo, kiểm duyệt và thống kê. Việc kiểm thử được thực hiện nhằm xác minh các luồng chính như truy cập công khai, đăng nhập, đặt lịch, hỏi đáp sức khỏe, tư vấn, quản trị và các kiểm soát truy cập theo vai trò.
 
@@ -243,14 +259,14 @@ Hệ thống có bốn nhóm người dùng chính:
 
 Bảng 3.1. Tác nhân và vai trò trong hệ thống
 
-| Đối tượng | Mô tả vai trò | Nhóm ca sử dụng liên quan |
+| Đối tượng | Mô tả vai trò | Use Case liên quan |
 |---|---|---|
 | Khách truy cập | Người dùng chưa đăng nhập. Có thể truy cập khu vực công khai, xem trang chủ, xem danh sách chuyên khoa, tìm kiếm bác sĩ và xem hồ sơ công khai của bác sĩ. Khi muốn đặt lịch hẹn hoặc gửi câu hỏi, hệ thống yêu cầu đăng nhập hoặc đăng ký. | UC-G-01 đến UC-G-06 |
 | Bệnh nhân | Người dùng đăng ký tài khoản bệnh nhân để quản lý hồ sơ sức khỏe, gửi câu hỏi, đặt lịch tư vấn, tham gia phiên tư vấn trực tuyến, xem kết quả, nhận đơn thuốc điện tử và đánh giá chất lượng tư vấn. | UC-P-01 đến UC-P-15 |
 | Bác sĩ | Người dùng chuyên môn y tế quản lý hồ sơ chuyên môn, cấu hình lịch làm việc, tiếp nhận và phản hồi câu hỏi, quản lý lịch hẹn, thực hiện phiên tư vấn trực tuyến, ghi nhận kết quả tư vấn và cấp đơn thuốc điện tử cơ bản. | UC-D-01 đến UC-D-11 |
 | Quản trị viên | Người dùng vận hành hệ thống, quản lý tài khoản, phê duyệt bác sĩ, quản lý hồ sơ bệnh nhân, chuyên khoa, lịch hẹn, kiểm duyệt nội dung và theo dõi số liệu thống kê hoạt động. | UC-A-01 đến UC-A-08 |
 
-Ngoài các đối tượng sử dụng chính, hệ thống có các ranh giới tích hợp với Notification Service, Video Communication Service và File Storage Service. Các hệ thống này đóng vai trò ranh giới tích hợp ngoại vi, không làm thay đổi cấu trúc bốn vai trò người dùng cốt lõi.
+Ngoài bốn nhóm người dùng chính, hệ thống còn tương tác với một số dịch vụ bên ngoài như Notification Service, Video Communication Service và File Storage Service. Các dịch vụ này hỗ trợ các chức năng thông báo, tư vấn video và lưu trữ tệp, nhưng không được xem là đối tượng sử dụng trực tiếp của hệ thống.
 
 ## 3.3 Yêu cầu chức năng
 
@@ -260,7 +276,7 @@ Bảng 3.2. Tóm tắt yêu cầu chức năng theo nhóm
 
 **Nhóm yêu cầu chức năng công khai (Khách truy cập)**
 
-| Mã ca sử dụng | Yêu cầu tóm tắt |
+| Mã Use Case | Yêu cầu tóm tắt |
 |---|---|
 | UC-G-01 | Khách truy cập có thể xem trang chủ và các thông tin công khai của hệ thống. |
 | UC-G-02 | Khách truy cập có thể xem danh sách chuyên khoa. |
@@ -273,7 +289,7 @@ Nhóm yêu cầu này bảo đảm người dùng chưa đăng nhập vẫn có 
 
 **Nhóm yêu cầu xác thực và hồ sơ người dùng**
 
-| Mã ca sử dụng | Yêu cầu tóm tắt |
+| Mã Use Case | Yêu cầu tóm tắt |
 |---|---|
 | UC-P-01 | Bệnh nhân có thể đăng ký tài khoản. |
 | UC-P-02, UC-D-01, UC-A-01 | Người dùng thuộc các vai trò Bệnh nhân, Bác sĩ và Quản trị viên có thể đăng nhập. |
@@ -286,7 +302,7 @@ Hệ thống phải áp dụng phân quyền theo vai trò Khách truy cập, B�
 
 **Nhóm yêu cầu chuyên khoa và khám phá bác sĩ**
 
-| Mã ca sử dụng | Yêu cầu tóm tắt |
+| Mã Use Case | Yêu cầu tóm tắt |
 |---|---|
 | UC-G-02 | Khách truy cập có thể xem danh sách chuyên khoa công khai. |
 | UC-G-03, UC-P-05 | Khách truy cập và Bệnh nhân có thể tìm kiếm bác sĩ theo chuyên khoa hoặc từ khóa. |
@@ -297,7 +313,7 @@ Bác sĩ hiển thị cho khách truy cập và bệnh nhân phải đang hoạt
 
 **Nhóm yêu cầu hỏi đáp sức khỏe**
 
-| Mã ca sử dụng | Yêu cầu tóm tắt |
+| Mã Use Case | Yêu cầu tóm tắt |
 |---|---|
 | UC-P-07 | Bệnh nhân có thể gửi câu hỏi sức khỏe. |
 | UC-D-03 | Bác sĩ có thể xem các câu hỏi được phân công hoặc có thể xử lý. |
@@ -309,7 +325,7 @@ Câu hỏi sức khỏe cần được lưu với trạng thái phù hợp, ch�
 
 **Nhóm yêu cầu đặt lịch và quản lý lịch hẹn**
 
-| Mã ca sử dụng | Yêu cầu tóm tắt |
+| Mã Use Case | Yêu cầu tóm tắt |
 |---|---|
 | UC-P-08 | Bệnh nhân có thể đặt lịch hẹn tư vấn với bác sĩ. |
 | UC-P-09 | Bệnh nhân có thể xem danh sách lịch hẹn sắp tới. |
@@ -322,7 +338,7 @@ Bệnh nhân chỉ được đặt lịch vào khung giờ còn khả dụng; h�
 
 **Nhóm yêu cầu phiên tư vấn, kết quả và đơn thuốc**
 
-| Mã ca sử dụng | Yêu cầu tóm tắt |
+| Mã Use Case | Yêu cầu tóm tắt |
 |---|---|
 | UC-P-10 | Bệnh nhân có thể tham gia phiên tư vấn. |
 | UC-D-07 | Bác sĩ có thể bắt đầu phiên tư vấn. |
@@ -336,7 +352,7 @@ Hệ thống phải hỗ trợ khởi tạo phiên tư vấn cho lịch hẹn h�
 
 **Nhóm yêu cầu đánh giá, thông báo và báo cáo**
 
-| Mã ca sử dụng | Yêu cầu tóm tắt |
+| Mã Use Case | Yêu cầu tóm tắt |
 |---|---|
 | UC-P-14 | Bệnh nhân có thể đánh giá chất lượng tư vấn sau khi buổi tư vấn hoàn tất. |
 | UC-P-15 | Bệnh nhân nhận nhắc lịch và thông báo. |
@@ -425,7 +441,7 @@ Bốn biểu đồ Use Case dưới đây mô tả chức năng theo từng nhó
 
 **Hình 3.1. Biểu đồ Use Case của khách truy cập**
 
-Biểu đồ này thể hiện các chức năng công khai của Khách truy cập, bao gồm xem trang chủ, xem danh sách chuyên khoa, tìm kiếm bác sĩ, xem hồ sơ bác sĩ và chuyển sang đăng nhập hoặc đăng ký khi muốn thực hiện hành động cần xác thực. Các ca sử dụng liên quan gồm UC-G-01, UC-G-02, UC-G-03, UC-G-04, UC-G-05 và UC-G-06.
+Biểu đồ này thể hiện các chức năng công khai của Khách truy cập, bao gồm xem trang chủ, xem danh sách chuyên khoa, tìm kiếm bác sĩ, xem hồ sơ bác sĩ và chuyển sang đăng nhập hoặc đăng ký khi muốn thực hiện hành động cần xác thực. Các Use Case liên quan gồm UC-G-01, UC-G-02, UC-G-03, UC-G-04, UC-G-05 và UC-G-06.
 
 ### 3.6.2 Biểu đồ Use Case của bệnh nhân
 
@@ -433,7 +449,7 @@ Biểu đồ này thể hiện các chức năng công khai của Khách truy c�
 
 **Hình 3.2. Biểu đồ Use Case của bệnh nhân**
 
-Biểu đồ này mô tả hành trình chính của Bệnh nhân trong hệ thống: đăng ký, đăng nhập, quản lý hồ sơ sức khỏe, tìm kiếm bác sĩ, gửi câu hỏi, đặt lịch, tham gia tư vấn, xem phản hồi, xem lịch sử, xem tóm tắt/đơn thuốc, đánh giá và nhận thông báo. Các ca sử dụng liên quan gồm UC-P-01 đến UC-P-15. Biểu đồ cũng thể hiện quan hệ với Notification Service qua UC-E-01 và UC-E-02; trong đó SMS là khả năng mở rộng phụ thuộc dịch vụ phù hợp.
+Biểu đồ này mô tả hành trình chính của Bệnh nhân trong hệ thống: đăng ký, đăng nhập, quản lý hồ sơ sức khỏe, tìm kiếm bác sĩ, gửi câu hỏi, đặt lịch, tham gia tư vấn, xem phản hồi, xem lịch sử, xem tóm tắt/đơn thuốc, đánh giá và nhận thông báo. Các Use Case liên quan gồm UC-P-01 đến UC-P-15. Biểu đồ cũng thể hiện quan hệ với Notification Service qua UC-E-01 và UC-E-02; trong đó SMS là khả năng mở rộng phụ thuộc dịch vụ phù hợp.
 
 ### 3.6.3 Biểu đồ Use Case của bác sĩ
 
@@ -441,7 +457,7 @@ Biểu đồ này mô tả hành trình chính của Bệnh nhân trong hệ th�
 
 **Hình 3.3. Biểu đồ Use Case của bác sĩ**
 
-Biểu đồ này thể hiện các chức năng chuyên môn của Bác sĩ, bao gồm đăng nhập, quản lý hồ sơ bác sĩ, xem và phản hồi câu hỏi, quản lý lịch tư vấn, xem lịch hẹn, bắt đầu và thực hiện tư vấn, ghi nhận kết quả, cấp đơn thuốc cơ bản và xem lịch sử tư vấn của bệnh nhân. Các ca sử dụng liên quan gồm UC-D-01 đến UC-D-11. Biểu đồ cũng thể hiện UC-E-03 về thiết lập phiên tư vấn video như một khả năng hỗ trợ theo phạm vi SRS.
+Biểu đồ này thể hiện các chức năng chuyên môn của Bác sĩ, bao gồm đăng nhập, quản lý hồ sơ bác sĩ, xem và phản hồi câu hỏi, quản lý lịch tư vấn, xem lịch hẹn, bắt đầu và thực hiện tư vấn, ghi nhận kết quả, cấp đơn thuốc cơ bản và xem lịch sử tư vấn của bệnh nhân. Các Use Case liên quan gồm UC-D-01 đến UC-D-11. Biểu đồ cũng thể hiện UC-E-03 về thiết lập phiên tư vấn video như một khả năng hỗ trợ theo phạm vi SRS.
 
 ### 3.6.4 Biểu đồ Use Case của quản trị viên
 
@@ -449,7 +465,7 @@ Biểu đồ này thể hiện các chức năng chuyên môn của Bác sĩ, ba
 
 **Hình 3.4. Biểu đồ Use Case của quản trị viên**
 
-Biểu đồ này mô tả phạm vi vận hành của Quản trị viên, bao gồm đăng nhập, quản lý tài khoản bác sĩ, quản lý tài khoản bệnh nhân, quản lý chuyên khoa, quản lý lịch hẹn, kiểm duyệt nội dung tư vấn và phản hồi, xem bảng điều khiển (dashboard) thống kê và theo dõi hoạt động hệ thống. Các ca sử dụng liên quan gồm UC-A-01 đến UC-A-08.
+Biểu đồ này mô tả phạm vi vận hành của Quản trị viên, bao gồm đăng nhập, quản lý tài khoản bác sĩ, quản lý tài khoản bệnh nhân, quản lý chuyên khoa, quản lý lịch hẹn, kiểm duyệt nội dung tư vấn và phản hồi, xem bảng điều khiển (dashboard) thống kê và theo dõi hoạt động hệ thống. Các Use Case liên quan gồm UC-A-01 đến UC-A-08.
 
 ## 3.7 Luồng hoạt động tổng quát
 
@@ -623,7 +639,7 @@ Quản trị viên xem hàng đợi nội dung, thực hiện kiểm duyệt; ba
 
 ## 5.1 Xác thực và phân quyền
 
-Hệ thống quản lý việc đăng ký, đăng nhập, làm mới phiên và kiểm soát quyền truy cập cho ba nhóm người dùng: Bệnh nhân, Bác sĩ và Quản trị viên. Giao diện frontend triển khai các biểu mẫu đăng nhập, đăng ký, quên mật khẩu và component `RequireAuth` để bảo vệ các tuyến đường theo vai trò. Trạng thái người dùng và token được quản lý tập trung thông qua Redux Toolkit.
+Hệ thống quản lý việc đăng ký, đăng nhập, làm mới phiên và kiểm soát quyền truy cập cho ba nhóm người dùng: Bệnh nhân, Bác sĩ và Quản trị viên. Giao diện frontend triển khai các biểu mẫu đăng nhập, đăng ký, quên mật khẩu và component `RequireAuth` để bảo vệ các route theo vai trò. Trạng thái người dùng và token được quản lý tập trung thông qua Redux Toolkit.
 
 Backend xử lý xác thực bằng `AuthService`, cấp JWT access token có thời hạn ngắn qua header `Authorization` và lưu refresh token trong cookie HttpOnly để hạn chế truy cập từ JavaScript. Dữ liệu tài khoản, phiên đăng nhập và token đặt lại mật khẩu được lưu riêng. Tài khoản bị vô hiệu hóa (`isActive = false`) sẽ bị chặn đăng nhập và thu hồi phiên làm việc.
 
@@ -916,7 +932,7 @@ Hệ thống hiện còn các giới hạn về tích hợp và vận hành:
 
 - Chưa tích hợp dịch vụ email thương mại chính thức. Lớp provider và bộ điều phối nội bộ đã được xây dựng; chuyển phát thực tế phụ thuộc cấu hình hạ tầng.
 - SMS chưa kết nối với nhà cung cấp thực tế và vẫn là khả năng mở rộng tùy chọn.
-- Video dừng ở giao diện mô phỏng và cơ chế dự phòng; kênh tư vấn chính hiện là chat thời gian thực.
+- Video hiện ở mức giao diện mô phỏng hoặc tích hợp cơ bản; chat thời gian thực vẫn là kênh tư vấn chính.
 - Tệp đính kèm và object storage chưa có luồng giao diện hoàn chỉnh; `FileAttachment` mới có trong mô hình dữ liệu để mở rộng.
 - Chưa có bằng chứng về năng lực chịu tải đồng thời, High Availability và khả năng tương thích trình duyệt đầy đủ để đánh giá mức sẵn sàng vận hành thực tế.
 
@@ -960,11 +976,11 @@ Một hướng mở rộng tùy chọn là bổ sung năng lực AI hỗ trợ p
 
 ## 7.4 Bài học kinh nghiệm
 
-Các nghiệp vụ đặt lịch cần được kiểm tra ở backend, kể cả khi giao diện đã lọc khung giờ. Việc kiểm tra lịch làm việc, xung đột của cả bác sĩ và bệnh nhân, cùng transaction giúp kiểm soát dữ liệu khi nhiều thao tác liên quan được thực hiện.
+Qua quá trình thực hiện, em nhận thấy các quy tắc nghiệp vụ vẫn phải được kiểm tra ở backend dù frontend đã lọc dữ liệu đầu vào. Với chức năng đặt lịch, việc kiểm tra lịch làm việc, xung đột của cả bác sĩ và bệnh nhân, kết hợp với transaction giúp kiểm soát dữ liệu khi nhiều thao tác liên quan được thực hiện.
 
-Frontend guard hỗ trợ điều hướng, còn quyền truy cập phải được kiểm tra tại backend bằng role check và ownership check. SRS và ma trận truy vết giúp phát hiện khác biệt giữa yêu cầu, phần đã cài đặt và phần đã kiểm thử, thay vì coi ba mức này là tương đương.
+Khi xây dựng các màn hình theo vai trò, em nhận thấy frontend guard chỉ hỗ trợ điều hướng; quyền truy cập vẫn phải được kiểm tra ở backend bằng role check và ownership check. Yêu cầu, phần đã xây dựng và phần đã kiểm thử cũng cần được theo dõi riêng, vì một chức năng đã cài đặt chưa có nghĩa là đã được kiểm chứng đầy đủ.
 
-Outbox giúp tách nghiệp vụ chính khỏi kênh gửi thông báo nhưng cần theo dõi trạng thái và retry khi provider lỗi. Các vấn đề trong Graduation E2E cũng cho thấy dữ liệu seed và đồng bộ giao diện cần được chuẩn bị cùng kịch bản kiểm thử để kết quả ổn định.
+Việc áp dụng Outbox Pattern giúp em tách xử lý nghiệp vụ khỏi việc gửi thông báo, nhưng vẫn cần theo dõi trạng thái và retry khi provider lỗi. Qua các vấn đề trong Graduation E2E, em nhận thấy dữ liệu seed và việc đồng bộ giao diện cần được chuẩn bị cùng kịch bản kiểm thử để kết quả ổn định.
 
 ## 7.5 Kết luận
 
